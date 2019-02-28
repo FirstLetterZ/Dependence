@@ -16,5 +16,5 @@ public interface IStorageManager<N> {
 
     void clearAll();
 
-    StorageQueueInterface<N> createQueue();
+    IStorageQueue<N> createQueue();
 }

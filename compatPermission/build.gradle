@@ -18,6 +18,6 @@ android {
 
 dependencies {
     api rootProject.ext.dependencies.supportV4
-    api project(":permission")
+    api rootProject.ext.dependencies.permission
 }
 apply from: "../bintrayUpload.gradle"

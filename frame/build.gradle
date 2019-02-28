@@ -17,6 +17,6 @@ android {
 }
 
 dependencies {
-    api project(":api")
+    api rootProject.ext.dependencies.api
 }
 apply from: "../bintrayUpload.gradle"
