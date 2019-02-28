@@ -8,6 +8,10 @@ public interface IManager<T> {
 
     long bind(T t);
 
+    boolean execute(long id);
+
+    void remove(long id);
+
     void cancel(long id);
 
     void cancelAll();

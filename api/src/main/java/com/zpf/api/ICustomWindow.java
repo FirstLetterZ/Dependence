@@ -5,7 +5,7 @@ import android.view.View;
 /**
  * Created by ZPF on 2019/2/27.
  */
-public interface ICustomWindow extends INeedManage {
+public interface ICustomWindow extends INeedManage<ICustomWindow> {
     void show();
 
     void dismiss();
