@@ -1,0 +1,129 @@
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+// load properties
+Properties properties = new Properties()
+File localPropertiesFile = project.file('bintray.properties')
+if (localPropertiesFile.exists()) {
+    properties.load(localPropertiesFile.newDataInputStream())
+}
+
+Properties baseProperties = new Properties()
+File basePropertiesFile = project.file('base.properties')
+if (basePropertiesFile.exists()) {
+    baseProperties.load(basePropertiesFile.newDataInputStream())
+}else{
+    basePropertiesFile = project.file('../base.properties')
+    if (basePropertiesFile.exists()) {
+        baseProperties.load(basePropertiesFile.newDataInputStream())
+    }
+}
+
+Properties identifiable = new Properties()
+File identifiableFile = project.file('account.properties')
+if (identifiableFile.exists()) {
+    identifiable.load(identifiableFile.newDataInputStream())
+}else{
+    identifiableFile = project.file('../account.properties')
+    if (identifiableFile.exists()) {
+        identifiable.load(identifiableFile.newDataInputStream())
+    }
+}
+
+// read properties
+def projectName = properties.getProperty('project.projectName')
+def projectVersionName = properties.getProperty('project.versionName')
+def libraryDescription = properties.getProperty('project.description')
+def projectArtifactId = properties.getProperty('project.artifactId')
+def projectPackaging = properties.getProperty('project.packaging')
+def projectMaven = properties.getProperty('project.maven')
+
+def projectGroupId = baseProperties.getProperty('project.groupId')
+def projectSiteUrl = baseProperties.getProperty('project.siteUrl')
+def projectGitUrl = baseProperties.getProperty('project.gitUrl')
+def developerId = baseProperties.getProperty('developer.id')
+def developerName = baseProperties.getProperty('developer.name')
+def developerEmail = baseProperties.getProperty('developer.email')
+
+def bintrayUser = identifiable.getProperty('bintray.user')
+def bintrayApikey = identifiable.getProperty('bintray.apikey')
+
+group = projectGroupId
+version = projectVersionName
+
+task javadoc(type: Javadoc) {
+    options.encoding = "UTF-8"
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging projectPackaging
+            groupId projectGroupId
+            artifactId projectArtifactId
+
+            name projectMaven
+            description libraryDescription
+            url projectSiteUrl
+
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            developers {
+                developer {
+                    id developerId
+                    name developerName
+                    email developerEmail
+                }
+            }
+            scm {
+                connection projectGitUrl
+                developerConnection projectGitUrl
+                url projectSiteUrl
+            }
+        }
+    }
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayApikey
+    configurations = ['archives']
+    pkg {
+        repo = projectMaven
+        name = projectName
+        desc = libraryDescription
+        websiteUrl = projectSiteUrl
+        vcsUrl = projectGitUrl
+        licenses = ['Apache-2.0']
+        dryRun = false
+        publish = true
+        override = false
+        publicDownloadNumbers = true
+        version {
+            desc = libraryDescription
+            released = new Date()
+        }
+    }
+}
+
