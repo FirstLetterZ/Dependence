@@ -1,28 +1,28 @@
 package com.zpf.frame;
 
+import android.view.View;
 import android.view.ViewGroup;
-
 
 /**
  * Created by ZPF on 2018/6/13.
  */
 public interface ITitleBar {
 
-    IconText getLeftImage();
+    View getLeftImage();
 
-    IconText getLeftText();
+    View getLeftText();
 
     ViewGroup getLeftLayout();
 
-    IconText getRightImage();
+    View getRightImage();
 
-    IconText getRightText();
+    View getRightText();
 
     ViewGroup getRightLayout();
 
-    IconText getTitle();
+    View getTitle();
 
-    IconText getSubTitle();
+    View getSubTitle();
 
     ViewGroup getTitleLayout();
 

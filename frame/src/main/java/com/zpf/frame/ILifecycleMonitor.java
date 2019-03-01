@@ -10,7 +10,7 @@ import com.zpf.api.OnDestroyListener;
  * 常用的有生命周的监听器控制
  * Created by ZPF on 2018/6/28.
  */
-public interface LifecycleMonitor {
+public interface ILifecycleMonitor {
     //获取当前状态
     int getState();
 

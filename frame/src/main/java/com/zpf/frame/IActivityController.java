@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-public interface ActivityController {
+public interface IActivityController {
     void startActivity(Intent intent);
 
     void startActivity(Intent intent, @Nullable Bundle options);
