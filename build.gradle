@@ -56,7 +56,7 @@ ext {
             /* ============================== 项目内工具库 ================================ */
             dataparser            : 'com.zpf.android:api-parse:1.0.0',
             api                   : 'com.zpf.android:api-base:1.0.9',
-            frame                 : 'com.zpf.android:api-frame:0.0.8',
+            frame                 : 'com.zpf.android:api-frame:0.1.90',
             dhl                   : 'com.zpf.android:tool-dhl:1.0.0',
             toolkit               : 'com.zpf.android:tool-kit:1.0.2',
             fragmentManager       : 'com.zpf.android:tool-fragment-manager:1.0.0',

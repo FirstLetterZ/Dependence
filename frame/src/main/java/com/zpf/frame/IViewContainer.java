@@ -10,11 +10,10 @@ import com.zpf.api.IPermissionChecker;
  */
 public interface IViewContainer extends ILifecycleMonitor, IActivityController
         , IPermissionChecker, ILoadingManager {
-    void navigate(Class<? extends IViewProcessor> cls);
-
-    void navigate(Class<? extends IViewProcessor> cls, Bundle params);
-
-    void navigate(Class<? extends IViewProcessor> cls, Bundle params, int requestCode);
 
     Object invoke(String name, Object params);
+
+    void setLoadingManager(ILoadingManager loadingManager);
+
+    Bundle getParams();
 }

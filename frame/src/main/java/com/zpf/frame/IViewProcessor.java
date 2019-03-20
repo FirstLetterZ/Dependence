@@ -2,6 +2,7 @@ package com.zpf.frame;
 
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.zpf.api.LifecycleListener;
@@ -18,8 +19,14 @@ public interface IViewProcessor extends LifecycleListener, ResultCallBackListene
 
     <T extends View> T $(@IdRes int viewId);
 
-    IRootLayout getRootLayout();
+    void navigate(Class<? extends IViewProcessor> cls);
 
-    ITitleBar getTitleBar();
+    void navigate(Class<? extends IViewProcessor> cls, Bundle params);
 
+    void navigate(Class<? extends IViewProcessor> cls, Bundle params, int requestCode);
+
+    @NonNull
+    Bundle getParams();
+
+    View getView();
 }
