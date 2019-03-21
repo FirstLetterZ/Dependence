@@ -16,4 +16,14 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
     void setLoadingManager(ILoadingManager loadingManager);
 
     Bundle getParams();
+
+    boolean sendEvenToView(String action, Object... params);
+
+    int getContainerType();
+
+    IViewContainer getParentContainer();
+
+    void bindView(IViewProcessor processor);
+
+    void unbindView(IViewProcessor processor);
 }

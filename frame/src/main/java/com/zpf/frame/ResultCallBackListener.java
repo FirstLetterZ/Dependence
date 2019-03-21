@@ -17,4 +17,6 @@ public interface ResultCallBackListener {
     void onNewIntent(@NonNull Intent intent);
 
     void onVisibleChanged(boolean visibility);
+
+    boolean onInterceptBackPress();
 }

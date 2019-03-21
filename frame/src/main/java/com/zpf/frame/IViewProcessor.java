@@ -10,7 +10,7 @@ import com.zpf.api.LifecycleListener;
 /**
  * Created by ZPF on 2018/6/14.
  */
-public interface IViewProcessor extends LifecycleListener, ResultCallBackListener {
+public interface IViewProcessor<C> extends LifecycleListener, ResultCallBackListener {
     void runWithPermission(Runnable runnable, String... permissions);
 
     void runWithPermission(Runnable runnable, Runnable onLack, String... permissions);
@@ -29,4 +29,8 @@ public interface IViewProcessor extends LifecycleListener, ResultCallBackListene
     Bundle getParams();
 
     View getView();
+
+    void onReceiveEvent(String action, Object... params);
+
+    void setConnector(C connector);
 }
