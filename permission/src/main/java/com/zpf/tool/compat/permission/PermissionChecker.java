@@ -122,13 +122,13 @@ public abstract class PermissionChecker<T> {
     }
 
     //检查传入对象是否为有效
-    abstract boolean checkEffective(T target);
+    protected abstract boolean checkEffective(T target);
 
     //检查是否拥有权限
-    abstract boolean hasPermission(T target, String p);
+    protected abstract boolean hasPermission(T target, String p);
 
     //请求权限
-    abstract void requestPermissions(T target, String[] p, int code);
+    protected abstract void requestPermissions(T target, String[] p, int code);
 
     //获取所有缺失权限的详细描述
     public List<PermissionInfo> getMissInfo(List<String> list) {

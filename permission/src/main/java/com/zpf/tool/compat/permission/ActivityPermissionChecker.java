@@ -13,18 +13,18 @@ import android.os.Build;
 public class ActivityPermissionChecker extends PermissionChecker<Activity> {
 
     @Override
-    boolean checkEffective(Activity target) {
+    protected boolean checkEffective(Activity target) {
         return target != null;
     }
 
     @Override
-    boolean hasPermission(Activity target, String p) {
+    protected boolean hasPermission(Activity target, String p) {
         return target.checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED;
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
-    void requestPermissions(Activity target, String[] p, int code) {
+    protected void requestPermissions(Activity target, String[] p, int code) {
         target.requestPermissions(p, code);
     }
 
