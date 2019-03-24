@@ -1,5 +1,6 @@
 package com.zpf.frame;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -29,6 +30,8 @@ public interface IViewProcessor<C> extends LifecycleListener, ResultCallBackList
     Bundle getParams();
 
     View getView();
+
+    Context getContext();
 
     void onReceiveEvent(String action, Object... params);
 
