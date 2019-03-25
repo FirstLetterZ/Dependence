@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.Fragment;
 
+import com.zpf.tool.permission.PermissionChecker;
+
 /**
  * 使用android.support.v4.app.Fragment检查权限
  * Created by ZPF on 2018/8/22.

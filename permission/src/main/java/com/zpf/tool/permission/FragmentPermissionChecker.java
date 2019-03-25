@@ -1,4 +1,4 @@
-package com.zpf.tool.compat.permission;
+package com.zpf.tool.permission;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;

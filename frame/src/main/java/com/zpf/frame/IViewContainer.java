@@ -25,5 +25,7 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
 
     void bindView(IViewProcessor processor);
 
-    void unbindView(IViewProcessor processor);
+    void unbindView();
+
+    IViewProcessor getViewProcessor();
 }

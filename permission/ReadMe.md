@@ -1,18 +1,18 @@
 权限检查与提示
 =========
-* [ActivityPermissionChecker](src/main/java/com/zpf/tool/compat/permission/ActivityPermissionChecker.java)
+* [ActivityPermissionChecker](src/main/java/com/zpf/tool/permission/ActivityPermissionChecker.java)
 ---Activity请求权限；
-* [CompatFragmentPermissionChecker](src/main/java/com/zpf/tool/compat/permission/CompatFragmentPermissionChecker.java)
+* [CompatFragmentPermissionChecker](src/main/java/com/zpf/tool/permission/CompatFragmentPermissionChecker.java)
 ---android.support.v4.app.Fragment检查权限；
-* [FragmentPermissionChecker](src/main/java/com/zpf/tool/compat/permission/FragmentPermissionChecker.java)
+* [FragmentPermissionChecker](src/main/java/com/zpf/tool/permission/FragmentPermissionChecker.java)
 ---android.app.Fragment检查权限；
-* [OnLockPermissionRunnable](src/main/java/com/zpf/tool/compat/permission/OnLockPermissionRunnable.java)
+* [OnLockPermissionRunnable](src/main/java/com/zpf/tool/permission/OnLockPermissionRunnable.java)
 ---缺少权限时的回调；
-* [PermissionChecker](src/main/java/com/zpf/tool/compat/permission/PermissionChecker.java)
+* [PermissionChecker](src/main/java/com/zpf/tool/permission/PermissionChecker.java)
 ---权限检查的基类，权限检查的结果处理，Toast权限检查，权限描述；
-* [PermissionInfo](src/main/java/com/zpf/tool/compat/permission/PermissionInfo.java)
+* [PermissionInfo](src/main/java/com/zpf/tool/permission/PermissionInfo.java)
 ---权限信息；
-* [PermissionManager](src/main/java/com/zpf/tool/compat/permission/PermissionManager.java)
+* [PermissionManager](src/main/java/com/zpf/tool/permission/PermissionManager.java)
 ---跳转到权限设置；
 
 ### 依赖
