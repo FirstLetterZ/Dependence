@@ -16,13 +16,13 @@ public interface IRootLayout {
 
     View getStatusBar();
 
-    void setTitleBar(@NonNull ITitleBar titleBar);
-
     ITitleBar getTitleBar();
 
-    void setTopViewBackground(Drawable drawable);
+    IShadowLine getShadowLine();
 
-    void setTopViewBackground(@ColorInt int color);
+    ViewGroup getTopLayout();
+
+    void changeTitleBar(@NonNull ITitleBar titleBar);
 
     void setContentView(@NonNull View view);
 
