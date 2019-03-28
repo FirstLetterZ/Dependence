@@ -92,7 +92,7 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
                     tempList.addFirst(destroyedActivity);
                 }
             }
-            if (tempList == null || tempList.size() > 0) {
+            if (tempList != null && tempList.size() > 0) {
                 stackInfoList.addAll(0, tempList);
             }
         }
