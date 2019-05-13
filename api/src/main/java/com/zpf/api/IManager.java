@@ -16,4 +16,6 @@ public interface IManager<T> {
 
     void cancelAll();
 
+    void reset();
+
 }

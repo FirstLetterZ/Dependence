@@ -12,7 +12,14 @@ public class AppContext {
     private static Application sApplication;
 
     public static Application get() {
-        return sApplication != null ? sApplication : getApplication();
+        if (sApplication == null) {
+            synchronized (AppContext.class) {
+                if (sApplication == null) {
+                    sApplication = getApplication();
+                }
+            }
+        }
+        return sApplication;
     }
 
     public static void init(Application application) {
@@ -20,7 +27,7 @@ public class AppContext {
     }
 
     public static void checkInit(Application application) {
-        if (get() == null) {
+        if (sApplication == null) {
             sApplication = application;
         }
     }
@@ -42,7 +49,6 @@ public class AppContext {
                 ex.printStackTrace();
             }
         }
-        sApplication = application;
         return application;
     }
 

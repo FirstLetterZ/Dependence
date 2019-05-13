@@ -1,6 +1,5 @@
 package com.zpf.frame;
 
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.zpf.api.IconText;

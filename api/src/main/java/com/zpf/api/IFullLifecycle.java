@@ -8,10 +8,8 @@ import android.support.annotation.Nullable;
  * 完整的生命周期监听
  * Created by ZPF on 2019/2/28.
  */
-public interface LifecycleListener extends OnDestroyListener {
-    void onPreCreate(@Nullable Bundle savedInstanceState);
-
-    void afterCreate(@Nullable Bundle savedInstanceState);
+public interface IFullLifecycle extends OnDestroyListener {
+    void onCreate(@Nullable Bundle savedInstanceState);
 
     void onRestart();
 

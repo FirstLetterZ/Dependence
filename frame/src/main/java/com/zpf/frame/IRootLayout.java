@@ -1,7 +1,5 @@
 package com.zpf.frame;
 
-import android.graphics.drawable.Drawable;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +18,7 @@ public interface IRootLayout {
 
     IShadowLine getShadowLine();
 
-    ViewGroup getTopLayout();
+    ITopLayout getTopLayout();
 
     void changeTitleBar(@NonNull ITitleBar titleBar);
 

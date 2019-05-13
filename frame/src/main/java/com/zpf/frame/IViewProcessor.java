@@ -1,17 +1,18 @@
 package com.zpf.frame;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-import com.zpf.api.LifecycleListener;
+import com.zpf.api.IViewLifecycle;
 
 /**
  * Created by ZPF on 2018/6/14.
  */
-public interface IViewProcessor<C> extends LifecycleListener, ResultCallBackListener {
+public interface IViewProcessor<C> extends IViewLifecycle, INavigator<Class<? extends IViewProcessor>> {
     void runWithPermission(Runnable runnable, String... permissions);
 
     void runWithPermission(Runnable runnable, Runnable onLack, String... permissions);
@@ -20,11 +21,7 @@ public interface IViewProcessor<C> extends LifecycleListener, ResultCallBackList
 
     <T extends View> T $(@IdRes int viewId);
 
-    void navigate(Class<? extends IViewProcessor> cls);
-
-    void navigate(Class<? extends IViewProcessor> cls, Bundle params);
-
-    void navigate(Class<? extends IViewProcessor> cls, Bundle params, int requestCode);
+    void onNewIntent(@NonNull Intent intent);
 
     @NonNull
     Bundle getParams();
@@ -35,5 +32,5 @@ public interface IViewProcessor<C> extends LifecycleListener, ResultCallBackList
 
     void onReceiveEvent(String action, Object... params);
 
-    void setConnector(C connector);
+    void setLinker(C linker);
 }

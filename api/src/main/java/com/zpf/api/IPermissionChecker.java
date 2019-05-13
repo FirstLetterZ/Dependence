@@ -1,5 +1,7 @@
 package com.zpf.api;
 
+import android.support.annotation.NonNull;
+
 /**
  * 权限申请
  * Created by ZPF on 2018/8/22.
@@ -9,8 +11,10 @@ public interface IPermissionChecker {
 
     boolean checkPermissions(int requestCode, String... permissions);
 
-    void checkPermissions(Runnable onPermission,Runnable onLock, String... permissions);
+    void checkPermissions(Runnable onPermission, Runnable onLock, String... permissions);
 
     void checkPermissions(Runnable onPermission, Runnable onLock, int requestCode, String... permissions);
+
+    void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults);
 
 }
