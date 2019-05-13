@@ -15,6 +15,4 @@ public interface IPermissionChecker {
 
     void checkPermissions(Runnable onPermission, Runnable onLock, int requestCode, String... permissions);
 
-    void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults);
-
 }

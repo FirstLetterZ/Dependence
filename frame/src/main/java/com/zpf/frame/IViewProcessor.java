@@ -7,12 +7,15 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import com.zpf.api.IBackPressInterceptor;
 import com.zpf.api.IViewLifecycle;
+import com.zpf.api.OnActivityResultListener;
+import com.zpf.api.OnPermissionResultListener;
 
 /**
  * Created by ZPF on 2018/6/14.
  */
-public interface IViewProcessor<C> extends IViewLifecycle, INavigator<Class<? extends IViewProcessor>> {
+public interface IViewProcessor<C> extends IViewLifecycle, OnActivityResultListener, OnPermissionResultListener, IBackPressInterceptor {
     void runWithPermission(Runnable runnable, String... permissions);
 
     void runWithPermission(Runnable runnable, Runnable onLack, String... permissions);
