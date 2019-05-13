@@ -11,6 +11,7 @@ public class MainHandler extends Handler {
     private MainHandler(Looper looper) {
         super(looper);
     }
+
     private static volatile MainHandler mainHandler;
 
     public static MainHandler get() {
@@ -22,6 +23,17 @@ public class MainHandler extends Handler {
             }
         }
         return mainHandler;
+    }
+
+    public static void runOnMainTread(Runnable runnable) {
+        if (runnable == null) {
+            return;
+        }
+        if (Looper.myLooper() == Looper.myLooper()) {
+            runnable.run();
+        } else {
+            get().post(runnable);
+        }
     }
 
 }
