@@ -11,6 +11,6 @@ public interface IViewStateListener {
 
     void onVisibleChanged(boolean visible);
 
-    void onActiviityChanged(boolean visible);
+    void onActiviityChanged(boolean activity);
 
 }

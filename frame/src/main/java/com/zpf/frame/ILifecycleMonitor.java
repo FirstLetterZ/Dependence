@@ -32,13 +32,13 @@ public interface ILifecycleMonitor {
     //绑定生命周期的网络请求控制器
     IManager<ICallback> getCallBackManager();
 
-    void addViewStateListener(IViewStateListener lifecycleListener);
+    void addViewStateListener(IViewStateListener listener);
 
-    void removeViewStateListener(IViewStateListener lifecycleListener);
+    void removeViewStateListener(IViewStateListener listener);
 
-    void addLifecycleListener(IFullLifecycle lifecycleListener);
+    void addLifecycleListener(IFullLifecycle listener);
 
-    void removeLifecycleListener(IFullLifecycle lifecycleListener);
+    void removeLifecycleListener(IFullLifecycle listener);
 
     void addOnDestroyListener(OnDestroyListener listener);
 
