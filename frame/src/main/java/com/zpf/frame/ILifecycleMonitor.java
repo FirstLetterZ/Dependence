@@ -5,7 +5,6 @@ import com.zpf.api.ICallback;
 import com.zpf.api.ICustomWindow;
 import com.zpf.api.IFullLifecycle;
 import com.zpf.api.IManager;
-import com.zpf.api.IPermissionChecker;
 import com.zpf.api.OnActivityResultListener;
 import com.zpf.api.OnDestroyListener;
 import com.zpf.api.OnPermissionResultListener;
@@ -32,6 +31,10 @@ public interface ILifecycleMonitor {
 
     //绑定生命周期的网络请求控制器
     IManager<ICallback> getCallBackManager();
+
+    void addViewStateListener(IViewStateListener lifecycleListener);
+
+    void removeViewStateListener(IViewStateListener lifecycleListener);
 
     void addLifecycleListener(IFullLifecycle lifecycleListener);
 

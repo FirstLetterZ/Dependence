@@ -1,6 +1,7 @@
 package com.zpf.frame;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.zpf.api.IPermissionChecker;
 
@@ -15,6 +16,7 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
 
     void setLoadingManager(ILoadingManager loadingManager);
 
+    @NonNull
     Bundle getParams();
 
     boolean sendEvenToView(String action, Object... params);
@@ -28,4 +30,5 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
     void unbindView();
 
     IViewProcessor getViewProcessor();
+
 }
