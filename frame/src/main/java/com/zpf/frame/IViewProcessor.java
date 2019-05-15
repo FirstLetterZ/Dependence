@@ -1,7 +1,6 @@
 package com.zpf.frame;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -9,7 +8,6 @@ import android.view.View;
 
 import com.zpf.api.IBackPressInterceptor;
 import com.zpf.api.IFullLifecycle;
-import com.zpf.api.IViewLifecycle;
 import com.zpf.api.OnActivityResultListener;
 import com.zpf.api.OnPermissionResultListener;
 
