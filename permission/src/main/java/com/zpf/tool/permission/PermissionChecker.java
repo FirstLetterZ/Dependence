@@ -5,9 +5,12 @@ import android.annotation.SuppressLint;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -138,12 +141,18 @@ public abstract class PermissionChecker<T> {
                 initPermissionList();
             }
             if (permissionList != null) {
+                boolean hasDesc;
                 for (String name : list) {
+                    hasDesc = false;
                     for (PermissionInfo permissionInfo : permissionList) {
                         if (TextUtils.equals(permissionInfo.getPermissionName(), name)) {
                             PermissionInfoList.add(permissionInfo);
+                            hasDesc = true;
                             break;
                         }
+                    }
+                    if (!hasDesc) {
+                        PermissionInfoList.add(new PermissionInfo(name, name, null));
                     }
                 }
             }
@@ -177,6 +186,31 @@ public abstract class PermissionChecker<T> {
                 callBack.second.run();
             }
         }
+    }
+
+    public boolean checkWriteSetting(Context context) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.System.canWrite(context)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                        Uri.parse("package:" + context.getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean checkDrawOverlays(Context context) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.canDrawOverlays(context)) {
+                Intent serviceIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + context.getPackageName()));
+                context.startActivity(serviceIntent);
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean checkToastEnabled(Context context) {
