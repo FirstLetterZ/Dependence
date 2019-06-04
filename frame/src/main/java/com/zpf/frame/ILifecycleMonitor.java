@@ -24,8 +24,8 @@ public interface ILifecycleMonitor {
     //关闭当前弹窗
     boolean dismiss();
 
-    //绑定生命周期的网络请求控制器
-    IManager<ICancelable> getCallBackManager();
+    //绑定生命周期的请求控制器
+    IManager<ICancelable> getCancelableManager();
 
     boolean addListener(Object listener);
 
