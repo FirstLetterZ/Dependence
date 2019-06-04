@@ -1,13 +1,8 @@
 package com.zpf.frame;
 
-import com.zpf.api.IBackPressInterceptor;
-import com.zpf.api.ICallback;
+import com.zpf.api.ICancelable;
 import com.zpf.api.ICustomWindow;
-import com.zpf.api.IFullLifecycle;
 import com.zpf.api.IManager;
-import com.zpf.api.OnActivityResultListener;
-import com.zpf.api.OnDestroyListener;
-import com.zpf.api.OnPermissionResultListener;
 
 /**
  * 常用的有生命周的监听器控制
@@ -30,29 +25,10 @@ public interface ILifecycleMonitor {
     boolean dismiss();
 
     //绑定生命周期的网络请求控制器
-    IManager<ICallback> getCallBackManager();
+    IManager<ICancelable> getCallBackManager();
 
-    void addViewStateListener(IViewStateListener listener);
+    boolean addListener(Object listener);
 
-    void removeViewStateListener(IViewStateListener listener);
+    boolean removeListener(Object listener);
 
-    void addLifecycleListener(IFullLifecycle listener);
-
-    void removeLifecycleListener(IFullLifecycle listener);
-
-    void addOnDestroyListener(OnDestroyListener listener);
-
-    void removeOnDestroyListener(OnDestroyListener listener);
-
-    void addActivityResultListener(OnActivityResultListener listener);
-
-    void removeActivityResultListener(OnActivityResultListener listener);
-
-    void addPermissionsResultListener(OnPermissionResultListener listener);
-
-    void removePermissionsResultListener(OnPermissionResultListener listener);
-
-    void addBackPressInterceptor(IBackPressInterceptor interceptor);
-
-    void removeBackPressInterceptor(IBackPressInterceptor interceptor);
 }

@@ -6,4 +6,6 @@ package com.zpf.api;
  */
 public interface INeedManage<T> {
     T toBind(IManager<T> manager);
+
+    boolean unBind(long bindId);
 }

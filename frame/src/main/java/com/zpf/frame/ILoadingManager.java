@@ -9,7 +9,7 @@ import android.view.View;
 public interface ILoadingManager {
     void showLoading();
 
-    void showLoading(String msg);
+    void showLoading(Object msg);
 
     boolean hideLoading();
 

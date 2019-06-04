@@ -4,7 +4,7 @@ package com.zpf.api;
  * 管理器
  * Created by ZPF on 2019/2/28.
  */
-public interface IManager<T> {
+public interface IManager<T> extends OnDestroyListener{
 
     long bind(T t);
 
