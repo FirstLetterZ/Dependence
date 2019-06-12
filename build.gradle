@@ -60,7 +60,7 @@ ext {
             permission            : 'com.zpf.android:tool-permission:1.0.5',
             compatPermission      : 'com.zpf.android:tool-compat-permission:1.0.5',
             toolkit               : 'com.zpf.android:tool-kit:1.0.6',
-            frame                 : 'com.zpf.android:api-frame:0.3.0',
+            frame                 : 'com.zpf.android:api-frame:0.3.4',
             dhl                   : 'com.zpf.android:tool-dhl:1.0.0',
             fragmentManager       : 'com.zpf.android:tool-fragment-manager:1.0.0',
             compatFragmentManager : 'com.zpf.android:tool-compat-fragment-manager:1.0.0',

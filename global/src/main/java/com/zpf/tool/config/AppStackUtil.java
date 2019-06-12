@@ -15,7 +15,7 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
     private final LinkedList<WeakReference<Activity>> stackInfoList = new LinkedList<>();
     private int topStackState;
     private WeakReference<Activity> topStackActivity;
-    private static volatile  AppStackUtil mInstance;
+    private static volatile AppStackUtil mInstance;
 
     private AppStackUtil() {
 

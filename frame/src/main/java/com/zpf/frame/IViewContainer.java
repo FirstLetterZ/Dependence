@@ -31,4 +31,5 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
 
     IViewProcessor getViewProcessor();
 
+    INavigator<Class<? extends IViewProcessor>> getNavigator();
 }

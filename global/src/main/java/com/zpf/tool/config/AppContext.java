@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  * Created by ZPF on 2018/6/13.
  */
 public class AppContext {
-    private static Application sApplication;
+    private static volatile Application sApplication;
 
     public static Application get() {
         if (sApplication == null) {
