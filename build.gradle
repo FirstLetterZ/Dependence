@@ -57,7 +57,7 @@ ext {
             dataparser            : 'com.zpf.android:api-parse:1.0.1',
             api                   : 'com.zpf.android:api-base:1.1.6',
             global                : 'com.zpf.android:tool-config:1.0.8',
-            permission            : 'com.zpf.android:tool-permission:1.0.5',
+            permission            : 'com.zpf.android:tool-permission:1.0.6',
             compatPermission      : 'com.zpf.android:tool-compat-permission:1.0.5',
             toolkit               : 'com.zpf.android:tool-kit:1.0.6',
             frame                 : 'com.zpf.android:api-frame:0.3.5',

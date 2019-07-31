@@ -1,7 +1,5 @@
 package com.zpf.api;
 
-import android.support.annotation.NonNull;
-
 /**
  * 权限申请
  * Created by ZPF on 2018/8/22.

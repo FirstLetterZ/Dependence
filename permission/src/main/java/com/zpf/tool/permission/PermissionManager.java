@@ -65,29 +65,27 @@ public class PermissionManager {
         }
     }
 
-    public void jumpToNoticeSetting(Context context){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Intent intent = new Intent();
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-            intent.putExtra("app_package",context.getPackageName());
+    public void jumpToNoticeSetting(Context context) {
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent.putExtra("android.provider.extra.APP_PACKAGE", context.getPackageName());
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            intent.putExtra("app_package", context.getPackageName());
             intent.putExtra("app_uid", context.getApplicationInfo().uid);
-            context.startActivity(intent);
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
-            Intent intent = new Intent();
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        } else {
             intent.addCategory(Intent.CATEGORY_DEFAULT);
             intent.setData(Uri.parse("package:" + context.getPackageName()));
-            context.startActivity(intent);
         }
+        context.startActivity(intent);
     }
 
-    public void jumpToAppSetting(Context context){
+    public void jumpToAppSetting(Context context) {
         context.startActivity(getAppInfoIntent(context));
     }
 
-    public void jumpToSystemSetting(Context context){
+    public void jumpToSystemSetting(Context context) {
         context.startActivity(getSystemConfig());
     }
 
@@ -193,7 +191,7 @@ public class PermissionManager {
         return intent;
     }
 
-    private  String getMiuiVersion() {
+    private String getMiuiVersion() {
         String propName = "ro.miui.ui.version.name";
         String line;
         BufferedReader input = null;
