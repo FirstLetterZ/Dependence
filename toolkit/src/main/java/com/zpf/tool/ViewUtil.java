@@ -149,7 +149,7 @@ public class ViewUtil {
     }
 
     //收起软键盘
-    public static boolean packUpKeyboard(Activity activity) {
+    public static boolean pickUpKeyboard(Activity activity) {
         if (activity == null) {
             return false;
         }
