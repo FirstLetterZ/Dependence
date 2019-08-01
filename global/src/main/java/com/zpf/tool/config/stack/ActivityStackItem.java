@@ -10,7 +10,7 @@ import java.util.LinkedList;
 public class ActivityStackItem implements IStackItem{
 
     private String name;
-    private int elementState = StackElementState.STACK_REMOVING;
+    private int elementState = StackElementState.STACK_OUTSIDE;
     private WeakReference<Activity> mInstance;
 
     public void init(Activity activity) {
