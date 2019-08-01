@@ -34,7 +34,7 @@ public abstract class PermissionChecker<T> {
         permissionList = new ArrayList<>(24);
         permissionList.add(new PermissionInfo(Manifest.permission.WRITE_CONTACTS, "写入联系人", Manifest.permission_group.CONTACTS));
         permissionList.add(new PermissionInfo(Manifest.permission.READ_CONTACTS, "读取联系人", Manifest.permission_group.CONTACTS));
-        permissionList.add(new PermissionInfo(Manifest.permission.GET_ACCOUNTS, "访问账户Gmail列表", Manifest.permission_group.CONTACTS));
+        permissionList.add(new PermissionInfo(Manifest.permission.GET_ACCOUNTS, "访问账户列表", Manifest.permission_group.CONTACTS));
 
         permissionList.add(new PermissionInfo(Manifest.permission.READ_CALL_LOG, "读取通话记录", Manifest.permission_group.PHONE));
         permissionList.add(new PermissionInfo(Manifest.permission.READ_PHONE_STATE, "读取电话状态", Manifest.permission_group.PHONE));

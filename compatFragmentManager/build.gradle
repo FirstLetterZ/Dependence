@@ -17,7 +17,7 @@ android {
 }
 
 dependencies {
-    provided rootProject.ext.dependencies.supportV4
+    compileOnly rootProject.ext.dependencies.supportV4
     api rootProject.ext.dependencies.fragmentManager
 }
 apply from: "../bintrayUpload.gradle"

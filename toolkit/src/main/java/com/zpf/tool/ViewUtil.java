@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.AbsListView;
-import android.widget.TextView;
 
 import java.lang.reflect.Field;
 
@@ -150,31 +149,43 @@ public class ViewUtil {
     }
 
     //收起软键盘
-    public static void packUpKeyboard(Activity activity) {
+    public static boolean packUpKeyboard(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null && imm.isActive()) {
-            if (activity.getCurrentFocus() != null) {
-                try {
-                    imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(),
-                            InputMethodManager.HIDE_NOT_ALWAYS);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        if (imm != null && imm.isActive() && activity.getCurrentFocus() != null) {
+            try {
+                imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+        return false;
     }
 
-    public void pickUpKeyBoard(TextView view) {
+    public static boolean pickUpKeyBoard(View view) {
+        if (view == null) {
+            return false;
+        }
         InputMethodManager mInputMethodManager = (InputMethodManager) view
                 .getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (mInputMethodManager != null) {
             mInputMethodManager.hideSoftInputFromWindow(view.getWindowToken(),
                     InputMethodManager.RESULT_UNCHANGED_SHOWN);
+            return true;
         }
+        return false;
+
     }
 
     //弹出软键盘
-    public static void showKeyBoard(Activity activity) {
+    public static boolean showKeyBoard(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
         /*如果顶部视图可见高度大于2/3屏幕高度，则认定软键盘未弹出（大约计算）*/
         Rect rect = new Rect();
         activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
@@ -182,17 +193,24 @@ public class ViewUtil {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
                 imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+                return true;
             }
         }
+        return false;
     }
 
-    public static void showKeyBoard(TextView view) {
+    public static boolean showKeyBoard(View view) {
+        if (view == null) {
+            return false;
+        }
         view.setFocusable(true);
         view.requestFocus();
         InputMethodManager inputManager = (InputMethodManager) view
                 .getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (inputManager != null) {
             inputManager.showSoftInput(view, 0);
+            return true;
         }
+        return false;
     }
 }
