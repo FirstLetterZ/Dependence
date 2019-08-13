@@ -60,6 +60,15 @@ public class GlobalConfigImpl implements GlobalConfigInterface {
         if (realGlobalConfig != null) {
             realGlobalConfig.onObjectInit(object);
         }
+        if (configCollection.size() > 0) {
+            synchronized (configCollection) {
+                if (configCollection.size() > 0) {
+                    for (GlobalConfigInterface config : configCollection.values()) {
+                        config.onObjectInit(object);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -71,8 +80,12 @@ public class GlobalConfigImpl implements GlobalConfigInterface {
         if (configCollection.size() > 0) {
             synchronized (configCollection) {
                 if (configCollection.size() > 0) {
+                    Object temp;
                     for (GlobalConfigInterface config : configCollection.values()) {
-                        result = config.invokeMethod(object, methodName, args);
+                        temp = config.invokeMethod(object, methodName, args);
+                        if (temp != null) {
+                            result = temp;
+                        }
                     }
                 }
             }

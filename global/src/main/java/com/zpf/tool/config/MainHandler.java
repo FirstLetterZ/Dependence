@@ -29,7 +29,7 @@ public class MainHandler extends Handler {
         if (runnable == null) {
             return;
         }
-        if (Looper.myLooper() == Looper.myLooper()) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
             runnable.run();
         } else {
             get().post(runnable);

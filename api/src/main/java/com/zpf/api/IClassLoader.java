@@ -6,8 +6,4 @@ public interface IClassLoader {
 
     Class<?> getClass(String name);
 
-    void addLoader(IClassLoader loader);
-
-    void removeLoader(IClassLoader loader);
-
 }

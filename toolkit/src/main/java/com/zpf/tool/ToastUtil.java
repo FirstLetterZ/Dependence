@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zpf.tool.config.AppContext;
+import com.zpf.tool.config.MainHandler;
 
 import java.lang.ref.SoftReference;
 
@@ -65,10 +66,15 @@ public class ToastUtil {
     }
 
     //弹toast
-    public static void toast(String msg) {
+    public static void toast(final String msg) {
         try {
-            get().mText.setText(msg);
-            get().mToast.show();
+            MainHandler.runOnMainTread(new Runnable() {
+                @Override
+                public void run() {
+                    get().mText.setText(msg);
+                    get().mToast.show();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

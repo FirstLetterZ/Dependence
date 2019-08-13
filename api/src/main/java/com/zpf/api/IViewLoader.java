@@ -15,5 +15,5 @@ public interface IViewLoader {
 
     void fromStringUri(View targetView, String uri, @DrawableRes int holderId, @DrawableRes int failId);
 
-    void fromesource(View targetView, @DrawableRes int redId);
+    void fromSource(View targetView, @DrawableRes int redId);
 }
