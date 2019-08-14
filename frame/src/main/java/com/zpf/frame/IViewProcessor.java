@@ -1,5 +1,6 @@
 package com.zpf.frame;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -7,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.zpf.api.IBackPressInterceptor;
+import com.zpf.api.IEvent;
 import com.zpf.api.IFullLifecycle;
 import com.zpf.api.OnActivityResultListener;
 import com.zpf.api.OnPermissionResultListener;
@@ -31,7 +33,9 @@ public interface IViewProcessor<C> extends IFullLifecycle, OnActivityResultListe
 
     Context getContext();
 
-    void onReceiveEvent(String action, Object... params);
+    void onReceiveEvent(IEvent event);
+
+    Activity getCurrentActivity();
 
     void setLinker(C linker);
 }

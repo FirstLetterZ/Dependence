@@ -3,6 +3,7 @@ package com.zpf.frame;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.zpf.api.IEvent;
 import com.zpf.api.IPermissionChecker;
 
 /**
@@ -19,7 +20,7 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
     @NonNull
     Bundle getParams();
 
-    boolean sendEvenToView(String action, Object... params);
+    boolean sendEvenToView(@NonNull IEvent event);
 
     int getContainerType();
 
