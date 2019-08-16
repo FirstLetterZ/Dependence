@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.zpf.tool.config.LifecycleState;
 
@@ -12,7 +13,7 @@ import com.zpf.tool.config.LifecycleState;
  * Created by ZPF on 2019/1/12.
  */
 public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
-    private int topStackState;
+    private int topStackState = LifecycleState.NOT_INIT;
     private HashStack<String, IStackItem> stackInfo = new HashStack<>();
 
     private AppStackUtil() {
@@ -148,5 +149,41 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
 
     public IStackItem getTopStackInfo() {
         return stackInfo.getLast();
+    }
+
+    public boolean finishTop(Activity activity) {
+        String stackName;
+        if (activity instanceof IStackItemPrototype) {
+            IStackItem targetItem = ((IStackItemPrototype) activity).getStackItem();
+            stackName = targetItem.getName();
+        } else {
+            stackName = activity.getClass().getName();
+        }
+        IStackItem record = stackInfo.get(stackName);
+        if (record == null) {
+            return false;
+        } else {
+            IStackItem item = stackInfo.getLast();
+            while (item != null) {
+                if (TextUtils.equals(item.getName(), stackName)) {
+                    stackInfo.put(stackName, item);
+                } else if (item.getStackActivity() != null) {
+                    item.getStackActivity().finish();
+                }
+                item = stackInfo.pollLast();
+            }
+            return true;
+        }
+    }
+
+    public void clear() {
+        IStackItem item = stackInfo.pollFirst();
+        while (item != null) {
+            if (item.getStackActivity() != null) {
+                item.getStackActivity().finish();
+            }
+            item = stackInfo.pollFirst();
+        }
+        topStackState = LifecycleState.NOT_INIT;
     }
 }
