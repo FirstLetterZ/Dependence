@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import java.util.LinkedList;
 
 /**
- * 不要使用context继承，context应使用{@link IStackItemPrototype}
+ * 不要使用context继承，context应使用 com.zpf.tool.config.stack.IStackItemPrototype
  * getStackActivity所返回的activity不要使用强引用
  */
 public interface IStackItem {
@@ -19,6 +19,8 @@ public interface IStackItem {
     int getItemState();
 
     void setItemState(@StackElementState int newState);
+
+    void bindActivity(Activity activity);
 
     @Nullable
     Activity getStackActivity();

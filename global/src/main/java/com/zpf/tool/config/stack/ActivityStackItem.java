@@ -13,11 +13,6 @@ public class ActivityStackItem implements IStackItem{
     private int elementState = StackElementState.STACK_OUTSIDE;
     private WeakReference<Activity> mInstance;
 
-    public void init(Activity activity) {
-        name = activity.getClass().getName();
-        mInstance = new WeakReference<>(activity);
-    }
-
     @NonNull
     @Override
     public String getName() {
@@ -33,6 +28,12 @@ public class ActivityStackItem implements IStackItem{
     @Override
     public void setItemState(@StackElementState int newState) {
         elementState = newState;
+    }
+
+    @Override
+    public void bindActivity(Activity activity) {
+        name = activity.getClass().getName();
+        mInstance = new WeakReference<>(activity);
     }
 
     @Nullable

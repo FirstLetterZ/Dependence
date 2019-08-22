@@ -41,18 +41,15 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
         if (record == null) {
             if (targetItem == null) {
                 targetItem = new ActivityStackItem();
-                ((ActivityStackItem) targetItem).init(activity);
             }
             stackInfo.put(targetItem.getName(), targetItem);
         } else {
-            if (record instanceof ActivityStackItem) {
-                ((ActivityStackItem) record).init(activity);
-            }
             targetItem = record;
         }
         if (targetItem.getItemState() == StackElementState.STACK_REMOVING) {
             activity.finish();
         } else {
+            targetItem.bindActivity(activity);
             targetItem.setItemState(StackElementState.STACK_TOP);
             topStackState = LifecycleState.AFTER_CREATE;
             stackInfo.moveAllNext(stackName);
@@ -124,7 +121,7 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
         if (record == null) {
             if (targetItem == null) {
                 targetItem = new ActivityStackItem();
-                ((ActivityStackItem) targetItem).init(activity);
+                targetItem.bindActivity(activity);
             }
             stackInfo.put(targetItem.getName(), targetItem);
         } else {
@@ -151,7 +148,7 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
         return stackInfo.getLast();
     }
 
-    public boolean finishTop(Activity activity) {
+    public boolean finishAbove(Activity activity) {
         String stackName;
         if (activity instanceof IStackItemPrototype) {
             IStackItem targetItem = ((IStackItemPrototype) activity).getStackItem();
