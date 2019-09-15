@@ -22,6 +22,7 @@ public class ToastUtil {
     private static SoftReference<ToastUtil> mUtil;
     private Toast mToast;
     private TextView mText;
+    private static volatile long lastShow = 0;
 
     private static ToastUtil get() {
         if (mUtil == null || mUtil.get() == null) {
@@ -72,6 +73,11 @@ public class ToastUtil {
                 @Override
                 public void run() {
                     get().mText.setText(msg);
+                    if (System.currentTimeMillis() - lastShow >=
+                            (get().mToast.getDuration() == Toast.LENGTH_LONG ? 7000 : 4000)) {
+                        get().mToast.cancel();
+                        lastShow = System.currentTimeMillis();
+                    }
                     get().mToast.show();
                 }
             });

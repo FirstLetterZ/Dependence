@@ -8,6 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -194,9 +195,6 @@ public class FileUtil {
                 fos.write(buf, 0, len);
                 fos.flush();
             }
-            if (filePath.endsWith(".jpg") || filePath.endsWith(".png")) {
-                notifyPhotoAlbum(AppContext.get(), filePath);
-            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -207,6 +205,23 @@ public class FileUtil {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        return false;
+    }
+
+    public static boolean saveBitmapToFile(String filePath, Bitmap bitmap) {
+        FileOutputStream out;
+        try {
+            out = new FileOutputStream(filePath);
+            if (bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                out.flush();
+                out.close();
+            }
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }

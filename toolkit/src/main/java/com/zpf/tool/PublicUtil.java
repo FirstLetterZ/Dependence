@@ -1,7 +1,6 @@
 package com.zpf.tool;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -125,7 +124,6 @@ public class PublicUtil {
      *
      * @param targetClass 目标Activity对应Class
      */
-    @SuppressLint("MissingPermission")
     public static void setActivityToTop(Class targetClass) {
         ActivityManager myManager = (ActivityManager) AppContext.get().getSystemService(Context.ACTIVITY_SERVICE);
         if (myManager != null) {
@@ -193,7 +191,6 @@ public class PublicUtil {
      *
      * @return 如果返回null则代表缺少权限，若返回"unknown"代表获取失败
      */
-    @SuppressLint({"HardwareIds", "MissingPermission"})
     public static String getDeviceId(@NonNull Context context) {
         String result;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
