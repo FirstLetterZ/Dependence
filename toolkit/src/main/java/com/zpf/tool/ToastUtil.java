@@ -73,12 +73,20 @@ public class ToastUtil {
                 @Override
                 public void run() {
                     get().mText.setText(msg);
-                    if (System.currentTimeMillis() - lastShow >=
-                            (get().mToast.getDuration() == Toast.LENGTH_LONG ? 7000 : 4000)) {
+                    long duration = (get().mToast.getDuration() == Toast.LENGTH_LONG ? 7000 : 4000);
+                    if (System.currentTimeMillis() - lastShow > duration) {
+                        lastShow = System.currentTimeMillis();
+                        get().mToast.show();
+                    } else if (System.currentTimeMillis() - lastShow >= 0.9 * duration) {
                         get().mToast.cancel();
                         lastShow = System.currentTimeMillis();
+                        MainHandler.get().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                get().mToast.show();
+                            }
+                        }, 10);
                     }
-                    get().mToast.show();
                 }
             });
         } catch (Exception e) {

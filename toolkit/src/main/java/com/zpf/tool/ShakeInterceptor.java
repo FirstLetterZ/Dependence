@@ -23,4 +23,8 @@ public class ShakeInterceptor {
             return false;
         }
     }
+
+    public void reset() {
+        lastClick = 0;
+    }
 }
