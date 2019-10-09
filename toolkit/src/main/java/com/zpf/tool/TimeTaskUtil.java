@@ -38,12 +38,14 @@ public abstract class TimeTaskUtil {
                 @Override
                 public void run() {
                     doInChildThread();
-                    MainHandler.get().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            doInMainThread();
-                        }
-                    });
+                    if (shouldRunOnMainThread()) {
+                        MainHandler.runOnMainTread(new Runnable() {
+                            @Override
+                            public void run() {
+                                doInMainThread();
+                            }
+                        });
+                    }
                 }
             };
         }
@@ -66,11 +68,11 @@ public abstract class TimeTaskUtil {
 
     protected abstract void doInChildThread();
 
-    public long getTimeInterval() {
-        return timeInterval;
+    protected boolean shouldRunOnMainThread() {
+        return true;
     }
 
-    public void setTimeInterval(long timeInterval) {
-        this.timeInterval = timeInterval;
+    public long getTimeInterval() {
+        return timeInterval;
     }
 }

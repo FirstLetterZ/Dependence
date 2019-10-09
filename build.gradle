@@ -59,7 +59,7 @@ ext {
             global                : 'com.zpf.android:tool-config:1.1.6',
             permission            : 'com.zpf.android:tool-permission:1.0.8',
             compatPermission      : 'com.zpf.android:tool-compat-permission:1.0.6',
-            toolkit               : 'com.zpf.android:tool-kit:1.1.6',
+            toolkit               : 'com.zpf.android:tool-kit:1.1.7',
             frame                 : 'com.zpf.android:api-frame:0.4.6',
             dhl                   : 'com.zpf.android:tool-dhl:1.0.0',
             fragmentManager       : 'com.zpf.android:tool-fragment-manager:1.0.0',
