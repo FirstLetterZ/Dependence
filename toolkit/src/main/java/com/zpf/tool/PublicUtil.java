@@ -3,9 +3,11 @@ package com.zpf.tool;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
 import android.support.annotation.NonNull;
@@ -122,15 +124,15 @@ public class PublicUtil {
     /**
      * 将Activity转到前台
      *
-     * @param targetClass 目标Activity对应Class
+     * @param taskId 目标Activity对应taskId
      */
-    public static void setActivityToTop(Class targetClass) {
+    public static void moveTaskToTop(int taskId) {
         ActivityManager myManager = (ActivityManager) AppContext.get().getSystemService(Context.ACTIVITY_SERVICE);
         if (myManager != null) {
             List<ActivityManager.RunningTaskInfo> runningTaskList = myManager.getRunningTasks(16);
             if (runningTaskList != null && runningTaskList.size() > 0) {
                 for (ActivityManager.RunningTaskInfo taskInfo : runningTaskList) {
-                    if (TextUtils.equals(taskInfo.topActivity.getClassName(), targetClass.getName())) {
+                    if (taskInfo.id == taskId) {
                         myManager.moveTaskToFront(taskInfo.id, 0);
                         break;
                     }
@@ -185,6 +187,28 @@ public class PublicUtil {
     public static String scaleNumberString(Number money, int scale) {
         return scaleNumber(money, scale).toPlainString();
     }
+
+    public static boolean openBrowser(Context context, String url) {
+        try {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void jumpToAppStore(Context context) {
+        String packageName = context.getPackageName();
+        Uri uri = Uri.parse("market://details?id=" + packageName);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
 
     /**
      * 获取设备识别id
