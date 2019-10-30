@@ -1,17 +1,9 @@
 package com.zpf.tool;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.zpf.tool.config.AppContext;
-import com.zpf.tool.config.MainHandler;
 
 import java.lang.ref.SoftReference;
 
@@ -19,86 +11,35 @@ import java.lang.ref.SoftReference;
  * Created by ZPF on 2018/7/26.
  */
 public class ToastUtil {
-    private static SoftReference<ToastUtil> mUtil;
-    private Toast mToast;
-    private TextView mText;
-    private static volatile long lastShow = 0;
-
-    private static ToastUtil get() {
-        if (mUtil == null || mUtil.get() == null) {
-            synchronized (ToastUtil.class) {
-                if (mUtil == null || mUtil.get() == null) {
-                    mUtil = new SoftReference<>(new ToastUtil());
-                }
-            }
-        }
-        return mUtil.get();
-    }
-
-    private ToastUtil() {
-        Context context = AppContext.get();
-        try {
-            mToast = new Toast(context);
-            float density = context.getResources().getDisplayMetrics().density;
-
-            LinearLayout toastLayout = new LinearLayout(context);
-            WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.MATCH_PARENT);
-            toastLayout.setLayoutParams(params);
-            toastLayout.setPadding((int) (16 * density), (int) (16 * density), (int) (16 * density), (int) (16 * density));
-            toastLayout.setGravity(Gravity.CENTER);
-            mText = new TextView(context);
-            mText.setMinWidth((int) (80 * density));
-            mText.setPadding((int) (12 * density), (int) (8 * density), (int) (12 * density), (int) (8 * density));
-            mText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-            mText.setTextColor(Color.WHITE);
-            mText.setGravity(Gravity.CENTER_HORIZONTAL);
-            GradientDrawable gradientDrawable = new GradientDrawable();
-            gradientDrawable.setCornerRadius(12 * density);
-            gradientDrawable.setColor(Color.parseColor("#aa000000"));
-            mText.setBackground(gradientDrawable);
-            toastLayout.addView(mText);
-            mToast.setDuration(Toast.LENGTH_LONG);
-            mToast.setGravity(Gravity.CENTER, 0, 0);
-            mToast.setView(toastLayout);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    private static SoftReference<DefToaster> defToaster;
+    private static IToaster realToaster;
 
     //弹toast
-    public static void toast(final String msg) {
+    public static void toast(final CharSequence msg) {
         try {
-            MainHandler.runOnMainTread(new Runnable() {
-                @Override
-                public void run() {
-                    get().mText.setText(msg);
-                    long duration = (get().mToast.getDuration() == Toast.LENGTH_LONG ? 7000 : 4000);
-                    if (System.currentTimeMillis() - lastShow > duration) {
-                        lastShow = System.currentTimeMillis();
-                        get().mToast.show();
-                    } else if (System.currentTimeMillis() - lastShow >= 0.9 * duration) {
-                        get().mToast.cancel();
-                        lastShow = System.currentTimeMillis();
-                        MainHandler.get().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                get().mToast.show();
-                            }
-                        }, 10);
-                    }
-                }
-            });
+            getToaster().showToast(msg);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static TextView getTextView() {
-        return get().mText;
+    public static void setToaster(@Nullable IToaster toaster) {
+        realToaster = toaster;
     }
 
-    public static Toast getToastView() {
-        return get().mToast;
+    public static IToaster getToaster() {
+        if (realToaster == null) {
+            return getDefToaster();
+        } else {
+            return realToaster;
+        }
+    }
+
+    @NonNull
+    public static IToaster getDefToaster() {
+        if (defToaster.get() == null) {
+            defToaster = new SoftReference<>(new DefToaster(AppContext.get()));
+        }
+        return defToaster.get();
     }
 }
