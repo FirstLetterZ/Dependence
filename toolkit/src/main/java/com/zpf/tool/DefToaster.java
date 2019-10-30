@@ -34,7 +34,7 @@ public class DefToaster implements IToaster {
         mText = new TextView(context);
         mText.setMinWidth((int) (80 * density));
         mText.setPadding((int) (12 * density), (int) (8 * density), (int) (12 * density), (int) (8 * density));
-        mText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        mText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         mText.setTextColor(Color.WHITE);
         mText.setGravity(Gravity.CENTER_HORIZONTAL);
         GradientDrawable gradientDrawable = new GradientDrawable();

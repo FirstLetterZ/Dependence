@@ -39,7 +39,7 @@ public class ToastWindow implements IToaster {
         defText = new TextView(application);
         defText.setMinWidth((int) (80 * density));
         defText.setPadding((int) (12 * density), (int) (8 * density), (int) (12 * density), (int) (8 * density));
-        defText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        defText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         defText.setTextColor(Color.WHITE);
         defText.setGravity(Gravity.CENTER_HORIZONTAL);
         GradientDrawable gradientDrawable = new GradientDrawable();
@@ -51,6 +51,7 @@ public class ToastWindow implements IToaster {
         mLayout.setEnabled(false);
         mLayout.setFocusable(false);
         mLayout.addView(defText);
+        mLayout.setPadding((int) (16 * density), (int) (16 * density), (int) (16 * density), (int) (16 * density));
         mLayout.setVisibility(View.GONE);
         mLayout.setGravity(Gravity.CENTER);
 
