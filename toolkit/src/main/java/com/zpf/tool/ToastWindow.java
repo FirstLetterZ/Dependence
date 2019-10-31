@@ -61,7 +61,7 @@ public class ToastWindow implements IToaster {
         layoutParams.gravity = Gravity.CENTER;
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        layoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
+        layoutParams.type = WindowManager.LayoutParams.LAST_SUB_WINDOW;
         mWindowManager.addView(mLayout, layoutParams);
         init();
     }
