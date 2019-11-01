@@ -6,6 +6,8 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
+import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -31,8 +33,11 @@ public class ToastWindow implements IToaster {
     private BlockingQueue<CharSequence> workQueue = new LinkedBlockingQueue<>(128);
     public int animTime = 300;
     public int showTime = 3000;
+    private boolean hasAdd = false;
+    private Application application;
 
     public ToastWindow(Application application) {
+        this.application = application;
         mWindowManager = (WindowManager) application.getSystemService(Context.WINDOW_SERVICE);
         float density = Resources.getSystem().getDisplayMetrics().density;
 
@@ -61,19 +66,32 @@ public class ToastWindow implements IToaster {
         layoutParams.gravity = Gravity.CENTER;
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        layoutParams.type = WindowManager.LayoutParams.LAST_SUB_WINDOW;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
+        }
         mWindowManager.addView(mLayout, layoutParams);
         init();
     }
 
-    public void toast(CharSequence text) {
-        if (destroyed) {
-            return;
+    public boolean init() {
+        if (!hasAdd) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!Settings.canDrawOverlays(this.application)) {
+                    return false;
+                }
+                layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            } else {
+                layoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
+            }
+            try {
+                mWindowManager.addView(mLayout, layoutParams);
+            } catch (Exception e) {
+                return false;
+            }
+            hasAdd = true;
         }
-        workQueue.offer(text);
-    }
-
-    public void init() {
         if (thread != null) {
             if (!thread.isAlive()) {
                 try {
@@ -90,6 +108,7 @@ public class ToastWindow implements IToaster {
             thread.start();
         }
         destroyed = false;
+        return true;
     }
 
     public void destroy() {

@@ -37,7 +37,7 @@ public class ToastUtil {
 
     @NonNull
     public static IToaster getDefToaster() {
-        if (defToaster == null && defToaster.get() == null) {
+        if (defToaster == null || defToaster.get() == null) {
             defToaster = new SoftReference<>(new DefToaster(AppContext.get()));
         }
         return defToaster.get();
