@@ -66,12 +66,6 @@ public class ToastWindow implements IToaster {
         layoutParams.gravity = Gravity.CENTER;
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
-        }
-        mWindowManager.addView(mLayout, layoutParams);
         init();
     }
 
@@ -199,4 +193,8 @@ public class ToastWindow implements IToaster {
         defText.startAnimation(animation);
     }
 
+    @Override
+    public boolean isUsable() {
+        return hasAdd && !destroyed;
+    }
 }

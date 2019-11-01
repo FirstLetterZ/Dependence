@@ -90,4 +90,9 @@ public class DefToaster implements IToaster {
     public void onDismiss() {
 
     }
+
+    @Override
+    public boolean isUsable() {
+        return true;
+    }
 }

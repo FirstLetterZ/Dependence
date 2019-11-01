@@ -28,7 +28,7 @@ public class ToastUtil {
     }
 
     public static IToaster getToaster() {
-        if (realToaster == null) {
+        if (realToaster == null || !realToaster.isUsable()) {
             return getDefToaster();
         } else {
             return realToaster;

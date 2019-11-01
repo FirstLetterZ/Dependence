@@ -15,4 +15,5 @@ public interface IToaster {
 
     void onDismiss();
 
+    boolean isUsable();
 }
