@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.Window;
 
 import com.zpf.api.IBackPressInterceptor;
 import com.zpf.api.IEvent;
@@ -38,4 +39,6 @@ public interface IViewProcessor<C> extends IFullLifecycle, OnActivityResultListe
     Activity getCurrentActivity();
 
     void setLinker(C linker);
+
+    boolean initWindow(@NonNull Window window);
 }

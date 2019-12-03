@@ -2,8 +2,8 @@ package com.zpf.frame;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.zpf.api.IEvent;
 import com.zpf.api.IPermissionChecker;
 import com.zpf.tool.config.stack.IStackItemPrototype;
 
@@ -21,16 +21,12 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
     @NonNull
     Bundle getParams();
 
-    boolean sendEvenToView(@NonNull IEvent event);
-
     int getContainerType();
 
+    @Nullable
     IViewContainer getParentContainer();
 
-    void bindView(IViewProcessor processor);
-
-    void unbindView();
-
+    @Nullable
     IViewProcessor getViewProcessor();
 
     INavigator<Class<? extends IViewProcessor>> getNavigator();
