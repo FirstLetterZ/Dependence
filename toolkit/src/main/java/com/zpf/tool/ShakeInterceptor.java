@@ -5,7 +5,8 @@ package com.zpf.tool;
  */
 public class ShakeInterceptor {
 
-    private long lastClick = 0;
+    private volatile boolean paused = false;
+    private long lastRecord = 0;
     private long timeInterval = 200;
 
     public ShakeInterceptor() {
@@ -16,15 +17,27 @@ public class ShakeInterceptor {
     }
 
     public boolean checkInterval() {
-        if ((System.currentTimeMillis() - lastClick) > timeInterval) {
-            lastClick = System.currentTimeMillis();
+        if (!paused && (System.currentTimeMillis() - lastRecord) > timeInterval) {
+            lastRecord = System.currentTimeMillis();
             return true;
         } else {
             return false;
         }
     }
 
+    public void record() {
+        lastRecord = System.currentTimeMillis();
+    }
+
+    public void pause() {
+        paused = true;
+    }
+
+    public void start() {
+        paused = false;
+    }
+
     public void reset() {
-        lastClick = 0;
+        lastRecord = 0;
     }
 }
