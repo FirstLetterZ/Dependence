@@ -2,8 +2,6 @@ package com.zpf.tool;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.telephony.TelephonyManager;
@@ -15,7 +13,7 @@ import java.util.Enumeration;
 
 public class NetworkUtils {
 
-    public boolean checkProxy(Context context) {
+    public static boolean checkProxy(Context context) {
         final boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
         String proxyAddress;
         int proxyPort;
@@ -63,64 +61,65 @@ public class NetworkUtils {
             return NetworkState.NETWORK_NONE;
         }
         int typeCode = -1;
-        String subTypeName;
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetInfo = null;
         if (connectivityManager != null) {
-            NetworkInfo activeNetInfo;
             try {
                 activeNetInfo = connectivityManager.getActiveNetworkInfo();
                 typeCode = activeNetInfo.getSubtype();
-                subTypeName = activeNetInfo.getSubtypeName();
                 if (!activeNetInfo.isAvailable()) {
                     return NetworkState.NETWORK_NONE;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else {
+        }
+        if (null != activeNetInfo) {
+            if (!activeNetInfo.isAvailable()) {
+                return NetworkState.NETWORK_NONE;
+            } else if (activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                return NetworkState.NETWORK_WIFI;
+            }
+        }
+        if (typeCode == -1) {
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context
                     .TELEPHONY_SERVICE);
             if (telephonyManager != null) {
                 typeCode = telephonyManager.getNetworkType();
             }
         }
-
-        if (null == activeNetInfo || !activeNetInfo.isAvailable()) {
-            return NetworkState.NETWORK_NONE;
-        } else if (activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-            return NetworkState.NETWORK_WIFI;
-        } else if (activeNetInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-            final NetworkInfo.State state = activeNetInfo.getState();
-            final String subTypeName = activeNetInfo.getSubtypeName();
-            if (null != state) {
-                switch (typeCode) {
-                    case TelephonyManager.NETWORK_TYPE_GPRS:
-                    case TelephonyManager.NETWORK_TYPE_CDMA:
-                    case TelephonyManager.NETWORK_TYPE_EDGE:
-                    case TelephonyManager.NETWORK_TYPE_1xRTT:
-                    case TelephonyManager.NETWORK_TYPE_IDEN:
-                        return NetworkState.NETWORK_2G;
-                    case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                    case TelephonyManager.NETWORK_TYPE_UMTS:
-                    case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                    case TelephonyManager.NETWORK_TYPE_HSDPA:
-                    case TelephonyManager.NETWORK_TYPE_HSUPA:
-                    case TelephonyManager.NETWORK_TYPE_HSPA:
-                    case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                    case TelephonyManager.NETWORK_TYPE_EHRPD:
-                    case TelephonyManager.NETWORK_TYPE_HSPAP:
+        if (typeCode > 0) {
+            String subTypeName = null;
+            if (activeNetInfo != null) {
+                subTypeName = activeNetInfo.getSubtypeName();
+            }
+            switch (typeCode) {
+                case TelephonyManager.NETWORK_TYPE_GPRS:
+                case TelephonyManager.NETWORK_TYPE_CDMA:
+                case TelephonyManager.NETWORK_TYPE_EDGE:
+                case TelephonyManager.NETWORK_TYPE_1xRTT:
+                case TelephonyManager.NETWORK_TYPE_IDEN:
+                    return NetworkState.NETWORK_2G;
+                case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                case TelephonyManager.NETWORK_TYPE_UMTS:
+                case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                case TelephonyManager.NETWORK_TYPE_HSDPA:
+                case TelephonyManager.NETWORK_TYPE_HSUPA:
+                case TelephonyManager.NETWORK_TYPE_HSPA:
+                case TelephonyManager.NETWORK_TYPE_EVDO_B:
+                case TelephonyManager.NETWORK_TYPE_EHRPD:
+                case TelephonyManager.NETWORK_TYPE_HSPAP:
+                    return NetworkState.NETWORK_3G;
+                case TelephonyManager.NETWORK_TYPE_LTE:
+                    return NetworkState.NETWORK_4G;
+                default:
+                    if ("TD-SCDMA".equalsIgnoreCase(subTypeName)
+                            || "WCDMA".equalsIgnoreCase(subTypeName)
+                            || "CDMA2000".equalsIgnoreCase(subTypeName)) {
                         return NetworkState.NETWORK_3G;
-                    case TelephonyManager.NETWORK_TYPE_LTE:
-                        return NetworkState.NETWORK_4G;
-                    default:
-                        if ("TD-SCDMA".equalsIgnoreCase(subTypeName)
-                                || "WCDMA".equalsIgnoreCase(subTypeName)
-                                || "CDMA2000".equalsIgnoreCase(subTypeName)) {
-                            return NetworkState.NETWORK_3G;
-                        } else {
-                            return NetworkState.NETWORK_UNKNOWN_MOBILE;
-                        }
-                }
+                    } else {
+                        return NetworkState.NETWORK_UNKNOWN_MOBILE;
+                    }
             }
         }
         return NetworkState.NETWORK_NONE;

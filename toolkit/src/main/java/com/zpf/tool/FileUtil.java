@@ -274,7 +274,7 @@ public class FileUtil {
         return target;
     }
 
-    public boolean upZipFile(String filePath, String folderPath) {
+    public static boolean upZipFile(String filePath, String folderPath) {
         ZipFile zipFile;
         File folder = new File(folderPath);
         if (!folder.exists()) {
