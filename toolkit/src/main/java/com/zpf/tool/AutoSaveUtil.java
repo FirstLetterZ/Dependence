@@ -8,6 +8,7 @@ import android.util.SparseArray;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -28,73 +29,81 @@ public class AutoSaveUtil {
         Object value;
         Class<?> fieldClass;
         Class<?> genericType;
+        int modifier;
         boolean saved;
         for (Field field : object.getClass().getDeclaredFields()) {
             AutoSave note = field.getAnnotation(AutoSave.class);
-            if (note != null) {
-                fieldClass = field.getType();
-                field.setAccessible(true);
-                try {
-                    value = field.get(object);
-                } catch (IllegalAccessException e) {
-                    value = null;
-                }
-                if (value != null) {
-                    try {
-                        if (fieldClass.isArray()) {
-                            saveComponentArray(savedInstanceState, field.getName(), value);
-                        } else {
-                            genericType = getComponentClass(field);
-                            if (genericType == null) {
-                                saved = saveData(savedInstanceState, field.getName(), value);
+            if (note == null) {
+                continue;
+            }
+            modifier = field.getModifiers();
+            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier)) {
+                continue;
+            }
+            field.setAccessible(true);
+            try {
+                value = field.get(object);
+            } catch (IllegalAccessException e) {
+                value = null;
+            } finally {
+                field.setAccessible(false);
+            }
+            if (value == null) {
+                continue;
+            }
+            fieldClass = field.getType();
+            saved = false;
+            try {
+                if (fieldClass.isArray()) {
+                    saveComponentArray(savedInstanceState, field.getName(), value);
+                } else {
+                    genericType = getComponentClass(field);
+                    if (genericType == null) {
+                        saved = saveData(savedInstanceState, field.getName(), value);
+                    } else {
+                        if (value instanceof ArrayList) {
+                            saved = true;
+                            if (String.class.isAssignableFrom(genericType)) {
+                                savedInstanceState.putStringArrayList(field.getName(),
+                                        (ArrayList<String>) value);
+                            } else if (Integer.class.isAssignableFrom(genericType)) {
+                                savedInstanceState.putIntegerArrayList(field.getName(),
+                                        (ArrayList<Integer>) value);
+                            } else if (CharSequence.class.isAssignableFrom(genericType)) {
+                                savedInstanceState.putCharSequenceArrayList(field.getName(),
+                                        (ArrayList<CharSequence>) value);
+                            } else if (Parcelable.class.isAssignableFrom(genericType)) {
+                                savedInstanceState.putParcelableArrayList(field.getName(),
+                                        (ArrayList<? extends Parcelable>) value);
                             } else {
-                                if (value instanceof ArrayList) {
-                                    saved = true;
-                                    if (String.class.isAssignableFrom(genericType)) {
-                                        savedInstanceState.putStringArrayList(field.getName(),
-                                                (ArrayList<String>) value);
-                                    } else if (Integer.class.isAssignableFrom(genericType)) {
-                                        savedInstanceState.putIntegerArrayList(field.getName(),
-                                                (ArrayList<Integer>) value);
-                                    } else if (CharSequence.class.isAssignableFrom(genericType)) {
-                                        savedInstanceState.putCharSequenceArrayList(field.getName(),
-                                                (ArrayList<CharSequence>) value);
-                                    } else if (Parcelable.class.isAssignableFrom(genericType)) {
-                                        savedInstanceState.putParcelableArrayList(field.getName(),
-                                                (ArrayList<? extends Parcelable>) value);
-                                    } else {
-                                        //TODO
-                                        saved = false;
-                                    }
-                                } else if (value instanceof SparseArray) {
-                                    if (Parcelable.class.isAssignableFrom(genericType)) {
-                                        savedInstanceState.putSparseParcelableArray(field.getName(),
-                                                (SparseArray<? extends Parcelable>) value);
-                                        saved = true;
-                                    } else {
-                                        saved = false;
-                                    }
-                                } else if (value instanceof Map) {
-                                    saved = false;
-                                    //TODO
-                                } else if (value instanceof Collection) {
-                                    saved = false;
-                                    //TODO
-                                } else {
-                                    saved = false;
-                                    //TODO
-                                }
+                                //TODO
+                                saved = false;
                             }
-                            if (!saved && Serializable.class.isAssignableFrom(field.getType()) && value instanceof Serializable) {
-                                savedInstanceState.putSerializable(field.getName(), (Serializable) value);
+                        } else if (value instanceof SparseArray) {
+                            if (Parcelable.class.isAssignableFrom(genericType)) {
+                                savedInstanceState.putSparseParcelableArray(field.getName(),
+                                        (SparseArray<? extends Parcelable>) value);
+                                saved = true;
+                            } else {
+                                saved = false;
                             }
+                        } else if (value instanceof Map) {
+                            saved = false;
+                            //TODO
+                        } else if (value instanceof Collection) {
+                            saved = false;
+                            //TODO
+                        } else {
+                            saved = false;
+                            //TODO
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        field.setAccessible(false);
+                    }
+                    if (!saved && Serializable.class.isAssignableFrom(field.getType()) && value instanceof Serializable) {
+                        savedInstanceState.putSerializable(field.getName(), (Serializable) value);
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -220,12 +229,12 @@ public class AutoSaveUtil {
 
     private static Class<?> getComponentClass(Field field) {
         Type type = field.getGenericType();
-        if (type == null || !(type instanceof ParameterizedType)) {
+        if (!(type instanceof ParameterizedType)) {
             return null;
         }
         ParameterizedType parameterizedType = (ParameterizedType) type;
         Type[] types = parameterizedType.getActualTypeArguments();
-        if (types == null || types.length == 0) {
+        if (types.length == 0) {
             return null;
         }
         return (Class<?>) types[0];

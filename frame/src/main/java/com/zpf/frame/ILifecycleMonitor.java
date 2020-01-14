@@ -1,8 +1,12 @@
 package com.zpf.frame;
 
+import android.support.annotation.Nullable;
+
 import com.zpf.api.ICancelable;
 import com.zpf.api.ICustomWindow;
 import com.zpf.api.IManager;
+
+import java.lang.reflect.Type;
 
 /**
  * 常用的有生命周的监听器控制
@@ -27,8 +31,7 @@ public interface ILifecycleMonitor {
     //绑定生命周期的请求控制器
     IManager<ICancelable> getCancelableManager();
 
-    boolean addListener(Object listener);
+    boolean addListener(Object listener, @Nullable Type listenerClass);
 
-    boolean removeListener(Object listener);
-
+    boolean removeListener(Object listener, @Nullable Type listenerClass);
 }
