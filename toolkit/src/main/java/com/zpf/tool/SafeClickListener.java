@@ -37,11 +37,11 @@ public abstract class SafeClickListener<T> implements View.OnClickListener {
         }
     }
 
-    protected boolean checkInterval(long interval) {
+    private boolean checkInterval(long interval) {
         return interval > timeInterval;
     }
 
-    protected boolean checkCondition(View v, Object object) {
+    protected boolean checkCondition(View v, T condition) {
         return true;
     }
 

@@ -2,6 +2,7 @@ package com.zpf.tool.config;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.pm.ApplicationInfo;
 
 import java.lang.reflect.Method;
 
@@ -32,7 +33,7 @@ public class AppContext {
         }
     }
 
-    @SuppressLint("PrivateApi")
+    @SuppressLint({"PrivateApi", "DiscouragedPrivateApi"})
     private static Application getApplication() {
         Application application = null;
         Method method;
@@ -50,6 +51,14 @@ public class AppContext {
             }
         }
         return application;
+    }
+
+    public static boolean isDebuggable() {
+        try {
+            return (get().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

@@ -1,7 +1,6 @@
 package com.zpf.tool.config;
 
 import android.app.Application;
-import android.content.pm.ApplicationInfo;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -12,8 +11,6 @@ import java.util.UUID;
 public class GlobalConfigImpl implements GlobalConfigInterface {
     private GlobalConfigInterface realGlobalConfig;
     private final HashMap<UUID, GlobalConfigInterface> configCollection = new HashMap<>();
-    private boolean isDebug = true;
-    private boolean hasInit = false;
     private UUID uuid = UUID.randomUUID();
     private static volatile GlobalConfigImpl mInstance;
 
@@ -31,11 +28,17 @@ public class GlobalConfigImpl implements GlobalConfigInterface {
         return mInstance;
     }
 
+    public void setDefConfig(GlobalConfigInterface globalConfig) {
+        realGlobalConfig = globalConfig;
+    }
+
+    public GlobalConfigInterface getDefConfig() {
+        return realGlobalConfig;
+    }
+
     public void init(Application application, GlobalConfigInterface globalConfig) {
         AppContext.init(application);
         realGlobalConfig = globalConfig;
-        isDebug = (application.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-        hasInit = true;
     }
 
     public void add(GlobalConfigInterface globalConfig) {
@@ -47,7 +50,7 @@ public class GlobalConfigImpl implements GlobalConfigInterface {
     }
 
     public boolean isDebug() {
-        return hasInit && isDebug;
+        return AppContext.isDebuggable();
     }
 
     @Override

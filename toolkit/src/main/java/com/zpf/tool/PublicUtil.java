@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -17,6 +18,8 @@ import android.util.DisplayMetrics;
 
 import com.zpf.tool.config.AppContext;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -241,4 +244,49 @@ public class PublicUtil {
         }
         return result;
     }
+
+    /**
+     * 修复部分机型 AssetManager.finalize() 引发超时崩溃的问题
+     */
+    public static boolean fixAssetManager(String[] keyWords) {
+        if (keyWords != null && keyWords.length > 0) {
+            String device = Build.BRAND + " " + Build.MODEL;
+            for (String w : keyWords) {
+                if (w == null || w.length() == 0) {
+                    continue;
+                }
+                if (device.contains(w) || w.contains(device)) {
+                    try {
+                        // 关闭掉FinalizerWatchdogDaemon
+                        Class clazz = Class.forName("java.lang.Daemons\\$FinalizerWatchdogDaemon");
+                        Method method = clazz.getSuperclass().getDeclaredMethod("stop");
+                        method.setAccessible(true);
+                        Field field = clazz.getDeclaredField("INSTANCE");
+                        field.setAccessible(true);
+                        method.invoke(field.get(null));
+                        return true;
+                    } catch (Throwable e) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static String getMetaDataValue(@NonNull Context context, @NonNull String metaDataName) {
+        String result = null;
+        PackageManager manager = context.getPackageManager();
+        ApplicationInfo info = null;
+        try {
+            info = manager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            //
+        }
+        if (info != null && info.metaData != null) {
+            result = info.metaData.getString(metaDataName);
+        }
+        return result;
+    }
+
 }
