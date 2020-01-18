@@ -12,10 +12,6 @@ public interface IManager<T> extends OnDestroyListener{
 
     void remove(long id);
 
-    void cancel(long id);
-
-    void cancelAll();
-
     void reset();
 
 }
