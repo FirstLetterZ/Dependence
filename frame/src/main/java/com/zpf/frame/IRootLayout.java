@@ -29,4 +29,6 @@ public interface IRootLayout {
     ViewGroup getLayout();
 
     FrameLayout getContentLayout();
+
+    View getContentView();
 }
