@@ -246,7 +246,7 @@ public class ViewUtil {
         //计算缩放
         opts.inTargetDensity = targetView.getWidth() * opts.inDensity / measureOpts.outWidth;
         Bitmap bitmap = BitmapFactory.decodeResource(res, resId, opts);
-        BitmapDrawable bgDrawable = new BitmapDrawable(bitmap);
+        BitmapDrawable bgDrawable = new BitmapDrawable(res, bitmap);
         //设置填充模式，由于X轴充满视图，所以TileMode可以为null
         bgDrawable.setTileModeXY(null, Shader.TileMode.CLAMP);
         bgDrawable.setDither(true);
@@ -263,7 +263,7 @@ public class ViewUtil {
         //计算缩放
         opts.inTargetDensity = targetView.getHeight() * opts.inDensity / measureOpts.outHeight;
         Bitmap bitmap = BitmapFactory.decodeResource(res, resId, opts);
-        BitmapDrawable bgDrawable = new BitmapDrawable(bitmap);
+        BitmapDrawable bgDrawable = new BitmapDrawable(res, bitmap);
         //设置填充模式，由于Y轴充满视图，所以TileMode可以为null
         bgDrawable.setTileModeXY(Shader.TileMode.CLAMP, null);
         bgDrawable.setDither(true);
