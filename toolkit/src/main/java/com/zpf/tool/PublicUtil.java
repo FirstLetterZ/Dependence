@@ -2,12 +2,15 @@ package com.zpf.tool;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
@@ -178,7 +181,7 @@ public class PublicUtil {
     public static BigDecimal scaleNumber(Number money, int scale) {
         BigDecimal amount;
         if (money == null) {
-            amount = new BigDecimal(0);
+            amount = BigDecimal.ZERO;
         } else if (money instanceof BigDecimal) {
             amount = (BigDecimal) money;
         } else {
@@ -190,6 +193,23 @@ public class PublicUtil {
     public static String scaleNumberString(Number money, int scale) {
         return scaleNumber(money, scale).toPlainString();
     }
+
+    public static String stripTrailingZerosString(Number money, int scale) {
+        BigDecimal amount;
+        if (money == null) {
+            amount = BigDecimal.ZERO;
+        } else if (money instanceof BigDecimal) {
+            amount = (BigDecimal) money;
+        } else {
+            amount = new BigDecimal(money.doubleValue());
+        }
+        if (amount.equals(BigDecimal.ZERO)) {
+            return "0";
+        } else {
+            return amount.stripTrailingZeros().toPlainString();
+        }
+    }
+
 
     public static boolean openBrowser(Context context, String url) {
         try {
@@ -289,4 +309,13 @@ public class PublicUtil {
         return result;
     }
 
+    public static boolean copyToClipboard(Context context, String text) {
+        ClipboardManager cmb = ((ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE));
+        if (cmb != null) {
+            cmb.setPrimaryClip(ClipData.newPlainText(null, text));
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
