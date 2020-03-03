@@ -16,6 +16,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -236,37 +237,49 @@ public class ViewUtil {
         return false;
     }
 
-    public static void setClampXBgDrawable(View targetView, int resId, Resources res) {
-        //测量图片实际大小
-        BitmapFactory.Options measureOpts = new BitmapFactory.Options();
-        measureOpts.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, measureOpts);
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inDensity = res.getDisplayMetrics().densityDpi;
-        //计算缩放
-        opts.inTargetDensity = targetView.getWidth() * opts.inDensity / measureOpts.outWidth;
-        Bitmap bitmap = BitmapFactory.decodeResource(res, resId, opts);
-        BitmapDrawable bgDrawable = new BitmapDrawable(res, bitmap);
-        //设置填充模式，由于X轴充满视图，所以TileMode可以为null
-        bgDrawable.setTileModeXY(null, Shader.TileMode.CLAMP);
-        bgDrawable.setDither(true);
-        targetView.setBackground(bgDrawable);
+    public static void setClampBgDrawable(final View targetView, int resId, Resources res, boolean clampX) {
+        setClampBgDrawable(targetView, resId, res, clampX, true);
     }
 
-    public static void setClampYBgDrawable(View targetView, int resId, Resources res) {
-        //测量图片实际大小
-        BitmapFactory.Options measureOpts = new BitmapFactory.Options();
-        measureOpts.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, measureOpts);
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inDensity = res.getDisplayMetrics().densityDpi;
-        //计算缩放
-        opts.inTargetDensity = targetView.getHeight() * opts.inDensity / measureOpts.outHeight;
-        Bitmap bitmap = BitmapFactory.decodeResource(res, resId, opts);
-        BitmapDrawable bgDrawable = new BitmapDrawable(res, bitmap);
-        //设置填充模式，由于Y轴充满视图，所以TileMode可以为null
-        bgDrawable.setTileModeXY(Shader.TileMode.CLAMP, null);
-        bgDrawable.setDither(true);
-        targetView.setBackground(bgDrawable);
+    private static void setClampBgDrawable(final View targetView, final int resId, final Resources res,
+                                           final boolean clampX, boolean tryOnPreDraw) {
+        int targetWidth = 0;
+        if (targetView instanceof RecyclerView) {
+            RecyclerView.LayoutManager manager = ((RecyclerView) targetView).getLayoutManager();
+            if (manager != null) {
+                targetWidth = manager.getWidth();
+            }
+        } else {
+            targetWidth = targetView.getWidth();
+        }
+        if (targetWidth > 0) {
+            //测量图片实际大小
+            BitmapFactory.Options measureOpts = new BitmapFactory.Options();
+            measureOpts.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(res, resId, measureOpts);
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inDensity = res.getDisplayMetrics().densityDpi;
+            opts.inTargetDensity = targetWidth * opts.inDensity / measureOpts.outWidth;
+            Bitmap bitmap = BitmapFactory.decodeResource(res, resId, opts);
+            //不能使用过时的构造方法，否则可能会不生效
+            BitmapDrawable bgDrawable = new BitmapDrawable(res, bitmap);
+            //设置填充模式，由于X轴充满视图，所以TileMode可以为null
+            if (clampX) {
+                bgDrawable.setTileModeXY(Shader.TileMode.CLAMP, null);
+            } else {
+                bgDrawable.setTileModeXY(null, Shader.TileMode.CLAMP);
+            }
+            bgDrawable.setDither(true);
+            targetView.setBackground(bgDrawable);
+        } else if (tryOnPreDraw) {
+            targetView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    targetView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    setClampBgDrawable(targetView, resId, res, clampX, false);
+                    return false;
+                }
+            });
+        }
     }
 }
