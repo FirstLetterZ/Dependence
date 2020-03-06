@@ -12,12 +12,12 @@ import java.util.Objects;
  * 来自 retrofit2.Utils
  */
 public class ParameterizedTypeImpl implements ParameterizedType {
-    private final @Nullable
-    Type ownerType;
+    @Nullable
+    private final Type ownerType;
     private final Type rawType;
     private final Type[] typeArguments;
 
-    ParameterizedTypeImpl(@Nullable Type ownerType, Type rawType, Type... typeArguments) {
+    public ParameterizedTypeImpl(@Nullable Type ownerType, Type rawType, Type... typeArguments) {
         // Require an owner type if the raw type needs it.
         if (rawType instanceof Class<?>
                 && (ownerType == null) != (((Class<?>) rawType).getEnclosingClass() == null)) {

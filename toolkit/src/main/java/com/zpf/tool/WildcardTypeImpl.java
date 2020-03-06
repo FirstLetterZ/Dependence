@@ -11,10 +11,10 @@ import java.lang.reflect.WildcardType;
  */
 public class WildcardTypeImpl implements WildcardType {
     private final Type upperBound;
-    private final @Nullable
-    Type lowerBound;
+    @Nullable
+    private final Type lowerBound;
 
-    WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
+    public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
         if (lowerBounds.length > 1) throw new IllegalArgumentException();
         if (upperBounds.length != 1) throw new IllegalArgumentException();
 

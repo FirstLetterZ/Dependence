@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 public class GenericArrayTypeImpl implements GenericArrayType {
     private final Type componentType;
 
-    GenericArrayTypeImpl(Type componentType) {
+    public GenericArrayTypeImpl(Type componentType) {
         this.componentType = componentType;
     }
 
