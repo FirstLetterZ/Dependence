@@ -73,7 +73,7 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
     @Override
     public void onActivityPaused(Activity activity) {
         checkActivityInStack(activity);
-        topStackState = LifecycleState.AFTER_START;
+        topStackState = LifecycleState.AFTER_PAUSE;
     }
 
     @Override

@@ -56,10 +56,10 @@ ext {
             /* ============================== 项目内工具库 ================================ */
             dataparser            : 'com.zpf.android:api-parse:1.0.2',
             api                   : 'com.zpf.android:api-base:1.2.4',
-            global                : 'com.zpf.android:tool-config:1.1.7',
+            global                : 'com.zpf.android:tool-config:1.1.8',
             permission            : 'com.zpf.android:tool-permission:1.0.8',
             compatPermission      : 'com.zpf.android:tool-compat-permission:1.0.6',
-            toolkit               : 'com.zpf.android:tool-kit:1.2.13',
+            toolkit               : 'com.zpf.android:tool-kit:1.2.15',
             frame                 : 'com.zpf.android:api-frame:0.5.6',
             dhl                   : 'com.zpf.android:tool-dhl:1.0.0',
             fragmentManager       : 'com.zpf.android:tool-fragment-manager:1.0.0',
