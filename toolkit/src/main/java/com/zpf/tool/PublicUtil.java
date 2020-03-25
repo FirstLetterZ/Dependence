@@ -130,7 +130,7 @@ public class PublicUtil {
     /**
      * 将App转到前台
      */
-    public static void moveTaskToTop(Context context) {
+    public static boolean moveTaskToTop(Context context) {
         ActivityManager myManager = (ActivityManager) AppContext.get().getSystemService(Context.ACTIVITY_SERVICE);
         if (myManager != null) {
             List<ActivityManager.RunningTaskInfo> runningTaskList = myManager.getRunningTasks(16);
@@ -138,11 +138,12 @@ public class PublicUtil {
                 for (ActivityManager.RunningTaskInfo taskInfo : runningTaskList) {
                     if (TextUtils.equals(context.getPackageName(), taskInfo.topActivity.getPackageName())) {
                         myManager.moveTaskToFront(taskInfo.id, 0);
-                        break;
+                        return true;
                     }
                 }
             }
         }
+        return false;
     }
 
     /**
