@@ -1,10 +1,13 @@
 package com.zpf.api;
 
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntRange;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.view.View;
 
@@ -28,6 +31,14 @@ public interface IconText {
     void setImageHeight(int dpHeight);
 
     int getImageHeight();
+
+    void setImageTintList(@Nullable ColorStateList tint);
+
+    ColorStateList getImageTintList();
+
+    void setImageTintMode(@Nullable PorterDuff.Mode tintMode);
+
+    PorterDuff.Mode getImageTintMode();
 
     void setIconFont(@StringRes int id);
 

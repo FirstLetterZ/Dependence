@@ -8,18 +8,25 @@ import java.util.concurrent.TimeUnit;
  * Created by ZPF on 2018/6/15.
  */
 public class TimeCountUtil {
-    private long unit = 1;
     private TimeCountListener listener;
     private CountDownTimer countDownTimer;
+    private long offset = 0;
 
     public TimeCountUtil(long second) {
-        this.unit = 1000;
-        createCountDownTimer(second * unit, unit);
+        createCountDownTimer(second * 1000, 1000);
     }
 
-    private TimeCountUtil(long millisInFuture, TimeUnit timeUnit) {
-        initUtil(timeUnit);
-        createCountDownTimer(millisInFuture * unit, unit);
+    public TimeCountUtil(long millisInFuture, long countDownInterval, TimeUnit timeUnit) {
+        long unit = timeUnit.toMillis(1);
+        createCountDownTimer(millisInFuture * unit, countDownInterval * unit);
+    }
+
+    public void setSecondOffset(long offset) {
+        this.offset = offset * TimeUnit.SECONDS.toMillis(1);
+    }
+
+    public void setUnitOffset(long offset, TimeUnit timeUnit) {
+        this.offset = offset * timeUnit.toMillis(1);
     }
 
     public void setListener(TimeCountListener listener) {
@@ -38,33 +45,27 @@ public class TimeCountUtil {
         }
     }
 
-    private void initUtil(TimeUnit timeUnit) {
-        if (timeUnit == TimeUnit.SECONDS) {
-            this.unit = 1000;
-        } else if (timeUnit == TimeUnit.MINUTES) {
-            this.unit = 1000 * 60;
-        } else if (timeUnit == TimeUnit.HOURS) {
-            this.unit = 1000 * 60 * 60;
-        } else if (timeUnit == TimeUnit.DAYS) {
-            this.unit = 1000 * 60 * 60 * 24;
-        }
-    }
-
     private void createCountDownTimer(long millisInFuture, long countDownInterval) {
         countDownTimer = new CountDownTimer(millisInFuture, countDownInterval) {
             @Override
             public void onTick(long millisUntilFinished) {
-                if (listener != null) {
-                    millisUntilFinished = millisUntilFinished / 1000;
+                long leftTime = millisUntilFinished - offset;
+                if (leftTime <= 0) {
+                    cancel();
+                    if (listener != null) {
+                        listener.onTimeFinish();
+                    }
+                } else if (listener != null) {
+                    leftTime = leftTime / 1000;
                     if (listener instanceof SecondCountListener) {
-                        ((SecondCountListener) listener).onTimeCutDown(millisUntilFinished);
+                        ((SecondCountListener) listener).onTimeCutDown(leftTime);
                     } else if (listener instanceof DayCountListener) {
-                        int second = (int) (millisUntilFinished % 60);
-                        millisUntilFinished = millisUntilFinished / 60;
-                        int minute = (int) (millisUntilFinished % 60);
-                        millisUntilFinished = millisUntilFinished / 60;
-                        int hour = (int) (millisUntilFinished % 24);
-                        int day = (int) (millisUntilFinished / 24);
+                        int second = (int) (leftTime % 60);
+                        leftTime = leftTime / 60;
+                        int minute = (int) (leftTime % 60);
+                        leftTime = leftTime / 60;
+                        int hour = (int) (leftTime % 24);
+                        int day = (int) (leftTime / 24);
                         ((DayCountListener) listener).onTimeCutDown(day, hour, minute, second);
                     }
                 }
