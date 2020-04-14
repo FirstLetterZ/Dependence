@@ -168,7 +168,7 @@ public abstract class PermissionChecker<T> {
         List<String> missPermissionList = new ArrayList<>();
         for (int i = 0; i < grantResults.length; i++) {
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                if (permissions.length < i) {
+                if (permissions.length > i) {
                     missPermissionList.add(permissions[i]);
                 }
             }
