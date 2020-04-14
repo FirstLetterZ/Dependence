@@ -37,7 +37,7 @@ public abstract class PermissionChecker<T> {
         permissionList.add(new PermissionInfo(Manifest.permission.GET_ACCOUNTS, "访问账户列表", Manifest.permission_group.CONTACTS));
 
         permissionList.add(new PermissionInfo(Manifest.permission.READ_CALL_LOG, "读取通话记录", Manifest.permission_group.PHONE));
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_PHONE_STATE, "读取电话状态", Manifest.permission_group.PHONE));
+        permissionList.add(new PermissionInfo(Manifest.permission.READ_PHONE_STATE, "获取本机识别码", Manifest.permission_group.PHONE));
         permissionList.add(new PermissionInfo(Manifest.permission.CALL_PHONE, "拨打电话", Manifest.permission_group.PHONE));
         permissionList.add(new PermissionInfo(Manifest.permission.WRITE_CALL_LOG, "写入通话记录", Manifest.permission_group.PHONE));
         permissionList.add(new PermissionInfo(Manifest.permission.USE_SIP, "使用SIP视频", Manifest.permission_group.PHONE));
@@ -54,8 +54,8 @@ public abstract class PermissionChecker<T> {
         permissionList.add(new PermissionInfo(Manifest.permission.ACCESS_FINE_LOCATION, "获取精确位置", Manifest.permission_group.LOCATION));
         permissionList.add(new PermissionInfo(Manifest.permission.ACCESS_COARSE_LOCATION, "获取粗略位置", Manifest.permission_group.LOCATION));
 
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_EXTERNAL_STORAGE, "读取外部存储", Manifest.permission_group.STORAGE));
-        permissionList.add(new PermissionInfo(Manifest.permission.WRITE_EXTERNAL_STORAGE, "写入外部存储", Manifest.permission_group.STORAGE));
+        permissionList.add(new PermissionInfo(Manifest.permission.READ_EXTERNAL_STORAGE, "读取手机存储", Manifest.permission_group.STORAGE));
+        permissionList.add(new PermissionInfo(Manifest.permission.WRITE_EXTERNAL_STORAGE, "写入手机存储", Manifest.permission_group.STORAGE));
 
         permissionList.add(new PermissionInfo(Manifest.permission.RECORD_AUDIO, "录音", Manifest.permission_group.MICROPHONE));
 
