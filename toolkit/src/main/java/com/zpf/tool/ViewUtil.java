@@ -144,6 +144,7 @@ public class ViewUtil {
         return view != null && (float) view.getScrollY() >= (float) view.getContentHeight() * view.getScale() - (float) view.getMeasuredHeight();
     }
 
+    //获取状态栏高度
     public static int getStatusBarHeight(Context context) {
         int height = 0;
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen",
@@ -154,6 +155,21 @@ public class ViewUtil {
         if (height == 0) {
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24,
                     context.getResources().getDisplayMetrics());
+        }
+        return height;
+    }
+
+    //获取虚拟按键高度
+    public static int getNavigationBarHeight(Context context) {
+        int height = 0;
+        int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen",
+                "android");
+        if (resourceId != 0) {
+            try {
+                height = context.getResources().getDimensionPixelSize(resourceId);
+            } catch (Exception e) {
+                //
+            }
         }
         return height;
     }

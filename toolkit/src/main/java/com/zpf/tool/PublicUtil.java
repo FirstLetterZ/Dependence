@@ -317,4 +317,17 @@ public class PublicUtil {
             return false;
         }
     }
+
+    public static boolean openMarket(Context context) {
+        String pkgName = context.getPackageName();
+        Uri uri = Uri.parse("market://details?id=" + pkgName);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        try {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
