@@ -1,7 +1,5 @@
 package com.zpf.frame;
 
-import android.view.View;
-
 /**
  * Created by ZPF on 2019/3/1.
  */
@@ -13,5 +11,9 @@ public interface ILoadingManager {
 
     boolean hideLoading();
 
-    View getLoadingView();
+    void addStateListener(ILoadingStateListener listener);
+
+    void removeStateListener(ILoadingStateListener listener);
+
+    Object getLoadingView();
 }
