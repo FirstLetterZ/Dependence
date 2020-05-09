@@ -129,6 +129,20 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
         }
     }
 
+    @StackElementState
+    public int getStackItemState(String name) {
+        IStackItem stackItem = stackInfo.get(name);
+        if (stackItem == null) {
+            return StackElementState.STACK_OUTSIDE;
+        } else {
+            return stackItem.getItemState();
+        }
+    }
+
+    public int getStackSize() {
+        return stackInfo.getSize();
+    }
+
     @LifecycleState
     public int getTopActivityState() {
         return topStackState;

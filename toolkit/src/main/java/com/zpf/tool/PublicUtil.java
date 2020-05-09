@@ -10,7 +10,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
@@ -112,11 +111,11 @@ public class PublicUtil {
         return false;
     }
 
-    public static boolean isPackageProces() {
-        ActivityManager activityManager = (ActivityManager) AppContext.get().getSystemService(Context.ACTIVITY_SERVICE);
+    public static boolean isPackageProces(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
             List<ActivityManager.RunningAppProcessInfo> appProcessInfoList = activityManager.getRunningAppProcesses();
-            String mainProcessName = AppContext.get().getPackageName();
+            String mainProcessName = context.getPackageName();
             int myPid = Process.myPid();
             for (ActivityManager.RunningAppProcessInfo info : appProcessInfoList) {
                 if (info.pid == myPid && mainProcessName.equals(info.processName)) {
@@ -131,7 +130,7 @@ public class PublicUtil {
      * 将App转到前台
      */
     public static boolean moveTaskToTop(Context context) {
-        ActivityManager myManager = (ActivityManager) AppContext.get().getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager myManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (myManager != null) {
             List<ActivityManager.RunningTaskInfo> runningTaskList = myManager.getRunningTasks(16);
             if (runningTaskList != null && runningTaskList.size() > 0) {
