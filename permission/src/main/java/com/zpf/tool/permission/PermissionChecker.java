@@ -213,7 +213,7 @@ public abstract class PermissionChecker<T> {
         return true;
     }
 
-    public boolean checkToastEnabled(Context context) {
+    public boolean checkNoticeEnabled(Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
             NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(
                     Context.NOTIFICATION_SERVICE);
