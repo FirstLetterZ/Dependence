@@ -111,7 +111,7 @@ public class PublicUtil {
         return false;
     }
 
-    public static boolean isPackageProces(Context context) {
+    public static boolean isPackageProcess(Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
             List<ActivityManager.RunningAppProcessInfo> appProcessInfoList = activityManager.getRunningAppProcesses();
