@@ -1,7 +1,7 @@
 package com.zpf.frame;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * Created by ZPF on 2019/6/12.

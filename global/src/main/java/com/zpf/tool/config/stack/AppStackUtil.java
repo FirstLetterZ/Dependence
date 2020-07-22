@@ -3,7 +3,7 @@ package com.zpf.tool.config.stack;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.zpf.tool.config.LifecycleState;

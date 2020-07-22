@@ -1,6 +1,6 @@
 package com.zpf.frame;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.zpf.api.ICancelable;
 import com.zpf.api.ICustomWindow;

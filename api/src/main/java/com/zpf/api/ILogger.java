@@ -1,6 +1,6 @@
 package com.zpf.api;
 
-import android.support.annotation.IntRange;
+import androidx.annotation.IntRange;
 import android.util.Log;
 
 /**

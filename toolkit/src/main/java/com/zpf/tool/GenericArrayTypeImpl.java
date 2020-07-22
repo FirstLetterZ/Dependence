@@ -1,6 +1,6 @@
 package com.zpf.tool;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;

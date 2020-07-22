@@ -1,6 +1,6 @@
 package com.zpf.api;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * 回调处理

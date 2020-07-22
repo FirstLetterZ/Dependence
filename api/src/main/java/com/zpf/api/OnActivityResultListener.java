@@ -1,7 +1,7 @@
 package com.zpf.api;
 
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * Created by ZPF on 2018/6/13.

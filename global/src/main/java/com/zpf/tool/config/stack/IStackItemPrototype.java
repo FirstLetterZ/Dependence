@@ -1,6 +1,6 @@
 package com.zpf.tool.config.stack;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public interface IStackItemPrototype {
     @NonNull

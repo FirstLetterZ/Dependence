@@ -1,7 +1,7 @@
 package com.zpf.frame;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 import android.view.View;
 
 /**

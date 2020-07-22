@@ -1,2 +1,2 @@
-include ':api', ':global', ':frame', ':dataparser', ':permission', ':compatPermission',':dhl',
-        ':fingerprint',':toolkit',':fragmentManager',':compatFragmentManager'
+include ':api', ':global', ':frame', ':dataparser', ':permission', ':compatPermission', ':dhl',
+        ':fingerprint', ':toolkit', ':rvexpand', ':fragmentManager', ':compatFragmentManager'

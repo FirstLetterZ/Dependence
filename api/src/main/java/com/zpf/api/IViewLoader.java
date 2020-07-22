@@ -1,6 +1,6 @@
 package com.zpf.api;
 
-import android.support.annotation.DrawableRes;
+import androidx.annotation.DrawableRes;
 import android.view.View;
 
 /**

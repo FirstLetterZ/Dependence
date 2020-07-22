@@ -4,7 +4,7 @@ package com.zpf.tool.config.stack;
  * Created by ZPF on 2019/5/15.
  */
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,6 +1,6 @@
 package com.zpf.api;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by ZPF on 2019/1/24.

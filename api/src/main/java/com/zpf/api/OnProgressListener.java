@@ -5,8 +5,8 @@ package com.zpf.api;
  */
 public interface OnProgressListener {
     /**
-     * @param total 总数据量
+     * @param total   总数据量
      * @param current 当前进度量
      */
-    void onChanged( long total, long current);
+    void onChanged(long total, long current);
 }

@@ -10,9 +10,6 @@ import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +19,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.AbsListView;
-
-import java.lang.reflect.Field;
 
 public class ViewUtil {
     public static boolean isViewToTop(View view) {
@@ -43,55 +38,6 @@ public class ViewUtil {
         }
     }
 
-    public static boolean isRecyclerViewToTop(RecyclerView recyclerView) {
-        if (recyclerView == null) {
-            return false;
-        } else {
-            RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
-            if (manager == null || manager.getChildCount() == 0) {
-                return true;
-            } else {
-                if (manager instanceof LinearLayoutManager) {
-                    int firstChildTop = 0;
-                    if (recyclerView.getChildCount() > 0) {
-                        View firstChild = recyclerView.getChildAt(0);
-                        if (firstChild == null) {
-                            return false;
-                        }
-                        // 处理item高度超过一屏幕时的情况
-                        if (firstChild.getMeasuredHeight() >= recyclerView.getMeasuredHeight()) {
-                            return !recyclerView.canScrollVertically(-1);
-                        }
-                        RecyclerView.LayoutParams childParams = (RecyclerView.LayoutParams) firstChild.getLayoutParams();
-                        firstChildTop = firstChild.getTop() - childParams.topMargin -
-                                getRecyclerViewItemTopInset(childParams) - recyclerView.getPaddingTop();
-                    }
-                    if (((LinearLayoutManager) manager).findFirstCompletelyVisibleItemPosition() < 1 && firstChildTop == 0) {
-                        return true;
-                    }
-                } else if (manager instanceof StaggeredGridLayoutManager) {
-                    int[] out = ((StaggeredGridLayoutManager) manager).findFirstCompletelyVisibleItemPositions((int[]) null);
-                    if (out[0] < 1) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-    }
-
-    private static int getRecyclerViewItemTopInset(RecyclerView.LayoutParams layoutParams) {
-        try {
-            Field field = RecyclerView.LayoutParams.class.getDeclaredField("mDecorInsets");
-            field.setAccessible(true);
-            Rect rect = (Rect) field.get(layoutParams);
-            return rect.top;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
     public static boolean isAbsListViewToBottom(AbsListView absListView) {
         if (absListView != null && absListView.getAdapter() != null && absListView.getChildCount() > 0
                 && absListView.getLastVisiblePosition() == absListView.getAdapter().getCount() - 1) {
@@ -102,38 +48,9 @@ public class ViewUtil {
         }
     }
 
-    public static boolean isRecyclerViewToBottom(RecyclerView recyclerView) {
-        if (recyclerView != null) {
-            RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
-            if (manager != null && manager.getItemCount() > 0) {
-                if (manager instanceof LinearLayoutManager) {
-                    int lastVisiblePosition = ((LinearLayoutManager) manager).findLastVisibleItemPosition();
-                    int childCount = manager.getItemCount();
-                    boolean isLast = lastVisiblePosition == childCount - 1;
-                    boolean cannotScroll = !recyclerView.canScrollVertically(1);
-                    return isLast && cannotScroll;
-                } else if (manager instanceof StaggeredGridLayoutManager) {
-                    StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) manager;
-                    int[] out = layoutManager.findLastCompletelyVisibleItemPositions(null);
-                    int lastPosition = layoutManager.getItemCount() - 1;
-                    for (int position : out) {
-                        if (position == lastPosition) {
-                            return true;
-                        }
-                    }
-                } else {
-                    return false;
-                }
-            }
-        }
-        return false;
-    }
-
     /**
      * 视图必须可以滚动
      * 即view.getChildAt(0).getHeight() 大于 view.getMeasuredHeight()
-     *
-     * @param view
      */
     public static boolean isViewGroupToBottom(ViewGroup view) {
         return view != null && view.getChildAt(0) != null &&
@@ -259,15 +176,7 @@ public class ViewUtil {
 
     private static void setClampBgDrawable(final View targetView, final int resId, final Resources res,
                                            final boolean clampX, boolean tryOnPreDraw) {
-        int targetWidth = 0;
-        if (targetView instanceof RecyclerView) {
-            RecyclerView.LayoutManager manager = ((RecyclerView) targetView).getLayoutManager();
-            if (manager != null) {
-                targetWidth = manager.getWidth();
-            }
-        } else {
-            targetWidth = targetView.getWidth();
-        }
+        int targetWidth = targetView.getWidth();
         if (targetWidth > 0) {
             //测量图片实际大小
             BitmapFactory.Options measureOpts = new BitmapFactory.Options();

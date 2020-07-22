@@ -1,6 +1,6 @@
 package com.zpf.api.dataparser;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
