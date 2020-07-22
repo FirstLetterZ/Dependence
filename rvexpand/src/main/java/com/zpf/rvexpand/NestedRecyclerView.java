@@ -18,14 +18,17 @@ public class NestedRecyclerView extends RecyclerView {
 
     public NestedRecyclerView(@NonNull Context context) {
         super(context);
+        onViewCreate(context);
     }
 
     public NestedRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        onViewCreate(context);
     }
 
     public NestedRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        onViewCreate(context);
     }
 
     protected void onViewCreate(Context context) {

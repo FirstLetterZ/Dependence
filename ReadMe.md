@@ -22,7 +22,8 @@ Android工具库
 ./gradlew -p compatFragmentManager clean install bintrayUpload --info
 ./gradlew -p toolkit clean install bintrayUpload --info
 ./gradlew -p global clean install bintrayUpload --info
-    
+./gradlew -p rvexpand clean install bintrayUpload --info
+
 #### 全部发布
 >./gradlew clean install bintrayUpload --info
 
