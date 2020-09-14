@@ -1,7 +1,5 @@
 package com.zpf.rvexpand;
 
-import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -9,31 +7,31 @@ public class LoadMoreHelper {
     private long lastScrollBottomTime;
     private boolean enable = true;
     private boolean loading = false;
-    private RecyclerView.ViewHolder bottomViewHolder;
+    private LoadMoreViewHolder viewHolder;
     private BottomHolderListener listener;
     private RecyclerView.OnScrollListener scrollEndListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-            final View itemView = bottomViewHolder.itemView;
             if (!enable) {
-                itemView.setVisibility(View.GONE);
+                viewHolder.onLoading(false);
                 return;
             }
             if (listener == null || loading || System.currentTimeMillis() - lastScrollBottomTime < 500) {
                 return;
             }
             for (int i = 0; i < recyclerView.getChildCount(); i++) {
-                if (recyclerView.getChildAt(i) == itemView) {
+                if (recyclerView.getChildAt(i) == viewHolder.getItemView()) {
                     lastScrollBottomTime = System.currentTimeMillis();
-                    changeState(listener.shouldShowHolder(bottomViewHolder), true);
+                    changeState(listener.shouldShowHolder(viewHolder), true);
                     break;
                 }
             }
         }
     };
 
-    public LoadMoreHelper(@NonNull RecyclerView.ViewHolder bottomViewHolder) {
-        this.bottomViewHolder = bottomViewHolder;
+    public LoadMoreHelper(@NonNull LoadMoreViewHolder holder) {
+        this.viewHolder = holder;
+        viewHolder.onLoading(false);
     }
 
     public void attachedToRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -45,15 +43,15 @@ public class LoadMoreHelper {
     }
 
     public void changeState(boolean loadMore, boolean enableLoad) {
-        loading = loadMore;
-        enable = enableLoad;
-        final View itemView = bottomViewHolder.itemView;
-        if (!enableLoad) {
-            itemView.setVisibility(View.GONE);
-        } else if (loading) {
-            itemView.setVisibility(View.VISIBLE);
-        } else {
-            itemView.setVisibility(View.GONE);
+        if (enable != enableLoad) {
+            enable = enableLoad;
+            if (!enable) {
+                loadMore = false;
+            }
+        }
+        if (loading != loadMore) {
+            loading = loadMore;
+            viewHolder.onLoading(loading);
         }
     }
 
@@ -70,8 +68,8 @@ public class LoadMoreHelper {
     }
 
     @NonNull
-    public RecyclerView.ViewHolder getBottomHolder() {
-        return bottomViewHolder;
+    public LoadMoreViewHolder getViewHolder() {
+        return viewHolder;
     }
 
 }
