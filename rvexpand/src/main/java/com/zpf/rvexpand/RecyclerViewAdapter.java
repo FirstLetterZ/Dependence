@@ -23,9 +23,26 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     private boolean holderRecyclable = true;
     private ItemViewCreator itemViewCreator;
     private ItemTypeManager itemTypeManager;
+    public LoadMoreHelper loadMoreHelper;
 
     public RecyclerViewAdapter() {
         setHasStableIds(true);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        if (loadMoreHelper != null) {
+            loadMoreHelper.attachedToRecyclerView(recyclerView);
+        }
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        if (loadMoreHelper != null) {
+            loadMoreHelper.detachedFromRecyclerView(recyclerView);
+        }
     }
 
     @NonNull
@@ -54,7 +71,12 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public int getItemCount() {
-        return dataList.size();
+        int size = dataList.size();
+        if (size > 0 && loadMoreHelper != null) {
+            return size + 1;
+        } else {
+            return size;
+        }
     }
 
     public RecyclerViewAdapter<T> setItemClickListener(@Nullable OnItemClickListener itemClickListener) {

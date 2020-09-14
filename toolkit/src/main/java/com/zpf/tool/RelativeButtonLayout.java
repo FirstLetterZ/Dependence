@@ -6,9 +6,6 @@ import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
 public class RelativeButtonLayout extends RelativeLayout implements IButtonLayout {
-    private boolean isMove = false;
-    private float downX = 0f;
-    private float downY = 0f;
     private float touchAlpha = 0.8f;
 
     public RelativeButtonLayout(Context context) {
@@ -28,14 +25,6 @@ public class RelativeButtonLayout extends RelativeLayout implements IButtonLayou
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 onTouchDown();
-                isMove = false;
-                downX = ev.getRawX();
-                downY = ev.getRawY();
-            }
-            case MotionEvent.ACTION_MOVE: {
-                if(!isMove){
-                    isMove = (Math.abs(downX - ev.getRawX()) > 3 || Math.abs(downY - ev.getRawY()) > 3);
-                }
             }
             case MotionEvent.ACTION_UP: {
                 onTouchUp();
@@ -58,7 +47,9 @@ public class RelativeButtonLayout extends RelativeLayout implements IButtonLayou
 
     @Override
     public void onTouchDown() {
-        setAlpha(touchAlpha);
+        if (isEnabled()) {
+            setAlpha(touchAlpha);
+        }
     }
 
     @Override
