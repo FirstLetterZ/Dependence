@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!" />
+
+    <com.zpf.views.DashedView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        app:dashColor="@color/colorPrimary"
+        app:dashGap="8dp"
+        app:dashType="horizontal"
+        app:dashWidth="16dp"
+        app:strokeWidth="2dp" />
+
+    <com.zpf.views.DashedView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="40dp"
+        app:dashColor="@color/colorPrimary"
+        app:dashGap="8dp"
+        app:dashType="circle"
+        app:dashWidth="4dp"
+        app:strokeWidth="2dp" />
+
+    <com.zpf.views.FoldedTagTextView
+        android:layout_marginTop="20dp"
+        android:id="@+id/tv_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
