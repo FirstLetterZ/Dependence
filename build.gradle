@@ -53,7 +53,7 @@ ext {
             toolkit              : 'com.zpf.android:tool-kit:2.0.2',
             frame                : 'com.zpf.android:api-frame:1.0.0',
             rvexpand             : 'com.zpf.android:rvexpand:1.0.0',
-            views                : 'com.zpf.android:tool-views:0.0.6',
+            views                : 'com.zpf.android:tool-views:0.0.7',
     ]
 }
 

@@ -293,6 +293,7 @@ public class FoldedTagTextView extends TextView {
                             drawInfoList.add(drawInfoHelper.getDrawInfo(
                                     textInfo.content.substring(startIndex, endIndex),
                                     textInfo.type, textInfo.id, textInfo.color, usedWidth, lastWidth, currentLine, false));
+                            usedWidth = usedWidth + measureWidth;
                             break;
                         } else {
                             endIndex++;
