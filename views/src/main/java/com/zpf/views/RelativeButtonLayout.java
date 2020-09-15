@@ -1,22 +1,22 @@
-package com.zpf.tool;
+package com.zpf.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
-public class LinearButtonLayout extends LinearLayout implements IButtonLayout {
+public class RelativeButtonLayout extends RelativeLayout implements IButtonLayout {
     private float touchAlpha = 0.8f;
 
-    public LinearButtonLayout(Context context) {
+    public RelativeButtonLayout(Context context) {
         super(context);
     }
 
-    public LinearButtonLayout(Context context, AttributeSet attrs) {
+    public RelativeButtonLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public LinearButtonLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RelativeButtonLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
