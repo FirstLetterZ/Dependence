@@ -41,15 +41,36 @@ public class MainActivity extends AppCompatActivity {
         info3.type = 2;
 
         TypeTextInfo info4 = new TypeTextInfo();
-        info4.content = "是否过很多很多\n\n话撒过的大手大脚飞机开放\n看过来看刚回来是否过很多很多话\n撒过的大手大脚飞机开放看过来看刚回来是否过很多很多话撒过的大手大脚飞机开放看过来看刚回来是否过很多很多话撒过的大手大脚飞机开放看过来看刚回来";
+        info4.content = "是否过\n很多很多";
         info4.color = Color.DKGRAY;
         info4.id = 3;
         info4.type = 3;
+
+        TypeTextInfo info5 = new TypeTextInfo();
+        info5.content = "过来看刚回来是否过很多很多话撒过的大手大脚飞机开放看过来看刚回来";
+        info5.color = Color.GREEN;
+        info5.id = 4;
+        info5.type = 4;
+
+        TypeTextInfo info6 = new TypeTextInfo();
+        info6.content = "@三个地方喝喝";
+        info6.color = Color.BLUE;
+        info6.id = 4;
+        info6.type = 5;
+
+        TypeTextInfo info7 = new TypeTextInfo();
+        info7.content = "撒过的大手大脚飞机开放看过来看刚回来";
+        info7.color = Color.LTGRAY;
+        info7.id = 6;
+        info7.type = 6;
 
         textInfoList.add(info1);
         textInfoList.add(info2);
         textInfoList.add(info3);
         textInfoList.add(info4);
+        textInfoList.add(info5);
+        textInfoList.add(info6);
+        textInfoList.add(info7);
         tagTextView.setEllipsisColor(Color.YELLOW);
         tagTextView.setTypeTextArray(textInfoList);
         tagTextView.setOnClickListener(new View.OnClickListener() {
@@ -61,21 +82,11 @@ public class MainActivity extends AppCompatActivity {
         tagTextView.setTypeClickListener(new TypeClickListener() {
             @Override
             public boolean onClickTypeText(int type, int id) {
-                if (type == 0) {
-                    Toast.makeText(MainActivity.this, textInfoList.get(type).content, Toast.LENGTH_SHORT).show();
+                if (id >= 0 && id < textInfoList.size()) {
+                    Toast.makeText(MainActivity.this, textInfoList.get(id).content, Toast.LENGTH_SHORT).show();
                     return true;
-                } else if (type == 1) {
-                    Toast.makeText(MainActivity.this, textInfoList.get(type).content, Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (type == 2) {
-                    Toast.makeText(MainActivity.this, textInfoList.get(type).content, Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (type == 3) {
-                    Toast.makeText(MainActivity.this, textInfoList.get(type).content, Toast.LENGTH_SHORT).show();
-                    return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
 
             @Override

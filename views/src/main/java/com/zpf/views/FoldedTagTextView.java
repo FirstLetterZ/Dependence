@@ -21,8 +21,8 @@ import java.util.List;
 
 public class FoldedTagTextView extends TextView {
     private List<TypeTextInfo> contentTextList;
-    private String ellipsisText = "…全文";
-    private int ellipsisColor = Color.BLACK;
+    private String ellipsisText;
+    private int ellipsisColor;
     private DrawInfoHelper drawInfoHelper = new DrawInfoHelper();
     private List<DrawInfo> drawInfoList = new ArrayList<>();
     private TypeTextInfo defTypeTextInfo;
@@ -82,6 +82,11 @@ public class FoldedTagTextView extends TextView {
             ellipsisColor = typedArray.getColor(R.styleable.FoldedTagTextView_ellipsis_color, Color.BLACK);
             ellipsisText = typedArray.getString(R.styleable.FoldedTagTextView_ellipsis_text);
             typedArray.recycle();
+        } else {
+            ellipsisColor = getTextColors().getDefaultColor();
+        }
+        if (ellipsisText == null) {
+            ellipsisText = "…全文";
         }
     }
 
@@ -139,7 +144,9 @@ public class FoldedTagTextView extends TextView {
             } else {
                 defTypeTextInfo.content = text.toString();
             }
-            contentTextList.add(defTypeTextInfo);
+            if (defTypeTextInfo.content != null && defTypeTextInfo.content.length() > 0) {
+                contentTextList.add(defTypeTextInfo);
+            }
             checkMeasure();
         }
     }
@@ -153,9 +160,6 @@ public class FoldedTagTextView extends TextView {
 
     public void setEllipsisColor(int color) {
         ellipsisColor = color;
-        if (hasMeasured) {
-            invalidate();
-        }
     }
 
     public void addTypeText(TypeTextInfo text) {
@@ -217,7 +221,7 @@ public class FoldedTagTextView extends TextView {
 
     private int calculateHeight(int width) {
         int realWidth = width - getPaddingStart() - getPaddingEnd();
-        if (realWidth <= 0) {
+        if (realWidth <= 0 || contentTextList.size() == 0) {
             return getPaddingTop() + getPaddingBottom();
         }
         Paint paint = getPaint();
@@ -227,14 +231,19 @@ public class FoldedTagTextView extends TextView {
         float lastWidth;
         float measureWidth;
         float usedWidth = 0f;
-        float ellipsisWidth = paint.measureText(ellipsisText);
+        float ellipsisWidth;
+        if (ellipsisText == null || ellipsisText.length() == 0) {
+            ellipsisWidth = 0;
+        } else {
+            ellipsisWidth = paint.measureText(ellipsisText);
+        }
         drawInfoList.clear();
         drawInfoHelper.reset(this, paint);
         for (TypeTextInfo textInfo : contentTextList) {
             startIndex = 0;
             endIndex = startIndex + 1;
             measureWidth = 0;
-            if (textInfo != null && textInfo.content.length() > 0) {
+            if (textInfo.content != null && textInfo.content.length() > 0) {
                 if (currentLine == 0) {
                     currentLine = 1;
                 }

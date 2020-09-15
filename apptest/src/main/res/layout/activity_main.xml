@@ -32,8 +32,9 @@
         app:strokeWidth="2dp" />
 
     <com.zpf.views.FoldedTagTextView
-        android:layout_marginTop="20dp"
         android:id="@+id/tv_tag"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:maxLines="4" />
 </LinearLayout>
