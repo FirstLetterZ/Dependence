@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         TypeTextInfo info6 = new TypeTextInfo();
         info6.content = "@三个地方喝喝";
         info6.color = Color.BLUE;
-        info6.id = 4;
+        info6.id = 5;
         info6.type = 5;
 
         TypeTextInfo info7 = new TypeTextInfo();

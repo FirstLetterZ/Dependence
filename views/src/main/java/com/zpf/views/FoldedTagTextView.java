@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -16,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class FoldedTagTextView extends TextView {
@@ -292,7 +290,8 @@ public class FoldedTagTextView extends TextView {
                         } else if (endIndex == textInfo.content.length()) {
                             drawInfoList.add(drawInfoHelper.getDrawInfo(
                                     textInfo.content.substring(startIndex, endIndex),
-                                    textInfo.type, textInfo.id, textInfo.color, usedWidth, lastWidth, currentLine, false));
+                                    textInfo.type, textInfo.id, textInfo.color,
+                                    usedWidth, lastWidth, currentLine, false));
                             usedWidth = usedWidth + measureWidth;
                             break;
                         } else {
@@ -325,7 +324,6 @@ public class FoldedTagTextView extends TextView {
                 }
             }
         }
-        Log.e("ZPF", "infoList=" + Arrays.toString(drawInfoList.toArray()) + ";currentLine=" + currentLine);
         return getPaddingTop() + getPaddingBottom() + currentLine * drawInfoHelper.lineHeight;
     }
 
