@@ -24,4 +24,17 @@
         <attr name="ellipsis_color" format="color" />
         <attr name="ellipsis_text" format="string"/>
     </declare-styleable>
+    <declare-styleable name="TagTextView">
+        <attr name="ellipsisColor" format="color" />
+        <attr name="ellipsisText" format="string"/>
+        <attr name="maxLines" format="integer"/>
+        <attr name="paragraphSpace" format="dimension"/>
+        <attr name="lineHeight" format="dimension"/>
+        <attr name="fontSize" format="dimension"/>
+        <attr name="fontColor" format="color"/>
+        <attr name="bold" format="boolean"/>
+        <attr name="italic" format="boolean"/>
+        <attr name="underline" format="boolean"/>
+        <attr name="strikeThru" format="boolean"/>
+    </declare-styleable>
 </resources>

@@ -1,12 +1,13 @@
 package com.zpf.views;
 
 public class TypeTextInfo {
-    public  int type;
-    public  int id;
-    public  int color;
-    public  String content;
+    public int type;
+    public int id;
+    public int color;
+    public String content;
 
     public TypeTextInfo() {
+        id = hashCode();
     }
 
     public TypeTextInfo(int type, int id, int color, String content) {
