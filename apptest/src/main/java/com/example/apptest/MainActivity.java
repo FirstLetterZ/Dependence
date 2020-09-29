@@ -2,6 +2,7 @@ package com.example.apptest;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -46,11 +47,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickTwo(View view) {
-        tagTextView.clearContent();
-        tagTextView.addTextItem("美联社说，过去几周以来，纽约州单日新增病例数一直在以微小幅度上升。", 0).color = Color.YELLOW;
-        tagTextView.addTextItem("这可能与生产经营活动增加，大、中、小学逐步开学等有关。\n", 1).color = Color.RED;
-        tagTextView.addTextItem("纽约市公立学校低年级21日起分批次开学；29日起，公校的中高年级也将开始分批次开学。", 2).color = Color.GREEN;
-        tagTextView.checkRefresh();
+        Intent intent = new Intent(this, ImageActivity.class);
+        startActivity(intent);
     }
 
     public void setTagInfo(TagTextView textView) {

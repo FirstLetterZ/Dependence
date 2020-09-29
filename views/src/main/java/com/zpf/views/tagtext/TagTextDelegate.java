@@ -9,8 +9,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.zpf.views.TypeClickListener;
-
 import java.util.ArrayList;
 
 public class TagTextDelegate {
@@ -34,11 +32,11 @@ public class TagTextDelegate {
     private float upY = -1f;
     private float lastY = -1f;
     private View.OnClickListener defClickListener;
-    private TypeClickListener typeClickListener;
+    private TagItemClickListener itemlickListener;
     private View.OnClickListener clickDispatcher = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (typeClickListener == null) {
+            if (itemlickListener == null) {
                 if (defClickListener != null) {
                     defClickListener.onClick(v);
                 }
@@ -46,7 +44,7 @@ public class TagTextDelegate {
             }
             if (ellipsisPart.startIndex < ellipsisPart.endIndex) {
                 if (ellipsisPart.left <= upX && ellipsisPart.right >= upX && ellipsisPart.top <= upY && ellipsisPart.bottom >= upY) {
-                    typeClickListener.onClickEllipsis();
+                    itemlickListener.onClickEllipsis();
                     return;
                 }
             }
@@ -54,7 +52,7 @@ public class TagTextDelegate {
             for (TagTextItem item : contentTextList) {
                 for (TagTextPieceInfo info : item.parts) {
                     if (info.left <= upX && info.right >= upX && info.top <= upY && info.bottom >= upY) {
-                        handled = typeClickListener.onClickTypeText(0, item.textId);
+                        handled = itemlickListener.onClickItem(item.textId);
                         if (!handled && defClickListener != null) {
                             defClickListener.onClick(v);
                         }
@@ -97,7 +95,7 @@ public class TagTextDelegate {
 
     public View.OnClickListener getRealClickListener(View.OnClickListener l) {
         defClickListener = l;
-        boolean isClickable = typeClickListener != null || defClickListener != null;
+        boolean isClickable = itemlickListener != null || defClickListener != null;
         if (isClickable) {
             return clickDispatcher;
         } else {
@@ -105,9 +103,9 @@ public class TagTextDelegate {
         }
     }
 
-    public View.OnClickListener getRealClickListener(TypeClickListener l) {
-        typeClickListener = l;
-        boolean isClickable = typeClickListener != null || defClickListener != null;
+    public View.OnClickListener getRealClickListener(TagItemClickListener l) {
+        itemlickListener = l;
+        boolean isClickable = itemlickListener != null || defClickListener != null;
         if (isClickable) {
             return clickDispatcher;
         } else {

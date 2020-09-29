@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.zpf.views.R;
-import com.zpf.views.TypeClickListener;
 
 public class TagTextView extends View {
     private TagTextDelegate textDelegate;
@@ -85,7 +84,7 @@ public class TagTextView extends View {
         super.setOnClickListener(textDelegate.getRealClickListener(l));
     }
 
-    public void setTypeClickListener(@Nullable TypeClickListener l) {
+    public void setTypeClickListener(@Nullable TagItemClickListener l) {
         super.setOnClickListener(textDelegate.getRealClickListener(l));
     }
 
