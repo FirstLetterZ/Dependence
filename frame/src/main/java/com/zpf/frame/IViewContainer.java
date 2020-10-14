@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.zpf.api.IPermissionChecker;
-import com.zpf.tool.config.stack.IStackItemPrototype;
+import com.zpf.tool.stack.IStackItemPrototype;
 
 /**
  * 替代activity与fragment
@@ -27,7 +27,7 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
     IViewContainer getParentContainer();
 
     @Nullable
-    IViewProcessor getViewProcessor();
+    IViewProcessor<?> getViewProcessor();
 
     INavigator<Class<? extends IViewProcessor>> getNavigator();
 }

@@ -1,14 +1,12 @@
 package com.zpf.tool.config;
 
-import java.util.UUID;
-
 /**
  * 用于全局执行，需要在应用刚启动时完成初始化
  * Created by ZPF on 2018/7/27.
  */
 public interface GlobalConfigInterface {
 
-    UUID getId();
+    String getId();
 
     /**
      * @param object 需要处理的对象

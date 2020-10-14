@@ -10,8 +10,8 @@ import java.util.UUID;
  */
 public class GlobalConfigImpl implements GlobalConfigInterface {
     private GlobalConfigInterface realGlobalConfig;
-    private final HashMap<UUID, GlobalConfigInterface> configCollection = new HashMap<>();
-    private UUID uuid = UUID.randomUUID();
+    private final HashMap<String, GlobalConfigInterface> configCollection = new HashMap<>();
+    private String uuid = UUID.randomUUID().toString();
     private static volatile GlobalConfigImpl mInstance;
 
     private GlobalConfigImpl() {
@@ -45,7 +45,7 @@ public class GlobalConfigImpl implements GlobalConfigInterface {
         configCollection.put(globalConfig.getId(), globalConfig);
     }
 
-    public void remove(UUID id) {
+    public void remove(String id) {
         configCollection.remove(id);
     }
 
@@ -54,7 +54,7 @@ public class GlobalConfigImpl implements GlobalConfigInterface {
     }
 
     @Override
-    public UUID getId() {
+    public String getId() {
         return uuid;
     }
 

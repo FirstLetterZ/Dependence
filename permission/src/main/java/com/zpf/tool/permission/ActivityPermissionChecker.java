@@ -18,13 +18,17 @@ public class ActivityPermissionChecker extends PermissionChecker<Activity> {
     }
 
     @Override
-    protected boolean hasPermission(Activity target, String p) {
+    public boolean hasPermission(Activity target, String p) {
         return target.checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED;
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     @Override
-    protected void requestPermissions(Activity target, String[] p, int code) {
+    protected boolean shouldShowRequestPermissionRationale(Activity target, String p) {
+        return target.shouldShowRequestPermissionRationale(p);
+    }
+
+    @Override
+    protected void realRequestPermissions(Activity target, String[] p, int code) {
         target.requestPermissions(p, code);
     }
 

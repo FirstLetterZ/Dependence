@@ -1,4 +1,4 @@
-package com.zpf.tool.config.stack;
+package com.zpf.tool.stack;
 
 /**
  * Created by ZPF on 2019/5/15.

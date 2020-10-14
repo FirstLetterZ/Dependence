@@ -1,3 +1,4 @@
 include ':apptest'
 include ':api', ':global', ':frame', ':dataparser', ':permission', ':compatPermission', ':dhl',
-        ':fingerprint', ':toolkit', ':rvexpand', ':views', ':fragmentManager', ':compatFragmentManager'
+        ':appstack', ':fingerprint', ':toolkit', ':rvexpand', ':views', ':fragmentManager',
+        ':compatFragmentManager'

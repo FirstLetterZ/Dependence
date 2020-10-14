@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -51,7 +52,7 @@ public class FileUtil {
             File file = new File(filePath);
             if (file.exists()) {
                 Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                Uri uri = FileUtil.getUri(filePath);
+                Uri uri = FileUtil.getUri(context, filePath);
                 intent.setData(uri);
                 context.sendBroadcast(intent);
             }
@@ -120,7 +121,10 @@ public class FileUtil {
     }
 
     public static String getAppDataPath() {
-        Context context = AppContext.get();
+        return getAppDataPath(AppContext.get());
+    }
+
+    public static String getAppDataPath(Context context) {
         File dataFileDir = context.getExternalFilesDir("dataFiles");
         if (dataFileDir != null && dataFileDir.exists()) {
             return dataFileDir.getAbsolutePath();
@@ -130,7 +134,10 @@ public class FileUtil {
     }
 
     public static String getAppCachePath() {
-        Context context = AppContext.get();
+        return getAppDataPath(AppContext.get());
+    }
+
+    public static String getAppCachePath(Context context) {
         File cacheDir = context.getExternalCacheDir();
         if (cacheDir != null && cacheDir.exists()) {
             return cacheDir.getAbsolutePath();
@@ -140,13 +147,13 @@ public class FileUtil {
     }
 
     //获取路径的uri
-    public static Uri getUri(String path) {
+    public static Uri getUri(Context context, String path) {
         if (Build.VERSION.SDK_INT <= 19) {
             return Uri.fromFile(new File(path));
         }
         ContentValues contentValues = new ContentValues(1);
         contentValues.put(MediaStore.Images.Media.DATA, path);
-        return AppContext.get().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        return context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
     }
 
     //向文件中写入数据
@@ -218,9 +225,7 @@ public class FileUtil {
                 out.close();
             }
             return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
@@ -261,10 +266,10 @@ public class FileUtil {
             zos.putNextEntry(new ZipEntry(name));
             names.add(name);
             InputStream fis = new FileInputStream(f);
-            byte content[] = new byte[1024];
+            byte[] contentBytes = new byte[1024];
             int dataLen;
-            while ((dataLen = fis.read(content)) > 0) {
-                zos.write(content, 0, dataLen);
+            while ((dataLen = fis.read(contentBytes)) > 0) {
+                zos.write(contentBytes, 0, dataLen);
             }
             fis.close();
         }
@@ -287,7 +292,7 @@ public class FileUtil {
             e.printStackTrace();
             return false;
         }
-        Enumeration zList = zipFile.entries();
+        Enumeration<?> zList = zipFile.entries();
         ZipEntry ze;
         byte[] buf = new byte[1024];
         while (zList.hasMoreElements()) {
@@ -411,9 +416,7 @@ public class FileUtil {
     }
 
     public static String readAssetFile(Context context, String fileName) {
-        InputStream in = null;
-        try {
-            in = context.getAssets().open(fileName);
+        try (InputStream in = context.getAssets().open(fileName)) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             String line;
             StringBuilder sb = new StringBuilder();
@@ -429,33 +432,25 @@ public class FileUtil {
             return sb.toString();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    //ignore
-                }
-            }
         }
         return null;
     }
 
-    public static String getHostName(String fileName) {
-        String name = loadProperties(fileName).getProperty("NAME");
+    public static String getPropertyValue(Context context, String fileName) {
+        String name = loadProperties(context, fileName).getProperty("NAME");
         String result = null;
         try {
-            result = new String(name.getBytes("ISO-8859-1"), "GBK");
+            result = new String(name.getBytes(StandardCharsets.ISO_8859_1), "GBK");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return result;
     }
 
-    public static Properties loadProperties(String fileName) {
+    public static Properties loadProperties(Context context, String fileName) {
         Properties properties = new Properties();
         try {
-            InputStream in = AppContext.get().getAssets().open(fileName);
+            InputStream in = context.getAssets().open(fileName);
             properties.load(in);
         } catch (Exception e) {
             e.printStackTrace();
@@ -484,7 +479,7 @@ public class FileUtil {
                 String id = DocumentsContract.getDocumentId(imageUri);
                 Uri contentUri = ContentUris.withAppendedId(
                         Uri.parse("content://downloads/public_downloads"),
-                        Long.valueOf(id));
+                        Long.parseLong(id));
                 return getDataColumn(context, contentUri, null, null);
             } else if (isMediaDocument(imageUri)) {
                 String docId = DocumentsContract.getDocumentId(imageUri);

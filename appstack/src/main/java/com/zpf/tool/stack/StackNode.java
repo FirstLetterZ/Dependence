@@ -1,4 +1,4 @@
-package com.zpf.tool.config.stack;
+package com.zpf.tool.stack;
 
 public class StackNode<K, S> {
     StackNode(K key, S item) {

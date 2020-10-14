@@ -24,6 +24,7 @@ Android工具库
 ./gradlew -p global clean install bintrayUpload --info
 ./gradlew -p rvexpand clean install bintrayUpload --info
 ./gradlew -p views clean install bintrayUpload --info
+./gradlew -p appstack clean install bintrayUpload --info
 
 #### 全部发布
 >./gradlew clean install bintrayUpload --info

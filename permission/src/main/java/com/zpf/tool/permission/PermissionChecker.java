@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.util.SparseArray;
 
 import java.lang.reflect.Field;
@@ -27,7 +26,7 @@ import java.util.List;
 public abstract class PermissionChecker<T> {
     private List<PermissionInfo> permissionList;
     public static final int REQ_PERMISSION_CODE = 10001;
-    protected final SparseArray<Pair<Runnable, Runnable>> permissionCallBack = new SparseArray<>();
+    protected final SparseArray<PermissionResultListener> permissionCallBack = new SparseArray<>();
 
     @SuppressLint("InlinedApi")
     private void initPermissionList() {
@@ -67,71 +66,75 @@ public abstract class PermissionChecker<T> {
     }
 
     public boolean checkPermissions(T target, String... permissions) {
-        return checkPermissions(target, REQ_PERMISSION_CODE, permissions);
+        return checkPermissions(target, REQ_PERMISSION_CODE, getDefListener(), permissions);
     }
 
     public boolean checkPermissions(T target, int requestCode, String... permissions) {
+        return checkPermissions(target, requestCode, getDefListener(), permissions);
+    }
+
+    public boolean checkPermissions(T target, int requestCode, PermissionResultListener listener, String... permissions) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!checkEffective(target)) {
                 return false;
             }
             List<String> missPermissionList = new ArrayList<>();
+            boolean needCustomRationale = false;
             for (String per : permissions) {
                 if (!hasPermission(target, per)) {
+                    if (!shouldShowRequestPermissionRationale(target, per)) {
+                        needCustomRationale = true;
+                    }
                     missPermissionList.add(per);
                 }
             }
-            if (missPermissionList.size() > 0) {
-                int size = missPermissionList.size();
-                requestPermissions(target, missPermissionList.toArray(new String[size]), requestCode);
+            if (needCustomRationale) {
+                if (listener != null) {
+                    listener.onPermissionCheck(false, getMissInfo(missPermissionList));
+                }
+                return false;
+            } else if (missPermissionList.size() > 0) {
+                if (listener != null) {
+                    permissionCallBack.put(requestCode, listener);
+                }
+                requestPermissions(target, missPermissionList, requestCode);
                 return false;
             } else {
+                if (listener != null) {
+                    listener.onPermissionCheck(false, null);
+                }
                 return true;
             }
         } else {
+            if (listener != null) {
+                listener.onPermissionCheck(false, null);
+            }
             return true;
         }
     }
 
-    public void checkPermissions(T target, Runnable runnable, Runnable onLackOfPermissions, String... permissions) {
-        checkPermissions(target, runnable, onLackOfPermissions, REQ_PERMISSION_CODE, permissions);
-    }
-
-    public void checkPermissions(T target, Runnable runnable, Runnable onLackOfPermissions, int requestCode, String... permissions) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!checkEffective(target)) {
-                return;
-            }
-            List<String> missPermissionList = new ArrayList<>();
-            for (String per : permissions) {
-                if (!hasPermission(target, per)) {
-                    missPermissionList.add(per);
-                }
-            }
-            if (missPermissionList.size() > 0) {
-                permissionCallBack.put(requestCode, new Pair<>(runnable, onLackOfPermissions));
-                int size = missPermissionList.size();
-                requestPermissions(target, missPermissionList.toArray(new String[size]), requestCode);
-            } else {
-                if (runnable != null) {
-                    runnable.run();
-                }
-            }
-        } else {
-            if (runnable != null) {
-                runnable.run();
-            }
+    public void requestPermissions(T target, List<String> missPermissionList, int code) {
+        if (missPermissionList != null && missPermissionList.size() > 0) {
+            int size = missPermissionList.size();
+            realRequestPermissions(target, missPermissionList.toArray(new String[size]), code);
         }
     }
+
+    protected PermissionResultListener getDefListener() {
+        return null;
+    }
+
+    //检查是否拥有权限
+    public abstract boolean hasPermission(T target, String p);
 
     //检查传入对象是否为有效
     protected abstract boolean checkEffective(T target);
 
-    //检查是否拥有权限
-    protected abstract boolean hasPermission(T target, String p);
+    //是否可以使用系统弹窗请求权限
+    protected abstract boolean shouldShowRequestPermissionRationale(T target, String p);
 
     //请求权限
-    protected abstract void requestPermissions(T target, String[] p, int code);
+    protected abstract void realRequestPermissions(T target, String[] p, int code);
 
     //获取所有缺失权限的详细描述
     public List<PermissionInfo> getMissInfo(List<String> list) {
@@ -161,10 +164,11 @@ public abstract class PermissionChecker<T> {
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        Pair<Runnable, Runnable> callBack = permissionCallBack.get(requestCode);
-        if (callBack == null) {
+        final PermissionResultListener resultListener = permissionCallBack.get(requestCode);
+        if (resultListener == null) {
             return;
         }
+        permissionCallBack.clear();
         List<String> missPermissionList = new ArrayList<>();
         for (int i = 0; i < grantResults.length; i++) {
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
@@ -174,17 +178,9 @@ public abstract class PermissionChecker<T> {
             }
         }
         if (missPermissionList.size() == 0) {
-            if (callBack.first != null) {
-                callBack.first.run();
-            }
+            resultListener.onPermissionCheck(true, null);
         } else {
-            if (callBack.second != null) {
-                if (callBack.second instanceof OnLockPermissionRunnable) {
-                    ((OnLockPermissionRunnable) callBack.second).getPermissions().clear();
-                    ((OnLockPermissionRunnable) callBack.second).getPermissions().addAll(getMissInfo(missPermissionList));
-                }
-                callBack.second.run();
-            }
+            resultListener.onPermissionCheck(true, getMissInfo(missPermissionList));
         }
     }
 
@@ -241,11 +237,7 @@ public abstract class PermissionChecker<T> {
         }
     }
 
-    public Pair<Runnable, Runnable> getPermissionCallBack(int requestCode) {
-        return permissionCallBack.get(requestCode);
-    }
-
-    public void onDestroy() {
+    public void clearCallBack() {
         permissionCallBack.clear();
     }
 

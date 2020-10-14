@@ -183,7 +183,7 @@ public class PublicUtil {
         } else if (money instanceof BigDecimal) {
             amount = (BigDecimal) money;
         } else {
-            amount = new BigDecimal(money.doubleValue());
+            amount = BigDecimal.valueOf(money.doubleValue());
         }
         return amount.setScale(scale, BigDecimal.ROUND_HALF_UP);
     }
@@ -199,7 +199,7 @@ public class PublicUtil {
         } else if (money instanceof BigDecimal) {
             amount = (BigDecimal) money;
         } else {
-            amount = new BigDecimal(money.doubleValue());
+            amount = BigDecimal.valueOf(money.doubleValue());
         }
         if (amount.equals(BigDecimal.ZERO)) {
             return "0";

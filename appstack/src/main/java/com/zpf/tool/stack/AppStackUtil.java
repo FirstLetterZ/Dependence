@@ -1,12 +1,11 @@
-package com.zpf.tool.config.stack;
+package com.zpf.tool.stack;
 
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.zpf.tool.config.LifecycleState;
+import androidx.annotation.Nullable;
 
 /**
  * Activity 栈管理
