@@ -54,7 +54,7 @@ ext {
             appstack             : 'com.zpf.android:tool-stack:1.0.0',
             frame                : 'com.zpf.android:api-frame:1.0.2',
             rvexpand             : 'com.zpf.android:rvexpand:1.0.0',
-            views                : 'com.zpf.android:tool-views:0.0.7',
+            views                : 'com.zpf.android:tool-views:0.2.0',
     ]
 }
 
