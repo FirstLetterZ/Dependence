@@ -6,6 +6,7 @@ import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -13,6 +14,8 @@ import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.SparseArray;
+
+import com.zpf.tool.config.SpInstance;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -79,16 +82,25 @@ public abstract class PermissionChecker<T> {
                 return false;
             }
             List<String> missPermissionList = new ArrayList<>();
-            boolean needCustomRationale = false;
+            SharedPreferences.Editor editor = null;
+            boolean showCustomRationale = false;
             for (String per : permissions) {
                 if (!hasPermission(target, per)) {
-                    if (!shouldShowRequestPermissionRationale(target, per)) {
-                        needCustomRationale = true;
+                    if (!SpInstance.get().getBoolean(per, false)) {
+                        if (editor == null) {
+                            editor = SpInstance.get().edit();
+                        }
+                        editor.putBoolean(per, true);
+                    } else if (!shouldShowRequestPermissionRationale(target, per)) {
+                        showCustomRationale = true;
                     }
                     missPermissionList.add(per);
                 }
             }
-            if (needCustomRationale) {
+            if (editor != null) {
+                editor.commit();
+            }
+            if (showCustomRationale) {
                 if (listener != null) {
                     listener.onPermissionCheck(false, getMissInfo(missPermissionList));
                 }
