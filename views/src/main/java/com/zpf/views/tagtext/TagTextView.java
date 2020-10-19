@@ -48,6 +48,7 @@ public class TagTextView extends View {
             int maxLines = typedArray.getInteger(R.styleable.TagTextView_maxLines, -1);
             float fontSize = typedArray.getDimension(R.styleable.TagTextView_fontSize, 14 * d);
             float paragraphSpace = typedArray.getDimension(R.styleable.TagTextView_paragraphSpace, 0f);
+            float maxHeight = typedArray.getDimension(R.styleable.TagTextView_maxHeight, 0f);
             textDelegate.defStyle.color = typedArray.getColor(R.styleable.TagTextView_fontColor, Color.DKGRAY);
             textDelegate.defStyle.bold = typedArray.getBoolean(R.styleable.TagTextView_bold, false);
             textDelegate.defStyle.italic = typedArray.getBoolean(R.styleable.TagTextView_italic, false);
@@ -56,6 +57,7 @@ public class TagTextView extends View {
             typedArray.recycle();
             textDelegate.setParagraphSpace(paragraphSpace);
             textDelegate.setFontSize(fontSize);
+            textDelegate.setMaxHeight((int) maxHeight);
             textDelegate.setMaxLines(maxLines);
             textDelegate.setLineHeight(lineHeight);
             textDelegate.setEllipsisText(ellipsisText);
@@ -71,7 +73,7 @@ public class TagTextView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.translate(getScrollX(), getScrollY());
-        textDelegate.onDraw(this,canvas);
+        textDelegate.onDraw(this, canvas);
     }
 
     @Override
@@ -135,6 +137,27 @@ public class TagTextView extends View {
     public void checkRefresh() {
         textDelegate.checkRefresh(this);
     }
+
+    public int getLastCalculateHeight() {
+        return textDelegate.getLastCalculateHeight();
+    }
+
+    public void setLineHeight(int lineHeight) {
+        textDelegate.setLineHeight(lineHeight);
+    }
+
+    public int getLineHeight() {
+        return textDelegate.getLineHeight();
+    }
+
+    public int getMaxHeight() {
+        return textDelegate.getMaxHeight();
+    }
+
+    public void setMaxHeight(int maxHeight) {
+        textDelegate.setMaxHeight(maxHeight);
+    }
+
 
     @Override
     public void scrollTo(int x, int y) {

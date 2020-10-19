@@ -30,6 +30,7 @@
         <attr name="maxLines" format="integer"/>
         <attr name="paragraphSpace" format="dimension"/>
         <attr name="lineHeight" format="dimension"/>
+        <attr name="maxHeight" format="dimension"/>
         <attr name="fontSize" format="dimension"/>
         <attr name="fontColor" format="color"/>
         <attr name="bold" format="boolean"/>

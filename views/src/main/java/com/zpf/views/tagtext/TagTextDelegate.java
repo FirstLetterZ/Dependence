@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class TagTextDelegate {
     private int lineHeight;
     private int maxLines;
+    private int maxHeight;
     private float paragraphSpace;
     private float fontSize;
     private String ellipsisText;
@@ -141,7 +142,7 @@ public class TagTextDelegate {
                 }
                 textPaint.setColor(painColor);
                 if (item.parts.size() == 0) {
-                    break;
+                    continue;
                 }
                 for (TagTextPieceInfo info : item.parts) {
                     if (info.shouldDraw()) {
@@ -171,11 +172,14 @@ public class TagTextDelegate {
         if (waitCalculate) {
             waitCalculate = false;
             calculateHeight = calculateDrawHeight(drawOn, View.MeasureSpec.getSize(widthMeasureSpec));
-            if (View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.EXACTLY) {
-                showHeight = View.MeasureSpec.getSize(heightMeasureSpec);
-            } else {
-                showHeight = calculateHeight;
-            }
+        }
+        if (View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.EXACTLY) {
+            showHeight = View.MeasureSpec.getSize(heightMeasureSpec);
+        } else {
+            showHeight = calculateHeight;
+        }
+        if (maxHeight > 0 && showHeight > maxHeight) {
+            showHeight = maxHeight;
         }
         return View.MeasureSpec.makeMeasureSpec(showHeight, View.MeasureSpec.EXACTLY);
     }
@@ -225,6 +229,18 @@ public class TagTextDelegate {
 
     public int getLineHeight() {
         return lineHeight;
+    }
+
+    public int getMaxHeight() {
+        return maxHeight;
+    }
+
+    public void setMaxHeight(int maxHeight) {
+        this.maxHeight = maxHeight;
+    }
+
+    public int getLastCalculateHeight() {
+        return calculateHeight;
     }
 
     public void setMaxLines(int maxLines) {
