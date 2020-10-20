@@ -1,6 +1,7 @@
 package com.zpf.frame;
 
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -22,6 +23,8 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
     Bundle getParams();
 
     int getContainerType();
+
+    boolean setProcessorLinker(Object linker);
 
     @Nullable
     IViewContainer getParentContainer();
