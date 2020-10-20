@@ -30,7 +30,7 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
     IViewContainer getParentContainer();
 
     @Nullable
-    IViewProcessor<?> getViewProcessor();
+    IViewProcessor getViewProcessor();
 
     INavigator<Class<? extends IViewProcessor>> getNavigator();
 }
