@@ -345,12 +345,14 @@ public class TagTextDelegate {
                     if (currentLine == maxLines) {
                         newline = false;
                         if (measureResult.newline) {
-                            usedWidth = -1;
                             if (ellipsisWidth > 0) {
                                 recycler.recombination(ellipsisPart, 0, ellipsisText.length(),
                                         usedWidth + measureResult.drawWidth, ellipsisWidth, currentLine, addParagraphSpace);
                             }
+                            usedWidth = -1;
                             break;
+                        } else {
+                            usedWidth = usedWidth + measureResult.drawWidth;
                         }
                     } else {
                         newline = measureResult.newline;
