@@ -33,11 +33,11 @@ public class TagTextDelegate {
     private float upY = -1f;
     private float lastY = -1f;
     private View.OnClickListener defClickListener;
-    private TagItemClickListener itemlickListener;
+    private TagItemClickListener itemClickListener;
     private View.OnClickListener clickDispatcher = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (itemlickListener == null) {
+            if (itemClickListener == null) {
                 if (defClickListener != null) {
                     defClickListener.onClick(v);
                 }
@@ -45,7 +45,7 @@ public class TagTextDelegate {
             }
             if (ellipsisPart.startIndex < ellipsisPart.endIndex) {
                 if (ellipsisPart.left <= upX && ellipsisPart.right >= upX && ellipsisPart.top <= upY && ellipsisPart.bottom >= upY) {
-                    itemlickListener.onClickEllipsis();
+                    itemClickListener.onClickEllipsis();
                     return;
                 }
             }
@@ -53,7 +53,7 @@ public class TagTextDelegate {
             for (TagTextItem item : contentTextList) {
                 for (TagTextPieceInfo info : item.parts) {
                     if (info.left <= upX && info.right >= upX && info.top <= upY && info.bottom >= upY) {
-                        handled = itemlickListener.onClickItem(item.textId);
+                        handled = itemClickListener.onClickItem(item.textId);
                         if (!handled && defClickListener != null) {
                             defClickListener.onClick(v);
                         }
@@ -96,7 +96,7 @@ public class TagTextDelegate {
 
     public View.OnClickListener getRealClickListener(View.OnClickListener l) {
         defClickListener = l;
-        boolean isClickable = itemlickListener != null || defClickListener != null;
+        boolean isClickable = itemClickListener != null || defClickListener != null;
         if (isClickable) {
             return clickDispatcher;
         } else {
@@ -105,8 +105,8 @@ public class TagTextDelegate {
     }
 
     public View.OnClickListener getRealClickListener(TagItemClickListener l) {
-        itemlickListener = l;
-        boolean isClickable = itemlickListener != null || defClickListener != null;
+        itemClickListener = l;
+        boolean isClickable = itemClickListener != null || defClickListener != null;
         if (isClickable) {
             return clickDispatcher;
         } else {
@@ -133,14 +133,9 @@ public class TagTextDelegate {
 
     public void onDraw(@NonNull View drawOn, Canvas canvas) {
         if (canvas != null) {
-            int painColor;
             canvas.translate(0, drawOn.getScrollY());
             for (TagTextItem item : contentTextList) {
-                painColor = item.style.color;
-                if (painColor == 0) {
-                    painColor = defStyle.color;
-                }
-                textPaint.setColor(painColor);
+                item.style.setPaintStyle(textPaint, defStyle.color);
                 if (item.parts.size() == 0) {
                     continue;
                 }
@@ -153,7 +148,7 @@ public class TagTextDelegate {
                 }
             }
             if (ellipsisPart.shouldDraw()) {
-                textPaint.setColor(ellipsisStyle.color);
+                ellipsisStyle.setPaintStyle(textPaint, defStyle.color);
                 canvas.drawText(ellipsisText, ellipsisPart.startIndex, ellipsisPart.endIndex, ellipsisPart.drawX, ellipsisPart.drawY, textPaint);
             }
         }
@@ -279,6 +274,10 @@ public class TagTextDelegate {
         }
     }
 
+    public boolean shouldDrawEllipsis() {
+        return ellipsisPart.shouldDraw();
+    }
+
     private boolean checkUnequals(CharSequence a, CharSequence b) {
         if (a == null) {
             return b != null && b.length() > 0;
@@ -314,6 +313,7 @@ public class TagTextDelegate {
         boolean newline = true;
         boolean newParagraph = false;
         float addParagraphSpace = 0f;
+        int i = 0;
         for (TagTextItem textInfo : contentTextList) {
             startIndex = 0;
             textInfo.parts.clear();
@@ -345,7 +345,15 @@ public class TagTextDelegate {
                     if (currentLine == maxLines) {
                         newline = false;
                         if (measureResult.newline) {
-                            if (ellipsisWidth > 0) {
+                            boolean shouldDrawEllipsis = ellipsisWidth > 0;
+                            if (shouldDrawEllipsis && i == contentTextList.size() - 1) {
+                                TagTextMeasureman.TagTextMeasureResult lastPartMeasureResult = measureman.calculateDrawWidth(
+                                        ellipsisWidth, textInfo.textStr, textPaint, measureResult.endIndex);
+                                if (lastPartMeasureResult.endIndex == textInfo.textStr.length()) {
+                                    shouldDrawEllipsis = false;
+                                }
+                            }
+                            if (shouldDrawEllipsis) {
                                 recycler.recombination(ellipsisPart, 0, ellipsisText.length(),
                                         usedWidth + measureResult.drawWidth, ellipsisWidth, currentLine, addParagraphSpace);
                             }
@@ -361,6 +369,7 @@ public class TagTextDelegate {
                     }
                 }
             }
+            i++;
         }
         return (int) (drawOn.getPaddingTop() + drawOn.getPaddingBottom() + addParagraphSpace + 0.499f + currentLine * lHeight);
     }

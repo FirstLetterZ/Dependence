@@ -158,6 +158,9 @@ public class TagTextView extends View {
         textDelegate.setMaxHeight(maxHeight);
     }
 
+    public boolean shouldDrawEllipsis() {
+        return textDelegate.shouldDrawEllipsis();
+    }
 
     @Override
     public void scrollTo(int x, int y) {
