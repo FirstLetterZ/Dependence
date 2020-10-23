@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.apptest.R;
 import com.zpf.views.FoldedTagTextView;
 import com.zpf.views.TypeClickListener;
 import com.zpf.views.TypeTextInfo;
@@ -25,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setTypeText((FoldedTagTextView) findViewById(R.id.tv_tag));
         tagTextView = findViewById(R.id.tv_tag_text);
-        setTagInfo(tagTextView);
+        tagTextView.setContentText("这次单日新增病例破千，与近期单日检测量大幅增加有关", 0).color = Color.DKGRAY;
 //        tagTextView.setTypeClickListener(new TypeClickListener() {
 //            @Override
 //            public boolean onClickTypeText(int type, int id) {

@@ -35,6 +35,8 @@
         android:id="@+id/tv_tag_text"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        app:ellipsisText="…   全文"
+        app:maxLines="1"
         android:layout_marginTop="20dp"
         android:background="@color/colorAccent"
         app:paragraphSpace="10dp" />

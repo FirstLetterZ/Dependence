@@ -318,6 +318,7 @@ public class TagTextDelegate {
             startIndex = 0;
             textInfo.parts.clear();
             TagTextMeasureman.TagTextMeasureResult measureResult;
+            TagTextPieceInfo pieceInfo = null;
             if (textInfo.textStr != null && textInfo.textStr.length() > 0) {
                 if (usedWidth < 0) {
                     continue;
@@ -338,20 +339,40 @@ public class TagTextDelegate {
                                 realWidth - usedWidth, textInfo.textStr, textPaint, startIndex);
                     }
                     if (measureResult.drawWidth > 0) {
-                        textInfo.parts.add(recycler.obtainOnePiece(
-                                startIndex, measureResult.endIndex, usedWidth, measureResult.drawWidth, currentLine, addParagraphSpace));
+                        pieceInfo = recycler.obtainOnePiece(startIndex, measureResult.endIndex, usedWidth,
+                                measureResult.drawWidth, currentLine, addParagraphSpace);
+                    } else {
+                        pieceInfo = null;
                     }
                     startIndex = measureResult.endIndex;
                     if (currentLine == maxLines) {
                         newline = false;
                         if (measureResult.newline) {
                             boolean shouldDrawEllipsis = ellipsisWidth > 0;
-                            if (shouldDrawEllipsis && i == contentTextList.size() - 1) {
+                            if (pieceInfo != null && shouldDrawEllipsis && i == contentTextList.size() - 1
+                                    && measureResult.endIndex < textInfo.textStr.length()) {
+                                float mdw = measureResult.drawWidth;
+                                int msi = measureResult.startIndex;
                                 TagTextMeasureman.TagTextMeasureResult lastPartMeasureResult = measureman.calculateDrawWidth(
-                                        ellipsisWidth, textInfo.textStr, textPaint, measureResult.endIndex);
+                                        realWidth - usedWidth - mdw,
+                                        textInfo.textStr, textPaint, measureResult.endIndex);
                                 if (lastPartMeasureResult.endIndex == textInfo.textStr.length()) {
+                                    recycler.recombination(
+                                            pieceInfo,
+                                            msi,
+                                            lastPartMeasureResult.endIndex,
+                                            usedWidth,
+                                            mdw + lastPartMeasureResult.drawWidth,
+                                            currentLine,
+                                            addParagraphSpace);
                                     shouldDrawEllipsis = false;
+                                } else {
+                                    measureResult.drawWidth = mdw;
+                                    measureResult.startIndex = msi;
                                 }
+                            }
+                            if (pieceInfo != null) {
+                                textInfo.parts.add(pieceInfo);
                             }
                             if (shouldDrawEllipsis) {
                                 recycler.recombination(ellipsisPart, 0, ellipsisText.length(),
@@ -360,9 +381,15 @@ public class TagTextDelegate {
                             usedWidth = -1;
                             break;
                         } else {
+                            if (pieceInfo != null) {
+                                textInfo.parts.add(pieceInfo);
+                            }
                             usedWidth = usedWidth + measureResult.drawWidth;
                         }
                     } else {
+                        if (pieceInfo != null) {
+                            textInfo.parts.add(pieceInfo);
+                        }
                         newline = measureResult.newline;
                         usedWidth = usedWidth + measureResult.drawWidth;
                         newParagraph = measureResult.newParagraph;
