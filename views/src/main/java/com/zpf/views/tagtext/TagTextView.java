@@ -78,7 +78,7 @@ public class TagTextView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return textDelegate.handleTouchEvent(this, event) || super.onTouchEvent(event);
+        return textDelegate.handleTouchEvent(this, event) && super.onTouchEvent(event);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class TagTextView extends View {
         super.setOnClickListener(textDelegate.getRealClickListener(l));
     }
 
-    public void setTypeClickListener(@Nullable TagItemClickListener l) {
+    public void setTagItemClickListener(@Nullable TagItemClickListener l) {
         super.setOnClickListener(textDelegate.getRealClickListener(l));
     }
 
@@ -136,6 +136,16 @@ public class TagTextView extends View {
 
     public void checkRefresh() {
         textDelegate.checkRefresh(this);
+    }
+
+    @Override
+    public boolean canScrollVertically(int direction) {
+        return textDelegate.canScrollVertically(getScrollY(), direction);
+    }
+
+    @Override
+    public boolean canScrollHorizontally(int direction) {
+        return textDelegate.canScrollVertically(getScrollX(), direction);
     }
 
     public int getLastCalculateHeight() {

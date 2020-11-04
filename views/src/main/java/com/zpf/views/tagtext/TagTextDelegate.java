@@ -31,12 +31,17 @@ public class TagTextDelegate {
     private TagTextRecycler recycler = new TagTextRecycler();
     private float upX = -1f;
     private float upY = -1f;
+    private float downX = -1f;
+    private float downY = -1f;
     private float lastY = -1f;
     private View.OnClickListener defClickListener;
     private TagItemClickListener itemClickListener;
     private View.OnClickListener clickDispatcher = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (System.currentTimeMillis() - downTime > 1000) {
+                return;
+            }
             if (itemClickListener == null) {
                 if (defClickListener != null) {
                     defClickListener.onClick(v);
@@ -114,19 +119,43 @@ public class TagTextDelegate {
         }
     }
 
+    private Runnable longClickRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+        }
+    };
+    private long downTime = 0L;
+
     public boolean handleTouchEvent(@NonNull View drawOn, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            lastY = event.getRawY();
-            return showHeight < calculateHeight;
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            int dY = (int) (event.getRawY() - lastY);
-            if (dY != 0) {
-                drawOn.scrollBy(0, dY);
+        if (drawOn.isClickable() || drawOn.isLongClickable() || showHeight < calculateHeight) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                downX = event.getRawX();
+                downY = event.getRawY();
+                lastY = downY;
+                downTime = System.currentTimeMillis();
+                drawOn.cancelLongPress();
+                return true;
+            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                if (showHeight < calculateHeight) {
+                    int dY = (int) (event.getRawY() - lastY);
+                    if (dY != 0) {
+                        drawOn.scrollBy(0, dY);
+                    }
+                }
+                lastY = event.getRawY();
+                if (Math.abs(event.getRawX() - downX) > 6 || Math.abs(event.getRawY() - downY) > 6) {
+                    downTime = 0L;
+                    drawOn.cancelLongPress();
+                }
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                upX = event.getX();
+                upY = event.getY();
+            } else {
+                downTime = 0L;
+                drawOn.cancelLongPress();
             }
-            lastY = event.getRawY();
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            upX = event.getX();
-            upY = event.getY();
+            return true;
         }
         return false;
     }
@@ -276,6 +305,21 @@ public class TagTextDelegate {
 
     public boolean shouldDrawEllipsis() {
         return ellipsisPart.shouldDraw();
+    }
+
+    public boolean canScrollVertically(int scrollY, int direction) {
+        if (direction == 0) {
+            return false;
+        }
+        if (direction < 0) {
+            return scrollY > 0;
+        } else {
+            return calculateHeight > showHeight + scrollY;
+        }
+    }
+
+    public boolean canScrollHorizontally(int scrollX, int direction) {
+        return false;
     }
 
     private boolean checkUnequals(CharSequence a, CharSequence b) {
