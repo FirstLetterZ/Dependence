@@ -24,7 +24,7 @@ public class TagTextDelegate {
     private final TagTextMeasureman measureman = new TagTextMeasureman();
     private int calculateHeight = -1;
     private int showHeight = 0;
-    private boolean waitCalculate = true;
+    private int lastWidth = -1;
     private final ArrayList<TagTextItem> contentTextList = new ArrayList<>();
     private TagTextPieceInfo ellipsisPart = new TagTextPieceInfo();
     private TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
@@ -119,12 +119,6 @@ public class TagTextDelegate {
         }
     }
 
-    private Runnable longClickRunnable = new Runnable() {
-        @Override
-        public void run() {
-
-        }
-    };
     private long downTime = 0L;
 
     public boolean handleTouchEvent(@NonNull View drawOn, MotionEvent event) {
@@ -193,8 +187,9 @@ public class TagTextDelegate {
     }
 
     public int measureHeight(View drawOn, int widthMeasureSpec, int heightMeasureSpec) {
-        if (waitCalculate) {
-            waitCalculate = false;
+        int currentWidth = View.MeasureSpec.getSize(widthMeasureSpec);
+        if (lastWidth != currentWidth) {
+            lastWidth = currentWidth;
             calculateHeight = calculateDrawHeight(drawOn, View.MeasureSpec.getSize(widthMeasureSpec));
         }
         if (View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.EXACTLY) {
@@ -292,7 +287,7 @@ public class TagTextDelegate {
     }
 
     public void checkRefresh(View drawOn) {
-        if (!waitCalculate && drawOn != null) {
+        if (lastWidth > 0 && drawOn != null) {
             int newCalculateHeight = calculateDrawHeight(drawOn, drawOn.getWidth());
             if (newCalculateHeight != calculateHeight) {
                 calculateHeight = newCalculateHeight;
