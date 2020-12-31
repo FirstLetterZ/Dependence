@@ -25,7 +25,7 @@ public interface IViewProcessor<C> extends IFullLifecycle, OnActivityResultListe
 
     <T extends View> T bind(@IdRes int viewId, View.OnClickListener clickListener);
 
-    <T extends View> T $(@IdRes int viewId);
+    <T extends View> T find(@IdRes int viewId);
 
     @NonNull
     Bundle getParams();

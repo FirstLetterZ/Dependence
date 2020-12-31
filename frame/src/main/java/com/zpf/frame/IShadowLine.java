@@ -1,7 +1,10 @@
 package com.zpf.frame;
 
 import android.graphics.drawable.Drawable;
+
 import androidx.annotation.ColorInt;
+
+import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 
 /**
@@ -13,7 +16,9 @@ public interface IShadowLine {
 
     void setShadowColor(@ColorInt int startColor);
 
-    void setShadowDrwable(Drawable background);
+    void setShadowOrientation(GradientDrawable.Orientation orientation);
+
+    void setShadowDrawable(Drawable background);
 
     View getView();
 

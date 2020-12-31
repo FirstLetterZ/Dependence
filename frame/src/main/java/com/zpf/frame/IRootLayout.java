@@ -1,6 +1,8 @@
 package com.zpf.frame;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,23 +14,25 @@ import android.widget.FrameLayout;
 
 public interface IRootLayout {
 
+    @NonNull
     View getStatusBar();
 
+    @NonNull
     ITitleBar getTitleBar();
 
-    IShadowLine getShadowLine();
+    @Nullable
+    View getContentView();
 
-    ITopLayout getTopLayout();
+    @NonNull
+    ViewGroup getLayout();
 
     void changeTitleBar(@NonNull ITitleBar titleBar);
 
     void setContentView(@NonNull View view);
 
-    void setContentView(@NonNull LayoutInflater inflater, int layoutId);
+    void setContentView(int layoutId);
 
-    ViewGroup getLayout();
+    void addContentDecoration(@NonNull View child, int hierarchy, @Nullable ViewGroup.LayoutParams params);
 
-    FrameLayout getContentLayout();
-
-    View getContentView();
+    void addPageDecoration(@NonNull View child, int hierarchy, @Nullable ViewGroup.LayoutParams params);
 }
