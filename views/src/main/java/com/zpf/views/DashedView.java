@@ -22,7 +22,7 @@ public class DashedView extends View {
     private int mDashGap;
     private int mDashWidth;
     private float mStrokeWidth;
-    private Path mLinePath = new Path();
+    private final Path mLinePath = new Path();
 
     @IntDef({DashedType.HORIZONTAL_DASHED, DashedType.VERTICAL_DASHED, DashedType.CIRCLE_DASHED})
     public @interface DashedType {

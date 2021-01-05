@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 
 public class StatusBar extends View {
 
-    private int statusBarHeight;
+    private final int statusBarHeight;
 
     public StatusBar(Context context) {
         this(context, null, 0);

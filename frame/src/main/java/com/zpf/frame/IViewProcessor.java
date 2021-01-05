@@ -17,7 +17,7 @@ import com.zpf.api.OnPermissionResultListener;
 /**
  * Created by ZPF on 2018/6/14.
  */
-public interface IViewProcessor<C> extends IFullLifecycle, OnActivityResultListener,
+public interface IViewProcessor extends IFullLifecycle, OnActivityResultListener,
         OnPermissionResultListener, IBackPressInterceptor, IViewStateListener, ILifecycleMonitor {
     void runWithPermission(Runnable runnable, String... permissions);
 
@@ -34,11 +34,9 @@ public interface IViewProcessor<C> extends IFullLifecycle, OnActivityResultListe
 
     Context getContext();
 
-    void onReceiveEvent(IEvent event);
+    void onReceiveEvent(IEvent<?> event);
 
     Activity getCurrentActivity();
-
-    void setLinker(C linker);
 
     boolean initWindow(@NonNull Window window);
 }

@@ -38,8 +38,10 @@ ext {
 
     dependencies = [
             annotations          : 'androidx.annotation:annotation:1.1.0',
-            fragment             : 'androidx.fragment:fragment:1.2.0',
-            recyclerview         : 'androidx.recyclerview:recyclerview:1.1.0',
+            activity             : 'androidx.activity:activity:1.1.0',
+            fragment             : 'androidx.fragment:fragment:1.2.5',
+            appcompat            : 'androidx.appcompat:appcompat:1.2.0',//包含多个依赖可能重复
+            recyclerview         : 'androidx.recyclerview:recyclerview:1.1.0',//包含多个依赖可能重复
             /* ============================== 项目内工具库 ================================ */
             dhl                  : 'com.zpf.android:tool-dhl:1.0.0',
             fingerprint          : 'com.zpf.android:tool-fingerprint:1.0.1',
@@ -50,11 +52,11 @@ ext {
             compatPermission     : 'com.zpf.android:tool-compat-permission:2.0.1',
             fragmentManager      : 'com.zpf.android:tool-fragment-manager:1.0.0',
             compatFragmentManager: 'com.zpf.android:tool-compat-fragment-manager:2.0.0',
-            toolkit              : 'com.zpf.android:tool-kit:2.0.3',
+            toolkit              : 'com.zpf.android:tool-kit:2.1.0',
             appstack             : 'com.zpf.android:tool-stack:1.0.0',
-            frame                : 'com.zpf.android:api-frame:1.0.4',
+            frame                : 'com.zpf.android:api-frame:1.2.0',
             rvexpand             : 'com.zpf.android:rvexpand:1.0.0',
-            views                : 'com.zpf.android:tool-views:0.2.0',
+            views                : 'com.zpf.android:tool-views:0.4.0',
     ]
 }
 

@@ -20,10 +20,6 @@
             <enum name="bottom" value="3" />
         </attr>
     </declare-styleable>
-    <declare-styleable name="FoldedTagTextView">
-        <attr name="ellipsis_color" format="color" />
-        <attr name="ellipsis_text" format="string"/>
-    </declare-styleable>
     <declare-styleable name="TagTextView">
         <attr name="ellipsisColor" format="color" />
         <attr name="ellipsisText" format="string"/>

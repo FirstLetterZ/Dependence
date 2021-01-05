@@ -10,9 +10,9 @@ public interface IContainerHelper {
 
     IViewContainer createFragmentContainer(@Nullable Bundle args);
 
-    Class<? extends IViewProcessor> getErrorProcessorClass(Class targetViewClass);
+    Class<? extends IViewProcessor> getErrorProcessorClass(Class<?> targetViewClass);
 
-    Class<? extends IViewProcessor> getLaunchProcessorClass(Class targetViewClass);
+    Class<? extends IViewProcessor> getLaunchProcessorClass(Class<?> targetViewClass);
 
     Class<? extends IViewContainer> getDefContainerClassByType(int type);
 }
