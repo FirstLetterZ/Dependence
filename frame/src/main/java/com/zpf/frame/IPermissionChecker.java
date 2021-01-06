@@ -1,5 +1,7 @@
 package com.zpf.frame;
 
+import com.zpf.api.IPermissionResult;
+
 public interface IPermissionChecker {
     boolean checkPermissions(String... permissions);
 

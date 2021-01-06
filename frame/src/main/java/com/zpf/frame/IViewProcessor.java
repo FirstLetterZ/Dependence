@@ -11,6 +11,7 @@ import android.view.Window;
 import com.zpf.api.IBackPressInterceptor;
 import com.zpf.api.IEvent;
 import com.zpf.api.IFullLifecycle;
+import com.zpf.api.IPermissionResult;
 import com.zpf.api.OnActivityResultListener;
 import com.zpf.api.OnPermissionResultListener;
 

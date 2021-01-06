@@ -2,6 +2,7 @@ package com.zpf.tool.permission;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
@@ -15,6 +16,14 @@ public class FragmentPermissionChecker extends PermissionChecker<Fragment> {
     @Override
     protected boolean checkEffective(Fragment target) {
         return target != null && target.getActivity() != null;
+    }
+
+    @Override
+    protected SharedPreferences getSharedPreferences(Fragment target) {
+        if (target == null || target.getContext() == null) {
+            return null;
+        }
+        return target.getContext().getSharedPreferences(PERMISSION_RECORD, 0);
     }
 
     @Override

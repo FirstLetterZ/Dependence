@@ -2,6 +2,7 @@ package com.zpf.tool.permission;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
@@ -15,6 +16,14 @@ public class ActivityPermissionChecker extends PermissionChecker<Activity> {
     @Override
     protected boolean checkEffective(Activity target) {
         return target != null;
+    }
+
+    @Override
+    protected SharedPreferences getSharedPreferences(Activity target) {
+        if (target == null) {
+            return null;
+        }
+        return target.getSharedPreferences(PERMISSION_RECORD, 0);
     }
 
     @Override

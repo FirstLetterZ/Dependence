@@ -1,6 +1,8 @@
 package com.zpf.tool.compat.permission;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
@@ -20,6 +22,10 @@ public class CompatPermissionChecker extends PermissionChecker<Fragment> {
         return target != null && target.getContext() != null;
     }
 
+    protected SharedPreferences getSharedPreferences(Fragment target) {
+        return target != null && target.getContext() != null ? target.getContext().getSharedPreferences("app_permission_record_file", 0) : null;
+    }
+
     @Override
     protected boolean shouldShowRequestPermissionRationale(Fragment target, String p) {
         return target.shouldShowRequestPermissionRationale(p);
@@ -32,10 +38,10 @@ public class CompatPermissionChecker extends PermissionChecker<Fragment> {
 
     @Override
     public boolean hasPermission(Fragment target, String p) {
-        try {
-            return target.getContext().checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED;
-        } catch (Exception e) {
-            return false;
+        final Context context = target.getContext();
+        if (context != null) {
+            return context.checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED;
         }
+        return false;
     }
 }
