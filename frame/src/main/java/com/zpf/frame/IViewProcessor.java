@@ -3,8 +3,10 @@ package com.zpf.frame;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+
 import android.view.View;
 import android.view.Window;
 
@@ -36,6 +38,8 @@ public interface IViewProcessor extends IFullLifecycle, OnActivityResultListener
     Context getContext();
 
     void onReceiveEvent(IEvent<?> event);
+
+    void onReceiveLinker(IViewLinker linker);
 
     Activity getCurrentActivity();
 

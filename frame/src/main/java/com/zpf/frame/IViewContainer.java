@@ -23,7 +23,7 @@ public interface IViewContainer extends ILifecycleMonitor, IActivityController
 
     int getContainerType();
 
-    boolean setProcessorLinker(Object linker);
+    boolean setProcessorLinker(IViewLinker linker);
 
     @Nullable
     IViewContainer getParentContainer();
