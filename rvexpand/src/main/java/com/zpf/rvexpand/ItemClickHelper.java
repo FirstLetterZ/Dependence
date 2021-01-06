@@ -12,7 +12,7 @@ import java.lang.ref.SoftReference;
 public class ItemClickHelper {
     OnItemClickListener itemClickListener;
     OnItemViewClickListener itemViewClickListener;
-    private SparseArray<SoftReference<View.OnClickListener>> clickCache = new SparseArray<>();
+    private final SparseArray<SoftReference<View.OnClickListener>> clickCache = new SparseArray<>();
 
     protected void bindItemClick(View view, final int position) {
         View targetView = view;

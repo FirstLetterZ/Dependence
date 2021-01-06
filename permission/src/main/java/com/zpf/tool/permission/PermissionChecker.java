@@ -1,7 +1,5 @@
 package com.zpf.tool.permission;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -12,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.zpf.tool.config.SpInstance;
@@ -27,56 +24,19 @@ import java.util.List;
  * Created by ZPF on 2018/8/22.
  */
 public abstract class PermissionChecker<T> {
-    private List<PermissionInfo> permissionList;
     public static final int REQ_PERMISSION_CODE = 10001;
-    protected final SparseArray<PermissionResultListener> permissionCallBack = new SparseArray<>();
-
-    @SuppressLint("InlinedApi")
-    private void initPermissionList() {
-        permissionList = new ArrayList<>(24);
-        permissionList.add(new PermissionInfo(Manifest.permission.WRITE_CONTACTS, "写入联系人", Manifest.permission_group.CONTACTS));
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_CONTACTS, "读取联系人", Manifest.permission_group.CONTACTS));
-        permissionList.add(new PermissionInfo(Manifest.permission.GET_ACCOUNTS, "访问账户列表", Manifest.permission_group.CONTACTS));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_CALL_LOG, "读取通话记录", Manifest.permission_group.PHONE));
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_PHONE_STATE, "获取本机识别码", Manifest.permission_group.PHONE));
-        permissionList.add(new PermissionInfo(Manifest.permission.CALL_PHONE, "拨打电话", Manifest.permission_group.PHONE));
-        permissionList.add(new PermissionInfo(Manifest.permission.WRITE_CALL_LOG, "写入通话记录", Manifest.permission_group.PHONE));
-        permissionList.add(new PermissionInfo(Manifest.permission.USE_SIP, "使用SIP视频", Manifest.permission_group.PHONE));
-        permissionList.add(new PermissionInfo(Manifest.permission.PROCESS_OUTGOING_CALLS, "处理拨出电话", Manifest.permission_group.PHONE));
-        permissionList.add(new PermissionInfo(Manifest.permission.ADD_VOICEMAIL, "添加语音邮件", Manifest.permission_group.PHONE));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_CALENDAR, "读取日程信息", Manifest.permission_group.CALENDAR));
-        permissionList.add(new PermissionInfo(Manifest.permission.WRITE_CALENDAR, "写入日程信息", Manifest.permission_group.CALENDAR));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.CAMERA, "访问摄像头", Manifest.permission_group.CAMERA));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.BODY_SENSORS, "读取生命体征相关的传感器数据", Manifest.permission_group.SENSORS));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.ACCESS_FINE_LOCATION, "获取精确位置", Manifest.permission_group.LOCATION));
-        permissionList.add(new PermissionInfo(Manifest.permission.ACCESS_COARSE_LOCATION, "获取粗略位置", Manifest.permission_group.LOCATION));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_EXTERNAL_STORAGE, "读取手机存储", Manifest.permission_group.STORAGE));
-        permissionList.add(new PermissionInfo(Manifest.permission.WRITE_EXTERNAL_STORAGE, "写入手机存储", Manifest.permission_group.STORAGE));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.RECORD_AUDIO, "录音", Manifest.permission_group.MICROPHONE));
-
-        permissionList.add(new PermissionInfo(Manifest.permission.READ_SMS, "读取短信内容", Manifest.permission_group.SMS));
-        permissionList.add(new PermissionInfo(Manifest.permission.RECEIVE_WAP_PUSH, "接收Wap Push", Manifest.permission_group.SMS));
-        permissionList.add(new PermissionInfo(Manifest.permission.RECEIVE_MMS, "接收彩信", Manifest.permission_group.SMS));
-        permissionList.add(new PermissionInfo(Manifest.permission.RECEIVE_SMS, "接收短信", Manifest.permission_group.SMS));
-        permissionList.add(new PermissionInfo(Manifest.permission.SEND_SMS, "发送短信", Manifest.permission_group.SMS));
-    }
+    protected final SparseArray<IPermissionListener> permissionCallBack = new SparseArray<>();
+    private IPermissionDefHandler defHandler;
 
     public boolean checkPermissions(T target, String... permissions) {
-        return checkPermissions(target, REQ_PERMISSION_CODE, getDefListener(), permissions);
+        return checkPermissions(target, REQ_PERMISSION_CODE, null, permissions);
     }
 
     public boolean checkPermissions(T target, int requestCode, String... permissions) {
-        return checkPermissions(target, requestCode, getDefListener(), permissions);
+        return checkPermissions(target, requestCode, null, permissions);
     }
 
-    public boolean checkPermissions(T target, int requestCode, PermissionResultListener listener, String... permissions) {
+    public boolean checkPermissions(T target, int requestCode, IPermissionListener listener, String... permissions) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!checkEffective(target)) {
                 return false;
@@ -102,7 +62,8 @@ public abstract class PermissionChecker<T> {
             }
             if (showCustomRationale) {
                 if (listener != null) {
-                    listener.onPermissionCheck(false, getMissInfo(missPermissionList));
+                    listener.onPermissionChecked(false,
+                            PermissionDescription.get().queryMissInfo(missPermissionList));
                 }
                 return false;
             } else if (missPermissionList.size() > 0) {
@@ -113,13 +74,13 @@ public abstract class PermissionChecker<T> {
                 return false;
             } else {
                 if (listener != null) {
-                    listener.onPermissionCheck(false, null);
+                    listener.onPermissionChecked(false, null);
                 }
                 return true;
             }
         } else {
             if (listener != null) {
-                listener.onPermissionCheck(false, null);
+                listener.onPermissionChecked(false, null);
             }
             return true;
         }
@@ -130,10 +91,6 @@ public abstract class PermissionChecker<T> {
             int size = missPermissionList.size();
             realRequestPermissions(target, missPermissionList.toArray(new String[size]), code);
         }
-    }
-
-    protected PermissionResultListener getDefListener() {
-        return null;
     }
 
     //检查是否拥有权限
@@ -148,38 +105,8 @@ public abstract class PermissionChecker<T> {
     //请求权限
     protected abstract void realRequestPermissions(T target, String[] p, int code);
 
-    //获取所有缺失权限的详细描述
-    public List<PermissionInfo> getMissInfo(List<String> list) {
-        List<PermissionInfo> PermissionInfoList = new ArrayList<>();
-        if (list != null && list.size() > 0) {
-            if (permissionList == null) {
-                initPermissionList();
-            }
-            if (permissionList != null) {
-                boolean hasDesc;
-                for (String name : list) {
-                    hasDesc = false;
-                    for (PermissionInfo permissionInfo : permissionList) {
-                        if (TextUtils.equals(permissionInfo.getPermissionName(), name)) {
-                            PermissionInfoList.add(permissionInfo);
-                            hasDesc = true;
-                            break;
-                        }
-                    }
-                    if (!hasDesc) {
-                        PermissionInfoList.add(new PermissionInfo(name, name, null));
-                    }
-                }
-            }
-        }
-        return PermissionInfoList;
-    }
-
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        final PermissionResultListener resultListener = permissionCallBack.get(requestCode);
-        if (resultListener == null) {
-            return;
-        }
+        final IPermissionListener resultListener = permissionCallBack.get(requestCode);
         permissionCallBack.clear();
         List<String> missPermissionList = new ArrayList<>();
         for (int i = 0; i < grantResults.length; i++) {
@@ -189,14 +116,26 @@ public abstract class PermissionChecker<T> {
                 }
             }
         }
-        if (missPermissionList.size() == 0) {
-            resultListener.onPermissionCheck(true, null);
-        } else {
-            resultListener.onPermissionCheck(true, getMissInfo(missPermissionList));
+        List<PermissionInfo> infoList = null;
+        if (missPermissionList.size() > 0) {
+            infoList = PermissionDescription.get().queryMissInfo(missPermissionList);
+        }
+        if (resultListener != null) {
+            resultListener.onPermissionChecked(true, infoList);
+        } else if (defHandler != null) {
+            defHandler.onPermissionChecked(requestCode, permissions, infoList);
         }
     }
 
-    public boolean checkWriteSetting(Context context) {
+    public void setDefHandler(IPermissionDefHandler defHandler) {
+        this.defHandler = defHandler;
+    }
+
+    public void clearCallBack() {
+        permissionCallBack.clear();
+    }
+
+    public static boolean checkWriteSetting(Context context) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.System.canWrite(context)) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
@@ -209,7 +148,7 @@ public abstract class PermissionChecker<T> {
         return true;
     }
 
-    public boolean checkDrawOverlays(Context context) {
+    public static boolean checkDrawOverlays(Context context) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(context)) {
                 Intent serviceIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -221,7 +160,7 @@ public abstract class PermissionChecker<T> {
         return true;
     }
 
-    public boolean checkNoticeEnabled(Context context) {
+    public static boolean checkNoticeEnabled(Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
             NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(
                     Context.NOTIFICATION_SERVICE);
@@ -247,10 +186,6 @@ public abstract class PermissionChecker<T> {
         } else {
             return true;
         }
-    }
-
-    public void clearCallBack() {
-        permissionCallBack.clear();
     }
 
 }

@@ -13,7 +13,6 @@ import com.zpf.api.IEvent;
 import com.zpf.api.IFullLifecycle;
 import com.zpf.api.OnActivityResultListener;
 import com.zpf.api.OnPermissionResultListener;
-import com.zpf.tool.permission.PermissionResultListener;
 
 /**
  * Created by ZPF on 2018/6/14.
@@ -22,7 +21,7 @@ public interface IViewProcessor extends IFullLifecycle, OnActivityResultListener
         OnPermissionResultListener, IBackPressInterceptor, IViewStateListener, ILifecycleMonitor {
     void runWithPermission(Runnable runnable, String... permissions);
 
-    void runWithPermission(PermissionResultListener resultListener, String... permissions);
+    void runWithPermission(IPermissionResult resultListener, String... permissions);
 
     <T extends View> T bind(@IdRes int viewId, View.OnClickListener clickListener);
 

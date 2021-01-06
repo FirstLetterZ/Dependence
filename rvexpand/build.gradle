@@ -17,6 +17,7 @@ android {
 }
 
 dependencies {
+    compileOnly rootProject.ext.dependencies.annotations
     compileOnly (rootProject.ext.dependencies.recyclerview)
             {
                 exclude group: 'androidx.annotation'
