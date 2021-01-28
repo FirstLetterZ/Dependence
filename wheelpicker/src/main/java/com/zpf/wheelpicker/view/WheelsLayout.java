@@ -327,6 +327,11 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
 
     @Override
     public boolean notifyItemDataChanged(int itemPosition, int selectItemIndex) {
+        if (itemPosition < 0) {
+            //检查视图重构或者数据刷新
+            setDataManager(dataManager);
+            return true;
+        }
         WheelView wheelView = getItemView(itemPosition);
         if (wheelView == null) {
             return false;

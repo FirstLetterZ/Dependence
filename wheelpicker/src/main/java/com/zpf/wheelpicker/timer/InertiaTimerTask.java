@@ -38,7 +38,12 @@ public final class InertiaTimerTask extends TimerTask {
         //发送handler消息 处理平顺停止滚动逻辑
         if (Math.abs(mCurrentVelocityY) >= 0.0F && Math.abs(mCurrentVelocityY) <= 20F) {
             mWheelView.cancelFuture();
-            mWheelView.getHandler().sendEmptyMessage(MessageHandler.WHAT_SMOOTH_SCROLL);
+            mWheelView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mWheelView.smoothScroll(WheelView.ACTION.FLING);
+                }
+            });
             return;
         }
 
@@ -70,6 +75,6 @@ public final class InertiaTimerTask extends TimerTask {
         }
 
         //刷新UI
-        mWheelView.getHandler().sendEmptyMessage(MessageHandler.WHAT_INVALIDATE_LOOP_VIEW);
+        mWheelView.postInvalidate();
     }
 }

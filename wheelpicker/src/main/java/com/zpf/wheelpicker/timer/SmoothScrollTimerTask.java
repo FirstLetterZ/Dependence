@@ -43,7 +43,12 @@ public final class SmoothScrollTimerTask extends TimerTask {
 
         if (Math.abs(realTotalOffset) <= 1) {
             wheelView.cancelFuture();
-            wheelView.getHandler().sendEmptyMessageDelayed(MessageHandler.WHAT_ITEM_SELECTED, 50L);
+            wheelView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    wheelView.onItemSelected();
+                }
+            },50);
         } else {
             wheelView.setTotalScrollY(wheelView.getTotalScrollY() + realOffset);
 
@@ -56,11 +61,16 @@ public final class SmoothScrollTimerTask extends TimerTask {
                 if (wheelView.getTotalScrollY() <= top || wheelView.getTotalScrollY() >= bottom) {
                     wheelView.setTotalScrollY(wheelView.getTotalScrollY() - realOffset);
                     wheelView.cancelFuture();
-                    wheelView.getHandler().sendEmptyMessage(MessageHandler.WHAT_ITEM_SELECTED);
+                    wheelView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            wheelView.onItemSelected();
+                        }
+                    },50);
                     return;
                 }
             }
-            wheelView.getHandler().sendEmptyMessageDelayed(MessageHandler.WHAT_INVALIDATE_LOOP_VIEW, 50L);
+            wheelView.postInvalidateDelayed(50L);
             realTotalOffset = realTotalOffset - realOffset;
         }
     }

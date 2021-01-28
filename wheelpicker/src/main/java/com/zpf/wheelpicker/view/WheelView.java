@@ -24,7 +24,6 @@ import com.zpf.wheelpicker.listener.OnItemSelectedListener;
 import com.zpf.wheelpicker.model.WheelItemStyle;
 import com.zpf.wheelpicker.model.WheelViewOptions;
 import com.zpf.wheelpicker.timer.InertiaTimerTask;
-import com.zpf.wheelpicker.timer.MessageHandler;
 import com.zpf.wheelpicker.timer.SmoothScrollTimerTask;
 
 import java.util.concurrent.Executors;
@@ -45,7 +44,6 @@ public class WheelView extends View {
     }
 
     private static final String[] TIME_NUM = {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09"};
-    private final Handler handler;
     private final GestureDetector gestureDetector;
     private final WheelViewOptions viewOptions;
     private OnItemSelectedListener onItemSelectedListener;
@@ -103,7 +101,6 @@ public class WheelView extends View {
     public WheelView(Context context, AttributeSet attrs) {
         super(context, attrs);
         viewOptions = new WheelViewOptions();
-        handler = new MessageHandler(this);
         gestureDetector = new GestureDetector(context, new LoopViewGestureListener(this));
         gestureDetector.setIsLongpressEnabled(false);
         totalScrollY = 0;
@@ -760,8 +757,4 @@ public class WheelView extends View {
         return viewOptions;
     }
 
-    @Override
-    public Handler getHandler() {
-        return handler;
-    }
 }
