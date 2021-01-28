@@ -1,4 +1,4 @@
 include ':apptest', ':api'
 include ':rvexpand', ':global', ':frame', ':dataparser', ':permission', ':compatPermission',
         ':dhl', ':appstack', ':fingerprint', ':toolkit', ':rvexpand', ':views', ':fragmentManager',
-        ':compatFragmentManager'
+        ':compatFragmentManager',':wheelpicker'

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="WheelView">
+        <attr name="itemGravity">
+            <enum name="center" value="17"/>
+            <enum name="left" value="3"/>
+            <enum name="right" value="5"/>
+        </attr>
+        <attr name="labelGravity">
+            <enum name="center" value="17"/>
+            <enum name="left" value="3"/>
+            <enum name="right" value="5"/>
+        </attr>
+        <attr name="textSize" format="dimension"/>
+        <attr name="textColorOut" format="color"/>
+        <attr name="textColorCenter" format="color"/>
+        <attr name="dividerColor" format="color"/>
+        <attr name="dividerWidth" format="dimension"/>
+        <attr name="lineSpacingMultiplier" format="float"/>
+        <attr name="label" format="string"/>
+        <attr name="centerLabel" format="boolean"/>
+        <attr name="loop" format="boolean"/>
+        <attr name="visibleCount" format="integer"/>
+    </declare-styleable>
+    <declare-styleable name="WheelsLayout">
+        <attr name="itemSize" format="integer"/>
+        <attr name="itemWeights" format="string"/>
+        <attr name="itemSpaceWidth" format="integer"/>
+        <attr name="interceptParent" format="boolean"/>
+        <attr name="helper" format="string"/>
+    </declare-styleable>
+</resources>
