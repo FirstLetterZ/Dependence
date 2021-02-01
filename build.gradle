@@ -49,7 +49,7 @@ ext {
             dhl                  : 'com.zpf.android:tool-dhl:1.0.0',
             fingerprint          : 'com.zpf.android:tool-fingerprint:1.0.1',
             dataparser           : 'com.zpf.android:api-parse:2.1.0',
-            api                  : 'com.zpf.android:api-base:2.2.0',
+            api                  : 'com.zpf.android:api-base:2.3.0',
             global               : 'com.zpf.android:tool-config:2.2.0',
             permission           : 'com.zpf.android:tool-permission:1.3.0',
             compatPermission     : 'com.zpf.android:tool-compat-permission:2.2.1',
