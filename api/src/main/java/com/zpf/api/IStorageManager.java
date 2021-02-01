@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 
 public interface IStorageManager<N> {
 
-    IStorageManager save(N name, Object value);
+    IStorageManager<N> save(N name, Object value);
 
     <T> T find(N key, @NonNull Class<T> cls);
 
