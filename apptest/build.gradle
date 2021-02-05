@@ -7,9 +7,10 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         def date = new Date()
-        def formattedDate = date.format('yyMMddHHmm')
-        def code = formattedDate.toInteger()
-        versionCode code
+        def dY = date.getYear() - 120//2020年开始计算
+        def formattedDate = date.format('MMddHHmm')
+        def code = dY * 100000000 + formattedDate.toInteger()
+        versionCode code//2041年越界
         versionName '0.0.1'
     }
 

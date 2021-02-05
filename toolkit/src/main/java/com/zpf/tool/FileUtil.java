@@ -193,24 +193,35 @@ public class FileUtil {
     }
 
     public static boolean writeToFile(String filePath, InputStream inputStream) {
+        try {
+            FileOutputStream fos = new FileOutputStream(filePath);
+            return writeToFile(inputStream, fos);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean writeToFile(InputStream inputStream, OutputStream outputStream) {
         byte[] buf = new byte[2048];
         int len;
-        FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(filePath);
             while ((len = inputStream.read(buf)) != -1) {
-                fos.write(buf, 0, len);
-                fos.flush();
+                outputStream.write(buf, 0, len);
+                outputStream.flush();
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            //
         } finally {
             try {
                 if (inputStream != null) inputStream.close();
-                if (fos != null) fos.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                //
+            }
+            try {
+                if (outputStream != null) outputStream.close();
+            } catch (IOException e) {
+                //
             }
         }
         return false;
