@@ -28,8 +28,18 @@
         android:id="@+id/tv_tag_text"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        app:ellipsisText="…   全文"
         android:layout_marginTop="20dp"
         android:background="@color/colorAccent"
+        app:ellipsisText="…   全文"
         app:paragraphSpace="10dp" />
+
+    <FrameLayout
+        android:id="@+id/fl_top"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+    <FrameLayout
+        android:id="@+id/fl_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>

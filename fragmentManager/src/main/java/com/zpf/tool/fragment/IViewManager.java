@@ -3,27 +3,19 @@ package com.zpf.tool.fragment;
 /**
  * @author Created by ZPF on 2021/2/5.
  */
-public interface IViewManager<T> {
+public interface IViewManager<K,V> {
 
-    IViewManager<T> add(int parentId, String tagName, T child);
+    IViewManager<K,V> add(int parentId, K key);
 
-    IViewManager<T> add(int parentId, String tagName, Class<T> childClass);
-
-    IViewManager<T> remove(String tagName);
-
-    IViewManager<T> remove(T child);
+    IViewManager<K,V> remove(K tagName);
 
     void clear(int parentId);
 
-    void show(String tagName);
+    void show(K key);
 
-    void show(T child);
+    void hide(K key);
 
-    void hide(String tagName);
+    boolean commit();
 
-    void hide(T child);
-
-    void commit();
-
-    T get(String tagName);
+    V getView(K key);
 }

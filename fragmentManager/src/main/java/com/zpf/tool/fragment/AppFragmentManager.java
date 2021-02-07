@@ -3,78 +3,172 @@ package com.zpf.tool.fragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.util.SparseArray;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
- * Created by ZPF on 2018/6/14.
+ * @author Created by ZPF on 2021/2/5.
  */
-public class AppFragmentManager implements FragmentManagerInterface {
+public class AppFragmentManager implements IViewManager<String, Fragment> {
 
-    private FragmentManager mFragmentManager;
-    private FragmentCreator mCreator;
-    private int mContainerViewId;
-    private String[] mTagArray;
-    private int mCurrentIndex = 0;
-    private HashMap<String, WeakReference<Fragment>> fragmentCache = new HashMap<>();
+    private final FragmentManager mFragmentManager;
+    private final IViewCreator<String, Fragment> mCreator;
+    private final SparseArray<HashSet<String>> mParents = new SparseArray<>();
+    private final HashMap<String, Integer> mTags = new HashMap<>();
+    private FragmentTransaction mTransaction;
 
-    public AppFragmentManager(FragmentManager mFragmentManager, int mContainerViewId,
-                              String[] tagArray, FragmentCreator mCreator) {
-        this.mFragmentManager = mFragmentManager;
-        this.mCreator = mCreator;
-        this.mTagArray = tagArray;
-        this.mContainerViewId = mContainerViewId;
+    public AppFragmentManager(FragmentManager fragmentManager, IViewCreator<String, Fragment> creator) {
+        this.mFragmentManager = fragmentManager;
+        this.mCreator = creator;
+    }
+
+    //需要调用commit方法
+    @Override
+    public AppFragmentManager add(int parentId, String tagName) {
+        if (tagName == null) {
+            return this;
+        }
+        Integer cacheParentId = mTags.get(tagName);
+        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+        if (cacheParentId != null && cacheParentId != parentId) {
+            HashSet<String> cacheGroup = mParents.get(cacheParentId);
+            if (cacheGroup != null) {
+                cacheGroup.remove(tagName);
+            }
+            if (tagFragment != null) {
+                getTransaction().remove(tagFragment);
+            }
+        }
+        if (tagFragment == null) {
+            tagFragment = mCreator.create(tagName);
+        }
+        if (tagFragment == null) {
+            return this;
+        }
+        getTransaction().add(parentId, tagFragment, tagName);
+        HashSet<String> tagGroup = mParents.get(parentId);
+        if (tagGroup == null) {
+            tagGroup = new HashSet<>();
+            mParents.put(parentId, tagGroup);
+        }
+        tagGroup.add(tagName);
+        mTags.put(tagName, parentId);
+        return this;
     }
 
     @Override
-    public void showFragment(int index) {
-        if (mTagArray == null || mTagArray.length - 1 < index) {
+    public AppFragmentManager remove(String tagName) {
+        if (tagName == null) {
+            return this;
+        }
+        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+        if (tagFragment != null) {
+            if (tagFragment.isAdded()) {
+                getTransaction().remove(tagFragment);
+                commit();
+            }
+            Integer cacheParentId = mTags.get(tagName);
+            if (cacheParentId != null) {
+                HashSet<String> cacheGroup = mParents.get(cacheParentId);
+                if (cacheGroup != null) {
+                    cacheGroup.remove(tagName);
+                }
+            }
+            mTags.remove(tagName);
+        }
+        return this;
+    }
+
+    @Override
+    public void clear(int parentId) {
+        HashSet<String> cacheGroup = mParents.get(parentId);
+        if (cacheGroup != null && cacheGroup.size() > 0) {
+            Iterator<String> iterator = cacheGroup.iterator();
+            while (iterator != null && iterator.hasNext()) {
+                String tagName = iterator.next();
+                if (tagName == null) {
+                    continue;
+                }
+                Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+                if (tagFragment != null && tagFragment.isAdded()) {
+                    getTransaction().remove(tagFragment);
+                }
+                mTags.remove(tagName);
+            }
+            commit();
+            mParents.remove(parentId);
+        }
+    }
+
+    @Override
+    public boolean commit() {
+        if (mTransaction != null) {
+            mTransaction.commitAllowingStateLoss();
+            mTransaction = null;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Fragment getView(String tagName) {
+        return mFragmentManager.findFragmentByTag(tagName);
+    }
+
+    @Override
+    public void show(String tagName) {
+        if (tagName == null) {
             return;
         }
-        FragmentTransaction transaction = mFragmentManager.beginTransaction();
-        for (int i = 0; i < mTagArray.length; i++) {
-            Fragment fragment = getFragment(i);
-            if (i == index) {
-                if (fragment == null) {
-                    fragment = mCreator.create(index);
-                    if (fragment != null) {
-                        transaction.add(mContainerViewId, fragment, mTagArray[i]);
-                        fragmentCache.put(mTagArray[i], new WeakReference<>(fragment));
-                    }
-                } else {
-                    transaction.show(fragment);
+        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+        if (tagFragment == null) {
+            return;
+        }
+        getTransaction().show(tagFragment);
+        Integer cacheParentId = mTags.get(tagName);
+        HashSet<String> cacheGroup = null;
+        if (cacheParentId != null) {
+            cacheGroup = mParents.get(cacheParentId);
+        }
+        //cacheGroup为null，说明不在管理范围内
+        if (cacheGroup != null) {
+            Iterator<String> iterator = cacheGroup.iterator();
+            String name;
+            Fragment fragment;
+            while (iterator != null && iterator.hasNext()) {
+                name = iterator.next();
+                if (name == null || name.equals(tagName)) {
+                    continue;
                 }
-            } else if (fragment != null) {
-                transaction.hide(fragment);
+                fragment = mFragmentManager.findFragmentByTag(name);
+                if (fragment != null) {
+                    getTransaction().hide(fragment);
+                }
             }
         }
-        mCurrentIndex = index;
-        transaction.commitAllowingStateLoss();
+        commit();
     }
 
     @Override
-    public int getCurrentIndex() {
-        return mCurrentIndex;
-    }
-
-    @Override
-    public Fragment getFragment(int index) {
-        Fragment fragment = null;
-        if (mTagArray != null && index < mTagArray.length) {
-            WeakReference<Fragment> weakReference = fragmentCache.get(mTagArray[index]);
-            if (weakReference != null) {
-                fragment = weakReference.get();
-            }
-            if (fragment == null) {
-                fragment = mFragmentManager.findFragmentByTag(mTagArray[index]);
-            }
+    public void hide(String tagName) {
+        if (tagName == null) {
+            return;
         }
-        return fragment;
+        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+        if (tagFragment == null) {
+            return;
+        }
+        getTransaction().hide(tagFragment);
+        commit();
     }
 
-    public interface FragmentCreator {
-        Fragment create(int index);
+    private FragmentTransaction getTransaction() {
+        if (mTransaction == null) {
+            mTransaction = mFragmentManager.beginTransaction();
+        }
+        return mTransaction;
     }
-
 }

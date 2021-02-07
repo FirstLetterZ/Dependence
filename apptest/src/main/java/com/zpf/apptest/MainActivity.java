@@ -2,17 +2,35 @@ package com.zpf.apptest;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Fragment;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.apptest.R;
+import com.zpf.tool.fragment.AppFragmentManager;
+import com.zpf.tool.fragment.IViewCreator;
 import com.zpf.views.tagtext.TagItemClickListener;
 import com.zpf.views.tagtext.TagTextView;
 
 public class MainActivity extends AppCompatActivity {
     TagTextView tagTextView;
+    private AppFragmentManager viewManager = new AppFragmentManager(getFragmentManager(), new IViewCreator<String, Fragment>() {
+        @Override
+        public Fragment create(String key) {
+            if ("one".equals(key)) {
+                return new FragmentOne();
+            } else if ("two".equals(key)) {
+                return new FragmentTwo();
+            } else if ("three".equals(key)) {
+                return new FragmentThree();
+            } else if ("four".equals(key)) {
+                return new FragmentFour();
+            }
+            return null;
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +63,23 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "OnClickListener==>", Toast.LENGTH_SHORT).show();
             }
         });
+        viewManager.add(R.id.fl_top, "one")
+                .add(R.id.fl_bottom, "two")
+                .add(R.id.fl_bottom, "three")
+                .add(R.id.fl_bottom, "four")
+                .commit();
+        viewManager.show("one");
+        viewManager.show("four");
     }
 
     public void clickOne(View view) {
         tagTextView.setContentText("纽约州自5月下旬开始分地区、分阶段重启，之后疫情并未出现大幅反弹。纽约本地媒体PIX11称，尽管单日确诊病例数再次破千，但纽约州疫情仍好于美国许多地区。有卫生专家指出，这次单日新增病例破千，与近期单日检测量大幅增加有关。以6月5日为例，纽约州共有近7.8万人接受检测，1108人确诊，阳性率约1.42%。6月5日以前，单日检测量更少，但确诊人数往往更多。\n" +
                 "\n", 0).color = Color.DKGRAY;
         tagTextView.checkRefresh();
+    }
+
+    public void clickTwo(View view) {
+        viewManager.show("three");
     }
 
     public void setTagInfo(TagTextView textView) {

@@ -23,30 +23,27 @@ android {
 }
 
 dependencies {
-    api(rootProject.ext.dependencies.activity)
-            {
-                exclude group: 'androidx.core'
-            }
-    api(rootProject.ext.dependencies.fragment)
-            {
-                exclude group: 'androidx.core'
-            }
+//    api(rootProject.ext.dependencies.fragment)
+//            {
+//                exclude group: 'androidx.core'
+//            }
     api(rootProject.ext.dependencies.appcompat)
-            {
-                exclude group: 'androidx.activity'
-                exclude group: 'androidx.fragment'
-                exclude group: 'androidx.core'
-            }
-    compileOnly(rootProject.ext.dependencies.collection)
-    compileOnly(rootProject.ext.dependencies.versionedparcelable)
-    compileOnly(rootProject.ext.dependencies.core) {
-        exclude group: 'androidx.arch.core'
-        exclude group: 'androidx.collection'
-        exclude group: 'androidx.lifecycle'
-        exclude group: 'androidx.versionedparcelable'
-    }
-    api 'me.relex:photodraweeview:1.1.3'
-    api('com.facebook.fresco:fresco:2.3.0')
+//            {
+//                exclude group: 'androidx.activity'
+//                exclude group: 'androidx.fragment'
+//                exclude group: 'androidx.core'
+//            }
+//    compileOnly(rootProject.ext.dependencies.collection)
+//    compileOnly(rootProject.ext.dependencies.versionedparcelable)
+//    compileOnly(rootProject.ext.dependencies.core) {
+//        exclude group: 'androidx.arch.core'
+//        exclude group: 'androidx.collection'
+//        exclude group: 'androidx.lifecycle'
+//        exclude group: 'androidx.versionedparcelable'
+//    }
+//    api 'me.relex:photodraweeview:1.1.3'
+//    api('com.facebook.fresco:fresco:2.3.0')
     api project(':views')
+    api project(':fragmentManager')
 }
 
