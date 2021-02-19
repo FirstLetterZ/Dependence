@@ -2,9 +2,13 @@ package com.zpf.apptest;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.DownloadManager;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
@@ -71,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         viewManager.show("one");
         viewManager.show("four");
     }
+
+
 
     public void clickOne(View view) {
         tagTextView.setContentText("纽约州自5月下旬开始分地区、分阶段重启，之后疫情并未出现大幅反弹。纽约本地媒体PIX11称，尽管单日确诊病例数再次破千，但纽约州疫情仍好于美国许多地区。有卫生专家指出，这次单日新增病例破千，与近期单日检测量大幅增加有关。以6月5日为例，纽约州共有近7.8万人接受检测，1108人确诊，阳性率约1.42%。6月5日以前，单日检测量更少，但确诊人数往往更多。\n" +

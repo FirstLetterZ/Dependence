@@ -43,6 +43,16 @@ import java.util.zip.ZipOutputStream;
 
 public class FileUtil {
 
+    public static void installApk(Context context, Uri apkUri) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        context.startActivity(intent);
+    }
+
     //通知相册刷新
     public static void notifyPhotoAlbum(Context context, String filePath) {
         if (context == null || TextUtils.isEmpty(filePath)) {
