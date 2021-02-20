@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
 
 /**
  * @author Created by ZPF on 2021/2/19.
@@ -26,14 +25,14 @@ public class DownloadUtil {
         application = (Application) context.getApplicationContext();
     }
 
-    public void download(String url, String title, String desc, String apkName) {
+    public void download(String url, String title, String desc, Uri apkUri) {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setTitle(title);
         request.setDescription(desc);
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
         request.setAllowedOverRoaming(false);
-        request.setDestinationInExternalFilesDir(application, Environment.DIRECTORY_DOWNLOADS, apkName);
+        request.setDestinationUri(apkUri);
         loadState[0] = 0;
         loadState[1] = Integer.MAX_VALUE;
         loadState[2] = DownloadManager.STATUS_PENDING;
@@ -47,7 +46,6 @@ public class DownloadUtil {
         }
         application.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         downloadId = downloadManager.enqueue(request);
-//        downloadManager.getUriForDownloadedFile(downloadId);
     }
 
     private void queryState() {

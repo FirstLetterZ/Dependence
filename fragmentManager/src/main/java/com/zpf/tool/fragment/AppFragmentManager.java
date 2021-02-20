@@ -19,6 +19,7 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
     private final SparseArray<HashSet<String>> mParents = new SparseArray<>();
     private final HashMap<String, Integer> mTags = new HashMap<>();
     private FragmentTransaction mTransaction;
+    private final HashMap<String, Fragment> waitCommitMap = new HashMap<>();
 
     public AppFragmentManager(FragmentManager fragmentManager, IViewCreator<String, Fragment> creator) {
         this.mFragmentManager = fragmentManager;
@@ -32,13 +33,13 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
             return this;
         }
         Integer cacheParentId = mTags.get(tagName);
-        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+        Fragment tagFragment = getView(tagName);
         if (cacheParentId != null && cacheParentId != parentId) {
             HashSet<String> cacheGroup = mParents.get(cacheParentId);
             if (cacheGroup != null) {
                 cacheGroup.remove(tagName);
             }
-            if (tagFragment != null) {
+            if (tagFragment != null && !tagFragment.isRemoving()) {
                 getTransaction().remove(tagFragment);
             }
         }
@@ -48,7 +49,10 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
         if (tagFragment == null) {
             return this;
         }
-        getTransaction().add(parentId, tagFragment, tagName);
+        if (!tagFragment.isAdded()) {
+            getTransaction().add(parentId, tagFragment, tagName);
+            waitCommitMap.put(tagName, tagFragment);
+        }
         HashSet<String> tagGroup = mParents.get(parentId);
         if (tagGroup == null) {
             tagGroup = new HashSet<>();
@@ -64,9 +68,9 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
         if (tagName == null) {
             return this;
         }
-        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+        Fragment tagFragment = getView(tagName);
         if (tagFragment != null) {
-            if (tagFragment.isAdded()) {
+            if (tagFragment.isAdded() && !tagFragment.isRemoving()) {
                 getTransaction().remove(tagFragment);
                 commit();
             }
@@ -92,8 +96,8 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
                 if (tagName == null) {
                     continue;
                 }
-                Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
-                if (tagFragment != null && tagFragment.isAdded()) {
+                Fragment tagFragment = getView(tagName);
+                if (tagFragment != null && tagFragment.isAdded() && !tagFragment.isRemoving()) {
                     getTransaction().remove(tagFragment);
                 }
                 mTags.remove(tagName);
@@ -108,6 +112,7 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
         if (mTransaction != null) {
             mTransaction.commitAllowingStateLoss();
             mTransaction = null;
+            waitCommitMap.clear();
             return true;
         }
         return false;
@@ -115,7 +120,11 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
 
     @Override
     public Fragment getView(String tagName) {
-        return mFragmentManager.findFragmentByTag(tagName);
+        Fragment fragment = mFragmentManager.findFragmentByTag(tagName);
+        if (fragment == null) {
+            fragment = waitCommitMap.get(tagName);
+        }
+        return fragment;
     }
 
     @Override
@@ -123,11 +132,13 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
         if (tagName == null) {
             return;
         }
-        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
+        Fragment tagFragment = getView(tagName);
         if (tagFragment == null) {
             return;
         }
-        getTransaction().show(tagFragment);
+        if (tagFragment.isHidden()) {
+            getTransaction().show(tagFragment);
+        }
         Integer cacheParentId = mTags.get(tagName);
         HashSet<String> cacheGroup = null;
         if (cacheParentId != null) {
@@ -143,8 +154,8 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
                 if (name == null || name.equals(tagName)) {
                     continue;
                 }
-                fragment = mFragmentManager.findFragmentByTag(name);
-                if (fragment != null) {
+                fragment = getView(name);
+                if (fragment != null && !fragment.isHidden()) {
                     getTransaction().hide(fragment);
                 }
             }
@@ -157,11 +168,10 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
         if (tagName == null) {
             return;
         }
-        Fragment tagFragment = mFragmentManager.findFragmentByTag(tagName);
-        if (tagFragment == null) {
-            return;
+        Fragment tagFragment = getView(tagName);
+        if (tagFragment != null && !tagFragment.isHidden()) {
+            getTransaction().hide(tagFragment);
         }
-        getTransaction().hide(tagFragment);
         commit();
     }
 
