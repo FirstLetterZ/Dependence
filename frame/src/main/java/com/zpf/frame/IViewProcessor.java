@@ -21,7 +21,7 @@ import com.zpf.api.OnTouchKeyListener;
 /**
  * Created by ZPF on 2018/6/14.
  */
-public interface IViewProcessor extends IFullLifecycle, OnActivityResultListener,
+public interface IViewProcessor extends IFullLifecycle, OnActivityResultListener, IViewStateListener,
         OnPermissionResultListener, IBackPressInterceptor, OnTouchKeyListener, ILifecycleMonitor {
     void runWithPermission(Runnable runnable, String... permissions);
 
