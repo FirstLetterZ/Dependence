@@ -17,13 +17,13 @@ public interface ILifecycleMonitor {
     int getState();
 
     //已创建到销毁之间的状态
-    boolean isLiving();
+    boolean living();
 
     //可交互的状态
-    boolean isActive();
+    boolean interactive();
 
     //用户可见的状态
-    boolean isVisible();
+    boolean visible();
 
     //绑定生命周期的弹窗
     void show(final ICustomWindow window);
