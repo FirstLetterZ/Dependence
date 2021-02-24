@@ -22,6 +22,9 @@ public interface ILifecycleMonitor {
     //可交互的状态
     boolean isActive();
 
+    //用户可见的状态
+    boolean isVisible();
+
     //绑定生命周期的弹窗
     void show(final ICustomWindow window);
 

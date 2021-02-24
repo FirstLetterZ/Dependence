@@ -57,7 +57,7 @@ ext {
             compatFragmentManager: 'com.zpf.android:tool-compat-fragment-manager:2.1.2',
             toolkit              : 'com.zpf.android:tool-kit:2.2.1',
             appstack             : 'com.zpf.android:tool-stack:1.0.0',
-            frame                : 'com.zpf.android:api-frame:1.4.0',
+            frame                : 'com.zpf.android:api-frame:1.5.0',
             rvexpand             : 'com.zpf.android:rvexpand:1.2.0',
             views                : 'com.zpf.android:tool-views:0.4.0',
     ]
