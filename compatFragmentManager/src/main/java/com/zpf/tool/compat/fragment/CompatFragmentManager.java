@@ -12,6 +12,7 @@ import com.zpf.tool.fragment.IViewManager;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by ZPF on 2018/6/14.
@@ -127,6 +128,8 @@ public class CompatFragmentManager implements IViewManager<String, Fragment> {
         Fragment fragment = mFragmentManager.findFragmentByTag(tagName);
         if (fragment == null) {
             fragment = waitCommitMap.get(tagName);
+        } else {
+            clearCommitCache();
         }
         return fragment;
     }
@@ -184,5 +187,17 @@ public class CompatFragmentManager implements IViewManager<String, Fragment> {
             mTransaction = mFragmentManager.beginTransaction();
         }
         return mTransaction;
+    }
+
+    private void clearCommitCache() {
+        if (waitCommitMap.size() > 0) {
+            for (Iterator<Map.Entry<String, Fragment>> it = waitCommitMap.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, Fragment> item = it.next();
+                Fragment f = item.getValue();
+                if (f.isAdded()) {
+                    it.remove();
+                }
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import android.util.SparseArray;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author Created by ZPF on 2021/2/5.
@@ -112,7 +113,6 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
         if (mTransaction != null) {
             mTransaction.commitAllowingStateLoss();
             mTransaction = null;
-            waitCommitMap.clear();
             return true;
         }
         return false;
@@ -123,6 +123,8 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
         Fragment fragment = mFragmentManager.findFragmentByTag(tagName);
         if (fragment == null) {
             fragment = waitCommitMap.get(tagName);
+        } else {
+            clearCommitCache();
         }
         return fragment;
     }
@@ -180,5 +182,17 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
             mTransaction = mFragmentManager.beginTransaction();
         }
         return mTransaction;
+    }
+
+    private void clearCommitCache() {
+        if (waitCommitMap.size() > 0) {
+            for (Iterator<Map.Entry<String, Fragment>> it = waitCommitMap.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, Fragment> item = it.next();
+                Fragment f = item.getValue();
+                if (f.isAdded()) {
+                    it.remove();
+                }
+            }
+        }
     }
 }
