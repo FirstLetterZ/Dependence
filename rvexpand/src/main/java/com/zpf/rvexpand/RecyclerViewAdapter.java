@@ -11,6 +11,7 @@ import com.zpf.api.IHolder;
 import com.zpf.api.ItemListAdapter;
 import com.zpf.api.ItemTypeManager;
 import com.zpf.api.ItemViewCreator;
+import com.zpf.api.OnAttachListener;
 import com.zpf.api.OnItemClickListener;
 import com.zpf.api.OnItemViewClickListener;
 
@@ -46,12 +47,28 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
+    @Override
+    public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
+        if(holder instanceof OnAttachListener){
+            ((OnAttachListener) holder).onAttached();
+        }
+        super.onViewAttachedToWindow(holder);
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+        if(holder instanceof OnAttachListener){
+            ((OnAttachListener) holder).onDetached();
+        }
+        super.onViewDetachedFromWindow(holder);
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = null;
         if (itemViewCreator != null) {
-            IHolder<View> item = itemViewCreator.onCreateView(parent.getContext(), viewType);
+            IHolder<View> item = itemViewCreator.onCreateView(parent, -1, viewType);
             if (item instanceof RecyclerView.ViewHolder) {
                 holder = (RecyclerView.ViewHolder) item;
             } else {
@@ -72,7 +89,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
         if (holder instanceof IHolder && itemViewCreator != null) {
             try {
                 IHolder<View> tagHolder = ((IHolder<View>) holder);
-                itemViewCreator.onBindView(tagHolder, position);
+                itemViewCreator.onBindView(tagHolder, position, getDataAt(position));
             } catch (Exception e) {
                 //
             }
@@ -129,7 +146,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     @Nullable
-    public T getPositionData(int position) {
+    public T getDataAt(int position) {
         if (position < 0 || position > dataList.size() - 1) {
             return null;
         }
@@ -166,10 +183,6 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public int getSize() {
         return getItemCount();
-    }
-
-    public int getDataIndex(int position) {
-        return position;
     }
 
     public RecyclerViewAdapter<T> setHolderRecyclable(boolean recyclable) {

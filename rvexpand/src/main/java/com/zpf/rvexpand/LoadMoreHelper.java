@@ -7,9 +7,9 @@ public class LoadMoreHelper {
     private long lastScrollBottomTime;
     private boolean enable = true;
     private boolean loading = false;
-    private LoadMoreViewHolder viewHolder;
+    private final LoadMoreViewHolder viewHolder;
     private BottomHolderListener listener;
-    private RecyclerView.OnScrollListener scrollEndListener = new RecyclerView.OnScrollListener() {
+    private final RecyclerView.OnScrollListener scrollEndListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             if (!enable) {

@@ -29,7 +29,6 @@ public class SafeLinearLayoutManager extends LinearLayoutManager {
             super.onLayoutChildren(recycler, state);
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
-
         }
     }
 
