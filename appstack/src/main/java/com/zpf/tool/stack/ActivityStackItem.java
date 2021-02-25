@@ -6,13 +6,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
 
-public class ActivityStackItem implements IStackItem{
+public class ActivityStackItem implements IStackItem {
 
-    private String name;
+    private final String name;
     private int elementState = StackElementState.STACK_OUTSIDE;
     private WeakReference<Activity> mInstance;
+
+    public ActivityStackItem(String name) {
+        this.name = name;
+    }
 
     @NonNull
     @Override
@@ -33,7 +36,6 @@ public class ActivityStackItem implements IStackItem{
 
     @Override
     public void bindActivity(Activity activity) {
-        name = activity.getClass().getName();
         mInstance = new WeakReference<>(activity);
     }
 
@@ -44,11 +46,5 @@ public class ActivityStackItem implements IStackItem{
             return null;
         }
         return mInstance.get();
-    }
-
-    @Nullable
-    @Override
-    public LinkedList<IStackItem> getInsideStack() {
-        return null;
     }
 }

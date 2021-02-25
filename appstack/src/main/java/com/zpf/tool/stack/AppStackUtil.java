@@ -5,6 +5,7 @@ import android.app.Application;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
@@ -13,7 +14,8 @@ import androidx.annotation.Nullable;
  */
 public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
     private int topStackState = LifecycleState.NOT_INIT;
-    private HashStack<String, IStackItem> stackInfo = new HashStack<>();
+    private final HashStack<String, IStackItem> stackInfo = new HashStack<>();
+    public static final String STACK_ITEM_NAME = "stack_item_name";
 
     private AppStackUtil() {
     }
@@ -27,20 +29,12 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
     }
 
     @Override
-    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        String stackName;
-        IStackItem targetItem = null;
-        if (activity instanceof IStackItemPrototype) {
-            targetItem = ((IStackItemPrototype) activity).getStackItem();
-            stackName = targetItem.getName();
-        } else {
-            stackName = activity.getClass().getName();
-        }
+    public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+        String stackName = getNameInStack(activity);
+        IStackItem targetItem;
         IStackItem record = stackInfo.get(stackName);
         if (record == null) {
-            if (targetItem == null) {
-                targetItem = new ActivityStackItem();
-            }
+            targetItem = new ActivityStackItem(stackName);
             stackInfo.put(targetItem.getName(), targetItem);
         } else {
             targetItem = record;
@@ -56,75 +50,56 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
     }
 
     @Override
-    public void onActivityStarted(Activity activity) {
-        checkActivityInStack(activity);
+    public void onActivityStarted(@NonNull Activity activity) {
+        checkActivityInStackTop(activity);
         topStackState = LifecycleState.AFTER_START;
         activity.getIntent().putExtra("onActivitySaveInstanceState", false);
     }
 
     @Override
-    public void onActivityResumed(Activity activity) {
-        checkActivityInStack(activity);
+    public void onActivityResumed(@NonNull Activity activity) {
+        checkActivityInStackTop(activity);
         topStackState = LifecycleState.AFTER_RESUME;
-        activity.getIntent().putExtra("onActivitySaveInstanceState", false);
     }
 
     @Override
-    public void onActivityPaused(Activity activity) {
-        checkActivityInStack(activity);
+    public void onActivityPaused(@NonNull Activity activity) {
+        checkActivityInStackTop(activity);
         topStackState = LifecycleState.AFTER_PAUSE;
     }
 
     @Override
-    public void onActivityStopped(Activity activity) {
+    public void onActivityStopped(@NonNull Activity activity) {
         if (getTopActivity() == activity) {
             topStackState = LifecycleState.AFTER_STOP;
         }
     }
 
     @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-        activity.getIntent().putExtra("onActivitySaveInstanceState", outState != null);
+    public void onActivityPreSaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+        activity.getIntent().putExtra("onActivitySaveInstanceState", true);
     }
 
     @Override
-    public void onActivityDestroyed(Activity activity) {
+    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(@NonNull Activity activity) {
+        String stackName = getNameInStack(activity);
         if (getTopActivity() == activity) {
             topStackState = LifecycleState.AFTER_DESTROY;
-        }
-        if (!activity.getIntent().getBooleanExtra("onActivitySaveInstanceState", false)) {
-            removeActivity(activity);
-        }
-    }
-
-    private void removeActivity(Activity activity) {
-        String stackName;
-        if (activity instanceof IStackItemPrototype) {
-            stackName = ((IStackItemPrototype) activity).getStackItem().getName();
+            stackInfo.remove(stackName);
         } else {
-            stackName = activity.getClass().getName();
-        }
-        stackInfo.remove(stackName);
-    }
-
-    private void checkActivityInStack(Activity activity) {
-        String stackName;
-        IStackItem targetItem = null;
-        if (activity instanceof IStackItemPrototype) {
-            targetItem = ((IStackItemPrototype) activity).getStackItem();
-            stackName = targetItem.getName();
-        } else {
-            stackName = activity.getClass().getName();
-        }
-        IStackItem record = stackInfo.get(stackName);
-        if (record == null) {
-            if (targetItem == null) {
-                targetItem = new ActivityStackItem();
-                targetItem.bindActivity(activity);
+            if (activity.getIntent().getBooleanExtra("onActivitySaveInstanceState", false)) {
+                IStackItem record = stackInfo.get(stackName);
+                if (record != null) {
+                    record.setItemState(StackElementState.STACK_REMOVING);
+                }
+            } else {
+                stackInfo.remove(stackName);
             }
-            stackInfo.put(targetItem.getName(), targetItem);
-        } else {
-            stackInfo.moveAllNext(stackName);
         }
     }
 
@@ -161,24 +136,36 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
         return stackInfo.getLast();
     }
 
-    public boolean finishAbove(Activity activity) {
-        String stackName;
-        if (activity instanceof IStackItemPrototype) {
-            IStackItem targetItem = ((IStackItemPrototype) activity).getStackItem();
-            stackName = targetItem.getName();
-        } else {
-            stackName = activity.getClass().getName();
+    public boolean finishByName(String stackItemName) {
+        IStackItem record = stackInfo.get(stackItemName);
+        if (record == null) {
+            return false;
         }
-        IStackItem record = stackInfo.get(stackName);
+        Activity activity = record.getStackActivity();
+        if (activity != null && !activity.isFinishing()) {
+            activity.finish();
+        } else {
+            record.setItemState(StackElementState.STACK_REMOVING);
+        }
+        return true;
+    }
+
+    public boolean finishAboveName(String stackItemName) {
+        IStackItem record = stackInfo.get(stackItemName);
         if (record == null) {
             return false;
         } else {
-            IStackItem item = stackInfo.getLast();
+            IStackItem item = stackInfo.pollLast();
             while (item != null) {
-                if (TextUtils.equals(item.getName(), stackName)) {
-                    stackInfo.put(stackName, item);
-                } else if (item.getStackActivity() != null) {
-                    item.getStackActivity().finish();
+                if (TextUtils.equals(item.getName(), stackItemName)) {
+                    stackInfo.put(stackItemName, item);
+                    break;
+                }
+                Activity activity = item.getStackActivity();
+                if (activity != null && !activity.isFinishing()) {
+                    activity.finish();
+                } else {
+                    record.setItemState(StackElementState.STACK_REMOVING);
                 }
                 item = stackInfo.pollLast();
             }
@@ -196,4 +183,26 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
         }
         topStackState = LifecycleState.NOT_INIT;
     }
+
+    public String getNameInStack(Activity activity) {
+        String stackName = activity.getIntent().getStringExtra(STACK_ITEM_NAME);
+        if (stackName == null || stackName.length() == 0) {
+            stackName = activity.getClass().getName();
+        }
+        return stackName;
+    }
+
+    private void checkActivityInStackTop(Activity activity) {
+        String stackName = getNameInStack(activity);
+        IStackItem targetItem;
+        IStackItem record = stackInfo.get(stackName);
+        if (record == null) {
+            targetItem = new ActivityStackItem(stackName);
+            targetItem.bindActivity(activity);
+            stackInfo.put(targetItem.getName(), targetItem);
+        } else {
+            stackInfo.moveAllNext(stackName);
+        }
+    }
+
 }

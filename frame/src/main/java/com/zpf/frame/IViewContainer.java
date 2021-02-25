@@ -5,14 +5,12 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.zpf.tool.stack.IStackItemPrototype;
-
 /**
  * 替代activity与fragment
  * Created by ZPF on 2018/3/22.
  */
 public interface IViewContainer extends ILifecycleMonitor, IActivityController
-        , IPermissionChecker, ILoadingManager, IStackItemPrototype {
+        , IPermissionChecker, ILoadingManager {
 
     Object invoke(String name, Object params);
 
