@@ -1,7 +1,7 @@
 package com.zpf.api;
 
 public interface ItemTypeManager {
-    int getItemViewType(int i);
+    int getItemType(int position);
 
-    long getItemViewId(int i);
+    long getItemId(int position);
 }

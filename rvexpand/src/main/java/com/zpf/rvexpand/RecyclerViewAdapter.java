@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.zpf.api.IHolder;
 import com.zpf.api.ItemListAdapter;
 import com.zpf.api.ItemTypeManager;
 import com.zpf.api.ItemViewCreator;
@@ -19,7 +20,7 @@ import java.util.List;
 public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemListAdapter<T> {
 
     private final ArrayList<T> dataList = new ArrayList<>();
-    private ItemClickHelper clickHelper = new ItemClickHelper();
+    private final ItemClickHelper clickHelper = new ItemClickHelper();
     private boolean holderRecyclable = true;
     private ItemViewCreator itemViewCreator;
     private ItemTypeManager itemTypeManager;
@@ -50,9 +51,12 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = null;
         if (itemViewCreator != null) {
-            View item = itemViewCreator.onCreateView(parent.getContext(), viewType);
-            holder = new RecyclerView.ViewHolder(item) {
-            };
+            IHolder<View> item = itemViewCreator.onCreateView(parent.getContext(), viewType);
+            if (item instanceof RecyclerView.ViewHolder) {
+                holder = (RecyclerView.ViewHolder) item;
+            } else {
+                holder = new ItemHolder(item);
+            }
         }
         if (holder == null) {
             holder = new EmptyHolder(parent.getContext());
@@ -62,8 +66,16 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (itemViewCreator != null) {
-            itemViewCreator.onBindView(holder.itemView, position);
+        if (holder instanceof EmptyHolder) {
+            return;
+        }
+        if (holder instanceof IHolder && itemViewCreator != null) {
+            try {
+                IHolder<View> tagHolder = ((IHolder<View>) holder);
+                itemViewCreator.onBindView(tagHolder, position);
+            } catch (Exception e) {
+                //
+            }
         }
         holder.setIsRecyclable(holderRecyclable);
         clickHelper.bindItemClick(holder.itemView, position);
@@ -138,7 +150,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public int getItemViewType(int position) {
         if (itemTypeManager != null) {
-            return itemTypeManager.getItemViewType(position);
+            return itemTypeManager.getItemType(position);
         }
         return super.getItemViewType(position);
     }
@@ -146,7 +158,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public long getItemId(int position) {
         if (itemTypeManager != null) {
-            return itemTypeManager.getItemViewId(position);
+            return itemTypeManager.getItemId(position);
         }
         return super.getItemId(position);
     }

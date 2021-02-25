@@ -7,7 +7,7 @@ import android.view.View;
  * 图片加载
  * Created by ZPF on 2019/5/13.
  */
-public interface IViewLoader {
+public interface ImageLoader {
 
     void fromStringUri(View targetView, String uri);
 
