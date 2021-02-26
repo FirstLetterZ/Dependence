@@ -30,6 +30,11 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+
+    }
+
+    @Override
+    public void onActivityPostCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
         String stackName = getNameInStack(activity);
         IStackItem targetItem;
         IStackItem record = stackInfo.get(stackName);
@@ -150,27 +155,36 @@ public class AppStackUtil implements Application.ActivityLifecycleCallbacks {
         return true;
     }
 
-    public boolean finishAboveName(String stackItemName) {
-        IStackItem record = stackInfo.get(stackItemName);
-        if (record == null) {
-            return false;
-        } else {
-            IStackItem item = stackInfo.pollLast();
-            while (item != null) {
-                if (TextUtils.equals(item.getName(), stackItemName)) {
-                    stackInfo.put(stackItemName, item);
-                    break;
-                }
-                Activity activity = item.getStackActivity();
-                if (activity != null && !activity.isFinishing()) {
-                    activity.finish();
-                } else {
-                    record.setItemState(StackElementState.STACK_REMOVING);
-                }
-                item = stackInfo.pollLast();
+    /**
+     * 从历史栈中回退到指定活动
+     * 如果活动在历史中则，结束在目标活动之上的所有活动
+     * 如果活动不在历史中，则将结束历史中的每个活动，直到到达该历史栈的根活动
+     *
+     * @return 目标活动之下的活动数量，如果活动不在历史中返回-1
+     */
+    public int finishAboveName(String stackItemName) {
+        IStackItem item = stackInfo.pollLast();
+        int result = -1;
+        while (item != null) {
+            if (TextUtils.equals(item.getName(), stackItemName)) {
+                stackInfo.put(stackItemName, item);
+                result = stackInfo.getSize() - 1;
+                break;
             }
-            return true;
+            if (stackInfo.getSize() == 0) {
+                stackInfo.put(stackItemName, item);
+                result = -1;
+                break;
+            }
+            Activity activity = item.getStackActivity();
+            if (activity != null && !activity.isFinishing()) {
+                activity.finish();
+            } else {
+                item.setItemState(StackElementState.STACK_REMOVING);
+            }
+            item = stackInfo.pollLast();
         }
+        return result;
     }
 
     public void clear() {

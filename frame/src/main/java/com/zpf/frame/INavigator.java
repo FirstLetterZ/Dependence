@@ -3,26 +3,27 @@ package com.zpf.frame;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Created by ZPF on 2019/5/13.
  */
 public interface INavigator<T> {
 
-    void push(T target, Bundle params, int requestCode);
+    void push(@NonNull T target, @Nullable Bundle params, int requestCode);
 
-    void push(T target, Bundle params);
+    void push(@NonNull T target, @Nullable Bundle params);
 
-    void push(T target);
+    void push(@NonNull T target);
 
-    void poll(int resultCode, Intent data);
+    void poll(int resultCode, @Nullable Intent data);
 
     void poll();
 
-    void pollUntil(T target, int resultCode, Intent data);
+    boolean pollUntil(@NonNull T target, @Nullable Bundle data);
 
-    void pollUntil(T target);
+    boolean pollUntil(@NonNull T target);
 
-    void remove(T target, int resultCode, Intent data);
-
-    void remove(T target);
+    boolean remove(@NonNull T target);
 }
