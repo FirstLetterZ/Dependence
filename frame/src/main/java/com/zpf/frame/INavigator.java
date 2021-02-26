@@ -21,7 +21,7 @@ public interface INavigator<T> {
 
     void poll();
 
-    boolean pollUntil(@NonNull T target, @Nullable Bundle data);
+    boolean pollUntil(@NonNull T target, @Nullable Intent data);
 
     boolean pollUntil(@NonNull T target);
 
