@@ -18,6 +18,11 @@ public class ItemHolder extends RecyclerView.ViewHolder implements IHolder<View>
         realHolder = holder;
     }
 
+    public ItemHolder(@NonNull View itemView) {
+        super(itemView);
+        realHolder = null;
+    }
+
     @Override
     public View getRoot() {
         return itemView;
@@ -25,11 +30,19 @@ public class ItemHolder extends RecyclerView.ViewHolder implements IHolder<View>
 
     @Override
     public View findById(int id) {
-        return realHolder.findById(id);
+        if (realHolder != null) {
+            return realHolder.findById(id);
+        } else {
+            return itemView.findViewById(id);
+        }
     }
 
     @Override
     public View findByTag(String tag) {
-        return realHolder.findByTag(tag);
+        if (realHolder != null) {
+            return realHolder.findByTag(tag);
+        } else {
+            return itemView.findViewWithTag(tag);
+        }
     }
 }
