@@ -33,4 +33,13 @@ public class StackNode<K, S> {
     public K getKey() {
         return key;
     }
+
+    public void removeSelf() {
+        if (prev != null) {
+            prev.next = next;
+        }
+        if (next != null) {
+            next.prev = prev;
+        }
+    }
 }

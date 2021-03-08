@@ -10,11 +10,11 @@ import com.zpf.api.OnItemViewClickListener;
 import java.lang.ref.SoftReference;
 
 public class ItemClickHelper {
-    OnItemClickListener itemClickListener;
-    OnItemViewClickListener itemViewClickListener;
+    public OnItemClickListener itemClickListener;
+    public OnItemViewClickListener itemViewClickListener;
     private final SparseArray<SoftReference<View.OnClickListener>> clickCache = new SparseArray<>();
 
-    protected void bindItemClick(View view, final int position) {
+    public void bindItemClick(View view, final int position) {
         View targetView = view;
         while (targetView instanceof ViewGroup) {
             if (((ViewGroup) view).getChildCount() == 1) {

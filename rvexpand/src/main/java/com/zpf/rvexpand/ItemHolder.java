@@ -1,5 +1,6 @@
 package com.zpf.rvexpand;
 
+import android.util.SparseArray;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import com.zpf.api.IHolder;
  */
 public class ItemHolder extends RecyclerView.ViewHolder implements IHolder<View> {
     private final IHolder<View> realHolder;
+    private SparseArray<View> viewCache;
 
     public ItemHolder(@NonNull IHolder<View> holder) {
         super((View) holder.getRoot());
@@ -33,7 +35,20 @@ public class ItemHolder extends RecyclerView.ViewHolder implements IHolder<View>
         if (realHolder != null) {
             return realHolder.findById(id);
         } else {
-            return itemView.findViewById(id);
+            View view;
+            if (viewCache == null) {
+                viewCache = new SparseArray<>();
+                view =null;
+            } else {
+                view = viewCache.get(id);
+            }
+            if (view == null) {
+                view = itemView.findViewById(id);
+            }
+            if (view != null) {
+                viewCache.get(id, view);
+            }
+            return view;
         }
     }
 
