@@ -19,10 +19,6 @@ public class AppStackUtil {
     private static final ActivityLifecycleCallbacks lifecycleCallbacks = new ActivityLifecycleCallbacks() {
         @Override
         public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-        }
-
-        @Override
-        public void onActivityPostCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
             String stackName = getNameInStack(activity);
             IStackItem targetItem;
             IStackItem record = stackInfo.get(stackName);
