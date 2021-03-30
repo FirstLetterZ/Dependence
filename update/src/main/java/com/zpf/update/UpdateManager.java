@@ -102,7 +102,8 @@ public class UpdateManager {
                 //更新本地版本信息
                 versionLocal.put(versionInfo.fileName, versionInfo);
                 editor.putString(versionInfo.fileName, versionInfo.toString()).commit();
-                Util.deleteOtherFolder(new File(baseFolderPath), Arrays.asList(oldVersionInfo.getLocalPath(), versionInfo.getLocalPath()));
+                Util.deleteOtherFolder(new File(baseFolderPath), Arrays.asList(baseFolderPath + File.separator + oldVersionInfo.versionCode,
+                        baseFolderPath + File.separator + versionInfo.versionCode));
                 if (loadListener != null) {
                     loadListener.onSuccess(versionInfo);
                 }
