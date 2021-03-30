@@ -43,6 +43,7 @@ public class UpdateManager {
             FileVersionInfo localInfo = getLocalVersionInfo(fileName);
             if (easyCheckFileExists(localInfo.localPath)) {//尝试使用本地版本
                 loadListener.onSuccess(localInfo);
+                listenerMap.remove(localInfo.fileName);
             } else {
                 loadListener.onFail(fileName, code, message);
             }
@@ -106,6 +107,7 @@ public class UpdateManager {
                         baseFolderPath + File.separator + versionInfo.versionCode));
                 if (loadListener != null) {
                     loadListener.onSuccess(versionInfo);
+                    listenerMap.remove(versionInfo.fileName);
                 }
             } else {
                 if (loadListener != null) {
@@ -138,6 +140,7 @@ public class UpdateManager {
                         } else {
                             //直接加载本地版本
                             loadListener.onSuccess(oldVersion);
+                            listenerMap.remove(fileName);
                         }
                     }
                 });
@@ -159,6 +162,7 @@ public class UpdateManager {
             }
         } else if (loadListener != null) {
             loadListener.onSuccess(oldVersion);
+            listenerMap.remove(fileName);
         }
     }
 
@@ -189,6 +193,7 @@ public class UpdateManager {
             //使用本地版本
             if (loadListener != null) {
                 loadListener.onSuccess(localVersion);
+                listenerMap.remove(localVersion.fileName);
             }
         }
     }

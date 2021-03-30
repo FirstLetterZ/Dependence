@@ -13,7 +13,7 @@ public class FileVersionInfo {
     String localPath;
     String fileIcon;
     String md5Str;
-    int strategy;
+    int strategy;//1--后台下载；2--提示下载；3--
     long checkTime;
 
     public FileVersionInfo() {
