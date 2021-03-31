@@ -2,6 +2,8 @@ package com.zpf.update;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -20,10 +22,15 @@ import java.util.zip.ZipFile;
 /**
  * @author Created by ZPF on 2021/3/29.
  */
-public class Util {
+public class UpdateUtil {
 
     public static boolean isNotEmptyDirectory(File folder) {
         return folder != null && folder.isDirectory() && folder.list().length > 0;
+    }
+
+    @NonNull
+    public static String getRootFolderPath(Context context,String fileGroupId) {
+        return UpdateUtil.getAppDataPath(context) + File.separator + UpdateUtil.md5String(fileGroupId);
     }
 
     public static String getAppDataPath(Context context) {
@@ -33,6 +40,22 @@ public class Util {
         } else {
             return context.getFilesDir().getAbsolutePath();
         }
+    }
+
+    public static File getFileOrCreate(String folderPath, String name) {
+        File file = new File(folderPath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        File f = new File(file, name);
+        if (!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return f;
     }
 
     public static void deleteOtherFolder(File baseFolder, List<String> excludePath) {

@@ -79,15 +79,15 @@ public class UpdateManager {
         @Override
         public void onSuccess(FileVersionInfo versionInfo) {
             final IUpdateListener loadListener = listenerMap.get(versionInfo.fileName);
-            String baseFolderPath = getFolderPath(versionInfo.fileName);
+            String baseFolderPath = UpdateUtil.getRootFolderPath(appContext, versionInfo.getGroupId());
             String versionFolderPath = baseFolderPath + File.separator + versionInfo.versionCode;
             if (versionInfo.localPath == null || versionInfo.localPath.length() == 0) {
                 versionInfo.localPath = versionFolderPath + File.separator + versionInfo.fileName;
             }
             File resultFile = new File(versionInfo.localPath);
-            if (versionInfo.md5Str == null || versionInfo.md5Str.length() == 0 || versionInfo.md5Str.equals(Util.getFileMD5(resultFile))) {
+            if (versionInfo.md5Str == null || versionInfo.md5Str.length() == 0 || versionInfo.md5Str.equals(UpdateUtil.getFileMD5(resultFile))) {
                 if (autoUpZip) {
-                    if (!Util.upZipFile(versionInfo.localPath, versionFolderPath)) {
+                    if (!UpdateUtil.upZipFile(versionInfo.localPath, versionFolderPath)) {
                         if (loadListener != null) {
                             loadListener.onFail(versionInfo.fileName, -2, "文件解压失败");
                         }
@@ -103,7 +103,7 @@ public class UpdateManager {
                 //更新本地版本信息
                 versionLocal.put(versionInfo.fileName, versionInfo);
                 editor.putString(versionInfo.fileName, versionInfo.toString()).commit();
-                Util.deleteOtherFolder(new File(baseFolderPath), Arrays.asList(baseFolderPath + File.separator + oldVersionInfo.versionCode,
+                UpdateUtil.deleteOtherFolder(new File(baseFolderPath), Arrays.asList(baseFolderPath + File.separator + oldVersionInfo.versionCode,
                         baseFolderPath + File.separator + versionInfo.versionCode));
                 if (loadListener != null) {
                     loadListener.onSuccess(versionInfo);
@@ -205,16 +205,12 @@ public class UpdateManager {
             }
             return;
         }
-        String baseFolderPath = getFolderPath(fileVersionInfo.fileName);
-        File folder = new File(baseFolderPath + File.separator + fileVersionInfo.versionCode);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        File resultFile = new File(folder, fileVersionInfo.fileName);
+        File resultFile = UpdateUtil.getFileOrCreate(
+                UpdateUtil.getRootFolderPath(appContext, fileVersionInfo.getGroupId())
+                        + File.separator + fileVersionInfo.versionCode, fileVersionInfo.fileName);
         fileVersionInfo.localPath = resultFile.getAbsolutePath();
         call.download(fileVersionInfo, downloadListener);
     }
-
 
     @Nullable
     public FileVersionInfo getOldVersionInfo(String fileName) {
@@ -231,7 +227,7 @@ public class UpdateManager {
             return false;
         }
         File localFile = new File(filePath);
-        return localFile.exists() || Util.isNotEmptyDirectory(localFile.getParentFile());
+        return localFile.exists() || UpdateUtil.isNotEmptyDirectory(localFile.getParentFile());
     }
 
     @NonNull
@@ -258,11 +254,6 @@ public class UpdateManager {
 
     public void setAutoUpZip(boolean autoUpZip) {
         this.autoUpZip = autoUpZip;
-    }
-
-    @NonNull
-    public String getFolderPath(String fileName) {
-        return Util.getAppDataPath(appContext) + File.separator + Util.md5String(fileName);
     }
 
     public void setNetCall(INetCall netCall) {
