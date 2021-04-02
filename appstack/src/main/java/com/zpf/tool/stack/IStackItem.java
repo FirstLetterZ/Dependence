@@ -1,11 +1,9 @@
 package com.zpf.tool.stack;
 
-import android.app.Activity;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public interface IStackItem {
+public interface IStackItem<T> {
 
     @NonNull
     String getName();
@@ -15,9 +13,9 @@ public interface IStackItem {
 
     void setItemState(@StackElementState int newState);
 
-    void bindActivity(Activity activity);
+    void bindItem(T t);
 
     @Nullable
-    Activity getStackActivity();
+    T getStackItem();
 
 }

@@ -3,7 +3,6 @@ package com.zpf.frame;
 import androidx.annotation.Nullable;
 
 import com.zpf.api.ICancelable;
-import com.zpf.api.ICustomWindow;
 import com.zpf.api.IManager;
 
 import java.lang.reflect.Type;
@@ -24,12 +23,6 @@ public interface ILifecycleMonitor {
 
     //用户可见的状态
     boolean visible();
-
-    //绑定生命周期的弹窗
-    void show(final ICustomWindow window);
-
-    //关闭当前弹窗
-    boolean close();
 
     //绑定生命周期的请求控制器
     IManager<ICancelable> getCancelableManager();

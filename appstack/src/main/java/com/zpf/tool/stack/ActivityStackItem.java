@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 
-public class ActivityStackItem implements IStackItem {
+public class ActivityStackItem implements IStackItem<Activity> {
 
     private final String name;
     private int elementState = StackElementState.STACK_OUTSIDE;
@@ -35,16 +35,17 @@ public class ActivityStackItem implements IStackItem {
     }
 
     @Override
-    public void bindActivity(Activity activity) {
+    public void bindItem(Activity activity) {
         mInstance = new WeakReference<>(activity);
     }
 
     @Nullable
     @Override
-    public Activity getStackActivity() {
+    public Activity getStackItem() {
         if (mInstance == null) {
             return null;
         }
         return mInstance.get();
     }
+
 }

@@ -1,7 +1,6 @@
 package com.zpf.frame;
 
 import android.content.Intent;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,19 +10,21 @@ import androidx.annotation.Nullable;
  */
 public interface INavigator<T> {
 
-    void push(@NonNull T target, @Nullable Bundle params, int requestCode);
+    void push(@NonNull T target, @Nullable Intent params, int requestCode);
 
-    void push(@NonNull T target, @Nullable Bundle params);
+    void push(@NonNull T target, @Nullable Intent params);
 
     void push(@NonNull T target);
 
-    void poll(int resultCode, @Nullable Intent data);
+    void pop(int resultCode, @Nullable Intent data);
 
-    void poll();
+    void pop();
 
-    boolean pollUntil(@NonNull T target, @Nullable Intent data);
+    void popToRoot(@Nullable Intent data);
 
-    boolean pollUntil(@NonNull T target);
+    boolean popTo(@NonNull T target, @Nullable Intent data);
+
+    void replace(@NonNull T target, @Nullable Intent params);
 
     boolean remove(@NonNull T target);
 }
