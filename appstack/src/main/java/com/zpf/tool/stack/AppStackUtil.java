@@ -133,4 +133,10 @@ public class AppStackUtil {
         Instance.mInstance.stackManager.clear(keepTop);
     }
 
+    public static String getNameInStack(Activity activity) {
+        if (activity == null) {
+            return null;
+        }
+        return Instance.mInstance.stackManager.getNameInStack(activity);
+    }
 }

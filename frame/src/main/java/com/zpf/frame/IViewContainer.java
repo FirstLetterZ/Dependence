@@ -10,11 +10,11 @@ import androidx.annotation.Nullable;
  * Created by ZPF on 2018/3/22.
  */
 public interface IViewContainer extends ILifecycleMonitor, IActivityController
-        , IPermissionChecker, ICustomWindowManager {
+        , IPermissionChecker, ILoadingManager {
 
     Object invoke(String name, Object params);
 
-    void setCustomWindowManager(ICustomWindowManager customWindowManager);
+    void setLoadingManager(ILoadingManager manager);
 
     @NonNull
     Bundle getParams();

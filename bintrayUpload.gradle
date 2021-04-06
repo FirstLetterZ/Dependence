@@ -118,7 +118,7 @@ bintray {
         licenses = ['Apache-2.0']
         dryRun = false
         publish = true
-        override = false
+        override = true
         publicDownloadNumbers = true
         version {
             desc = libraryDescription
