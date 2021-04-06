@@ -21,6 +21,19 @@ public class UpdateManager {
     private boolean autoUpZip = false;//自动解压
     private final Context appContext;
 
+    private static volatile UpdateManager updateManager;
+
+    public static UpdateManager get(Context context) {
+        if (updateManager == null) {
+            synchronized (UpdateManager.class) {
+                if (updateManager == null) {
+                    updateManager = new UpdateManager(context);
+                }
+            }
+        }
+        return updateManager;
+    }
+
     public UpdateManager(@NonNull Context context) {
         appContext = context.getApplicationContext();
         preference = appContext.getSharedPreferences(RECORD_NAME, Context.MODE_PRIVATE);
@@ -79,7 +92,7 @@ public class UpdateManager {
         @Override
         public void onSuccess(FileVersionInfo versionInfo) {
             final IUpdateListener loadListener = listenerMap.get(versionInfo.fileName);
-            String baseFolderPath = UpdateUtil.getRootFolderPath(appContext, versionInfo.getGroupId());
+            String baseFolderPath = UpdateUtil.getRootFolderPath(appContext, versionInfo.fileName);
             String versionFolderPath = baseFolderPath + File.separator + versionInfo.versionCode;
             if (versionInfo.localPath == null || versionInfo.localPath.length() == 0) {
                 versionInfo.localPath = versionFolderPath + File.separator + versionInfo.fileName;
@@ -166,6 +179,29 @@ public class UpdateManager {
         }
     }
 
+    public synchronized void checkLocalExist(@NonNull String fileName, String assetPath, String fileIcon) {
+        FileVersionInfo localVersion = getLocalVersionInfo(fileName);
+        if (localVersion == null || localVersion.versionCode == 0) {
+            String rootFolderPath = UpdateUtil.getRootFolderPath(appContext, fileName);
+            File rootFolder = new File(rootFolderPath);
+            boolean noLocal = !rootFolder.exists() || !rootFolder.isDirectory() || rootFolder.list().length == 0;
+            boolean saveVersion;
+            if (noLocal) {
+                saveVersion = UpdateUtil.copyFromAsset(appContext, assetPath, rootFolderPath + File.separator + "0");
+            } else {
+                saveVersion = true;
+            }
+            if (saveVersion) {
+                localVersion.versionCode = 0;
+                localVersion.fileName = fileName;
+                localVersion.fileIcon = fileIcon;
+                localVersion.localPath = rootFolderPath + File.separator + "0";
+                localVersion.versionName = "0.0.01";
+                versionLocal.put(fileName, localVersion);
+            }
+        }
+    }
+
     public synchronized void checkFileVersion(@NonNull String fileName) {
         final IUpdateListener loadListener = listenerMap.get(fileName);
         final INetCall call = netCall;
@@ -206,7 +242,7 @@ public class UpdateManager {
             return;
         }
         File resultFile = UpdateUtil.getFileOrCreate(
-                UpdateUtil.getRootFolderPath(appContext, fileVersionInfo.getGroupId())
+                UpdateUtil.getRootFolderPath(appContext, fileVersionInfo.fileName)
                         + File.separator + fileVersionInfo.versionCode, fileVersionInfo.fileName);
         fileVersionInfo.localPath = resultFile.getAbsolutePath();
         call.download(fileVersionInfo, downloadListener);
@@ -231,11 +267,18 @@ public class UpdateManager {
     }
 
     @NonNull
+    public String getLocalFilePath(String fileName) {
+        FileVersionInfo localInfo = getLocalVersionInfo(fileName);
+        return UpdateUtil.getRootFolderPath(appContext, fileName) + File.separator + localInfo.versionCode;
+    }
+
+    @NonNull
     public FileVersionInfo getLocalVersionInfo(String fileName) {
         FileVersionInfo localInfo = versionLocal.get(fileName);
         if (localInfo == null) {
             String versionJson = preference.getString(fileName, null);
             localInfo = new FileVersionInfo(fileName, versionJson);
+            versionLocal.put(fileName, localInfo);
         }
         return localInfo;
     }

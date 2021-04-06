@@ -13,11 +13,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Created by ZPF on 2021/3/29.
@@ -29,7 +31,7 @@ public class UpdateUtil {
     }
 
     @NonNull
-    public static String getRootFolderPath(Context context,String fileGroupId) {
+    public static String getRootFolderPath(Context context, String fileGroupId) {
         return UpdateUtil.getAppDataPath(context) + File.separator + UpdateUtil.md5String(fileGroupId);
     }
 
@@ -97,40 +99,77 @@ public class UpdateUtil {
             while ((len = in.read(buffer, 0, 1024)) != -1) {
                 digest.update(buffer, 0, len);
             }
-            in.close();
+            return new BigInteger(1, digest.digest()).toString(16);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    //
+                }
+            }
         }
-        return bytesToHexString(digest.digest());
     }
 
     public static String md5String(String content) {
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("MD5");
-            digest.digest(content.getBytes("UTF-8"));
+            digest.update(content.getBytes("UTF-8"));
+            return new BigInteger(1, digest.digest()).toString(16);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-        return bytesToHexString(digest.digest());
     }
 
-    public static String bytesToHexString(byte[] src) {
-        StringBuilder stringBuilder = new StringBuilder("");
-        if (src == null || src.length <= 0) {
-            return null;
-        }
-        for (byte b : src) {
-            int v = b & 0xFF;
-            String hv = Integer.toHexString(v);
-            if (hv.length() < 2) {
-                stringBuilder.append(0);
+    public static boolean copyFromAsset(Context context, String assetPath, String outDirPath) {
+        ZipInputStream zis = null;
+        FileOutputStream fos = null;
+        try {
+            zis = new ZipInputStream(context.getAssets().open(assetPath));
+            ZipEntry zipEntry = zis.getNextEntry();
+            byte[] buffer = new byte[4096];
+            while (zipEntry != null) {
+                String fileName = zipEntry.getName();
+                if (zipEntry.isDirectory()) {
+                    File newDir = new File(outDirPath, fileName);
+                    newDir.mkdirs();
+                } else {
+                    File newFile = new File(outDirPath, fileName);
+                    fos = new FileOutputStream(newFile);
+                    int len;
+                    while ((len = zis.read(buffer)) > 0) {
+                        fos.write(buffer, 0, len);
+                    }
+                    fos.flush();
+                    fos.close();
+                }
+                zipEntry = zis.getNextEntry();
             }
-            stringBuilder.append(hv);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (zis != null) {
+                try {
+                    zis.close();
+                } catch (IOException e) {
+                    //
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    //
+                }
+            }
         }
-        return stringBuilder.toString();
+        return true;
     }
 
     public static boolean upZipFile(String filePath, String folderPath) {

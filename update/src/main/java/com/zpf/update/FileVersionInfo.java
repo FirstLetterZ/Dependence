@@ -6,13 +6,12 @@ import org.json.JSONObject;
  * @author Created by ZPF on 2021/3/29.
  */
 public class FileVersionInfo {
-    private String groupId;
     String fileName;
+    String fileIcon;
     int versionCode;
     String versionName;
     String downloadPath;
     String localPath;
-    String fileIcon;
     String md5Str;
     int strategy;//1--后台下载；2--提示下载；3--
     long checkTime;
@@ -23,7 +22,6 @@ public class FileVersionInfo {
     public FileVersionInfo(String name, String spString) {
         try {
             JSONObject versionInfo = new JSONObject(spString);
-            groupId = versionInfo.optString("groupId");
             fileName = versionInfo.optString("fileName");
             versionCode = versionInfo.optInt("versionCode");
             versionName = versionInfo.optString("versionName");
@@ -73,23 +71,15 @@ public class FileVersionInfo {
         return strategy;
     }
 
-    public String getGroupId() {
-        if (groupId == null || groupId.length() == 0) {
-            return fileName;
-        }
-        return groupId;
-    }
-
     @Override
     public String toString() {
         return "{" +
-                "groupId='" + groupId + '\'' +
-                ", fileName='" + fileName + '\'' +
+                "fileName='" + fileName + '\'' +
+                ", fileIcon='" + fileIcon + '\'' +
                 ", versionCode=" + versionCode +
                 ", versionName='" + versionName + '\'' +
                 ", downloadPath='" + downloadPath + '\'' +
                 ", localPath='" + localPath + '\'' +
-                ", fileIcon='" + fileIcon + '\'' +
                 ", md5Str='" + md5Str + '\'' +
                 ", strategy=" + strategy +
                 ", checkTime=" + checkTime +
