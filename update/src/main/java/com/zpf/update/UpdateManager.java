@@ -179,7 +179,7 @@ public class UpdateManager {
         }
     }
 
-    public synchronized void checkLocalExist(@NonNull String fileName, String assetPath, String fileIcon) {
+    public synchronized void initLocalAsset(@NonNull String fileName, String assetPath, String fileIcon) {
         FileVersionInfo localVersion = getLocalVersionInfo(fileName);
         if (localVersion == null || localVersion.versionCode == 0) {
             String rootFolderPath = UpdateUtil.getRootFolderPath(appContext, fileName);

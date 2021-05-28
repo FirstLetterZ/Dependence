@@ -2,8 +2,6 @@ package com.zpf.update;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,7 +28,6 @@ public class UpdateUtil {
         return folder != null && folder.isDirectory() && folder.list().length > 0;
     }
 
-    @NonNull
     public static String getRootFolderPath(Context context, String fileGroupId) {
         return UpdateUtil.getAppDataPath(context) + File.separator + UpdateUtil.md5String(fileGroupId);
     }
