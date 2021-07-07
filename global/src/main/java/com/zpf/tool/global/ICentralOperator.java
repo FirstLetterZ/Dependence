@@ -1,10 +1,9 @@
-package com.zpf.tool.config;
+package com.zpf.tool.global;
 
 /**
- * 用于全局执行，需要在应用刚启动时完成初始化
- * Created by ZPF on 2018/7/27.
+ * @author Created by ZPF on 2021/7/7.
  */
-public interface GlobalConfigInterface {
+public interface ICentralOperator {
 
     String getId();
 
@@ -20,10 +19,15 @@ public interface GlobalConfigInterface {
      */
     Object invokeMethod(Object object, String methodName, Object... args);
 
-
     /**
      * @param target 目标对应的Class
+     * @param qualifier 限定符，用于获取相同class的不同实现
      * @return 对应的全局单例
      */
-    <T> T getGlobalInstance(Class<T> target);
+    <T> T getInstance(Class<T> target, String qualifier);
+
+    /**
+     * 上面方法中 qualifier 为null时的默认实现
+     */
+    <T> T getInstance(Class<T> target);
 }

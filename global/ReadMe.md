@@ -1,8 +1,8 @@
 全局配置工具
 =========
-* [GlobalConfigImpl](./src/main/java/com/zpf/tool/config/GlobalConfigImpl.java)
+* [GlobalConfigImpl](src/main/java/com/zpf/tool/global/GlobalConfigImpl.java)
 ---单例；
-* [GlobalConfigInterface](./src/main/java/com/zpf/tool/config/GlobalConfigInterface.java)
+* [GlobalConfigInterface](src/main/java/com/zpf/tool/global/GlobalConfigInterface.java)
 ---接口；
 
 ### 使用方法

@@ -1,15 +1,12 @@
 package com.zpf.file;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
@@ -23,6 +20,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -33,110 +34,46 @@ import java.util.zip.ZipOutputStream;
 
 public class FileUtil {
 
-    public static Uri saveImgToAlbum(Context context, String parentFolder, String displayName, Uri fileUri) {
-        if (fileUri == null || context == null) {
-            return null;
+    public static String makeFileName(String originalName, String prefix, String suffix, String algorithm) {
+        StringBuilder builder = new StringBuilder();
+        if (prefix != null) {
+            builder.append(prefix);
         }
-        ContentResolver resolver = context.getContentResolver();
-        String type = getFileMimeType(resolver, fileUri);
-        if (type == null) {
-            type = "image/*";
-        }
-        if (displayName == null) {
-            displayName = "IMAGE_" + System.currentTimeMillis();
-        }
-        if (!displayName.contains(".")) {
-            String[] ts = type.split(File.separator);
-            if (ts != null && ts.length > 1 && ts[1].length() > 1) {
-                displayName = displayName + "." + ts[1];
-            }
-        }
-        String addParentPath = "";
-        if (parentFolder != null) {
-            if (parentFolder.startsWith(File.separator)) {
-                addParentPath = parentFolder;
+        String type = null;
+        if (originalName != null) {
+            int pointIndex = originalName.lastIndexOf(".");
+            if (pointIndex > 0) {
+                type = originalName.substring(pointIndex + 1);
+                builder.append(originalName.substring(0, pointIndex));
             } else {
-                addParentPath = File.separator + parentFolder;
+                builder.append(originalName);
             }
         }
-        Uri uri = insertImageMedia(resolver, addParentPath, displayName, type);
-        if (uri == null) {
-            return null;
+        if (suffix != null) {
+            builder.append(suffix);
         }
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
-        try {
-            outputStream = resolver.openOutputStream(uri);
-            inputStream = resolver.openInputStream(fileUri);
-        } catch (Exception e) {
-            //
+        String fileName = digest(builder.toString(), algorithm, 16);
+        if (type != null && type.length() > 0) {
+            fileName = fileName + "." + type;
         }
-        if (!FileIOUtil.writeStream(inputStream, outputStream)) {
-            resolver.delete(uri, null, null);
-            return null;
-        }
-        return uri;
+        return fileName;
     }
 
-    public static Uri saveImgToAlbum(Context context, String parentFolder, String displayName, File srcFile) {
-        if (srcFile == null || context == null) {
+    public static String digest(String content, String algorithm, int radix) {
+        if (content == null) {
             return null;
         }
-        String type = getFileMimeType(srcFile);
-        if (type == null) {
-            type = "image/*";
-        }
-        if (displayName == null) {
-            displayName = srcFile.getName();
-        }
-        if (!displayName.contains(".")) {
-            String suffix = getSuffixName(srcFile.getAbsolutePath());
-            if (suffix != null && suffix.length() > 0) {
-                displayName = displayName + "." + suffix;
-            }
-        }
-        String addParentPath = "";
-        if (parentFolder != null) {
-            if (parentFolder.startsWith(File.separator)) {
-                addParentPath = parentFolder;
-            } else {
-                addParentPath = File.separator + parentFolder;
-            }
-        }
-        ContentResolver resolver = context.getContentResolver();
-        Uri uri = insertImageMedia(resolver, addParentPath, displayName, type);
-        if (uri == null) {
-            return null;
-        }
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
+        String result;
         try {
-            outputStream = resolver.openOutputStream(uri);
-            inputStream = new FileInputStream(srcFile);
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
+            digest.update(content.getBytes(Charset.defaultCharset()));
+            BigInteger bigInteger = new BigInteger(1, digest.digest());
+            result = bigInteger.toString(radix);
         } catch (Exception e) {
-            //
+            e.printStackTrace();
+            result = content;
         }
-        if (!FileIOUtil.writeStream(inputStream, outputStream)) {
-            resolver.delete(uri, null, null);
-            return null;
-        }
-        return uri;
-    }
-
-    private static Uri insertImageMedia(ContentResolver resolver, String addParentPath, String fileName, String mimeType) {
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-        values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
-        values.put(MediaStore.MediaColumns.DATE_TAKEN, System.currentTimeMillis());
-        values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + addParentPath);
-        } else {
-            String saveFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
-                    + addParentPath + File.separator + fileName;
-            values.put(MediaStore.MediaColumns.DATA, saveFilePath);
-        }
-        return resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        return result;
     }
 
     public static String getSuffixName(String filePath) {
@@ -181,8 +118,7 @@ public class FileUtil {
         context.startActivity(intent);
     }
 
-    //通知相册刷新
-    public static void notifyPhotoAlbum(Context context, Uri fileUri) {
+    public static void notifyMediaChanged(Context context, Uri fileUri) {
         if (context == null || fileUri == null) {
             return;
         }
@@ -306,9 +242,7 @@ public class FileUtil {
             ze = (ZipEntry) zList.nextElement();
             // 列举的压缩文件里面的各个文件，判断是否为目录
             if (ze.isDirectory()) {
-                String dirstr = folderPath + ze.getName();
-                dirstr.trim();
-                File f = new File(dirstr);
+                File f = new File(folderPath,ze.getName());
                 f.mkdir();
                 continue;
             }
@@ -408,4 +342,63 @@ public class FileUtil {
             return false;
         }
     }
+
+    public static boolean copy(File srcFile, File destFile) {
+        if (srcFile == null || destFile == null) {
+            return false;
+        }
+
+        File destParent = destFile.getParentFile();
+        if (destParent != null && !destParent.exists()) {
+            destParent.mkdirs();
+        }
+        FileChannel fis = null;
+        FileChannel fos = null;
+        try {
+            fis = new FileInputStream(srcFile).getChannel();
+            fos = new FileOutputStream(destFile).getChannel();
+            return fis.transferTo(0, fis.size(), fos) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            FileIOUtil.quickClose(fis);
+            FileIOUtil.quickClose(fos);
+        }
+    }
+
+    public static boolean copy(Context context, Uri srcUri, Uri destUri) {
+        if (context == null || srcUri == null || destUri == null) {
+            return false;
+        }
+        OutputStream outputStream = null;
+        InputStream inputStream = null;
+        try {
+            outputStream = context.getContentResolver().openOutputStream(destUri);
+            inputStream = context.getContentResolver().openInputStream(srcUri);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return FileIOUtil.writeStream(inputStream, outputStream);
+    }
+
+    public static boolean copy(Context context, Uri srcUri, File destFile) {
+        if (context == null || srcUri == null || destFile == null) {
+            return false;
+        }
+        File destParent = destFile.getParentFile();
+        if (destParent != null && !destParent.exists()) {
+            destParent.mkdirs();
+        }
+        OutputStream outputStream = null;
+        InputStream inputStream = null;
+        try {
+            outputStream = new FileOutputStream(destFile);
+            inputStream = context.getContentResolver().openInputStream(srcUri);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return FileIOUtil.writeStream(inputStream, outputStream);
+    }
+
 }

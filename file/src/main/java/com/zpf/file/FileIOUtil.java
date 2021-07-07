@@ -1,8 +1,6 @@
 package com.zpf.file;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.util.Base64;
 
 import androidx.annotation.Nullable;
@@ -116,79 +114,6 @@ public class FileIOUtil {
         }
     }
 
-    public static boolean copy(File srcFile, File destFile) {
-        if (srcFile == null || destFile == null) {
-            return false;
-        }
-
-        File destParent = destFile.getParentFile();
-        if (destParent != null && !destParent.exists()) {
-            destParent.mkdirs();
-        }
-        FileChannel fis = null;
-        FileChannel fos = null;
-        try {
-            fis = new FileInputStream(srcFile).getChannel();
-            fos = new FileOutputStream(destFile).getChannel();
-            return fis.transferTo(0, fis.size(), fos) > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            quickClose(fis);
-            quickClose(fos);
-        }
-    }
-
-    public static boolean copy(Context context, Uri srcUri, Uri destUri) {
-        if (context == null || srcUri == null || destUri == null) {
-            return false;
-        }
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
-        try {
-            outputStream = context.getContentResolver().openOutputStream(destUri);
-            inputStream = context.getContentResolver().openInputStream(srcUri);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return writeStream(inputStream, outputStream);
-    }
-
-    public static boolean copy(Context context, Uri srcUri, File destFile) {
-        if (context == null || srcUri == null || destFile == null) {
-            return false;
-        }
-        File destParent = destFile.getParentFile();
-        if (destParent != null && !destParent.exists()) {
-            destParent.mkdirs();
-        }
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
-        try {
-            outputStream = new FileOutputStream(destFile);
-            inputStream = context.getContentResolver().openInputStream(srcUri);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return writeStream(inputStream, outputStream);
-    }
-
-    public static boolean saveBitmap(Bitmap bitmap, File destFile) {
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(destFile);
-            if (bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)) {
-                out.flush();
-            }
-            return true;
-        } catch (Exception e) {
-            quickClose(out);
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     @Nullable
     public static byte[] readFileBytes(File file) {
         FileInputStream fis = null;
@@ -294,7 +219,7 @@ public class FileIOUtil {
     }
 
     @Nullable
-    public String encodeBase64(byte[] bytes) {
+    public static String encodeBase64(byte[] bytes) {
         if (bytes == null) {
             return null;
         }
@@ -302,7 +227,7 @@ public class FileIOUtil {
     }
 
     @Nullable
-    public String encodeBinary(byte[] bytes, Charset charset) {
+    public static String encodeBinary(byte[] bytes, Charset charset) {
         if (bytes == null) {
             return null;
         }
@@ -313,7 +238,7 @@ public class FileIOUtil {
     }
 
     @Nullable
-    public String encodeBytes(byte[] bytes, Charset charset) {
+    public static String encodeBytes(byte[] bytes, Charset charset) {
         if (bytes == null) {
             return null;
         }
@@ -324,27 +249,24 @@ public class FileIOUtil {
     }
 
     @Nullable
-    public byte[] decodeBase64(String content, Charset charset) {
+    public static byte[] decodeBase64(String content) {
         if (content == null) {
             return null;
         }
-        if (charset == null) {
-            charset = Charset.defaultCharset();
-        }
-        return Base64.decode(content.getBytes(charset), Base64.DEFAULT);
+        return Base64.decode(content, Base64.DEFAULT);
     }
 
     @Nullable
-    public byte[] decodeBinary(String content) {
+    public static byte[] decodeBinary(String content, Charset charset) {
         if (content == null) {
             return null;
         }
         String binaryString = BinaryUtil.strToBinary(content);
-        return decodeString(binaryString, null);
+        return decodeString(binaryString, charset);
     }
 
     @Nullable
-    public byte[] decodeString(String content, Charset charset) {
+    public static byte[] decodeString(String content, Charset charset) {
         if (content == null) {
             return null;
         }

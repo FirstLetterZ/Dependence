@@ -1,4 +1,4 @@
-package com.zpf.tool.config;
+package com.zpf.tool.global;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -24,16 +24,4 @@ public class MainHandler extends Handler {
         }
         return mainHandler;
     }
-
-    public static void runOnMainTread(Runnable runnable) {
-        if (runnable == null) {
-            return;
-        }
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            runnable.run();
-        } else {
-            get().post(runnable);
-        }
-    }
-
 }

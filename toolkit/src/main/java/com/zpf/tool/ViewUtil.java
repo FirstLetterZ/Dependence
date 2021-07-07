@@ -61,20 +61,6 @@ public class ViewUtil {
         return view != null && (float) view.getScrollY() >= (float) view.getContentHeight() * view.getScale() - (float) view.getMeasuredHeight();
     }
 
-    //获取状态栏高度
-    public static int getStatusBarHeight(Context context) {
-        int height = 0;
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen",
-                "android");
-        if (resourceId != 0) {
-            height = context.getResources().getDimensionPixelSize(resourceId);
-        }
-        if (height == 0) {
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24,
-                    context.getResources().getDisplayMetrics());
-        }
-        return height;
-    }
 
     //获取虚拟按键高度
     public static int getNavigationBarHeight(Context context) {
@@ -89,19 +75,6 @@ public class ViewUtil {
             }
         }
         return height;
-    }
-
-    //沉浸式状态栏
-    public static void setStatusBarTranslucent(Window window) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//判断版本是5.0以上
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {//判断版本是4.4以上
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
     }
 
     //收起软键盘

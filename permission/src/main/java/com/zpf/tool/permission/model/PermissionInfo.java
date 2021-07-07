@@ -1,4 +1,4 @@
-package com.zpf.tool.permission;
+package com.zpf.tool.permission.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

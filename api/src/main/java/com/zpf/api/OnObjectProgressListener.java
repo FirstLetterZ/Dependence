@@ -12,5 +12,5 @@ public interface OnObjectProgressListener<T> {
      * @param total 总数据量
      * @param current 当前进度量
      */
-    void onChanged(@Nullable T obj, long total, long current);
+    void onProgress(@Nullable T obj, long total, long current);
 }

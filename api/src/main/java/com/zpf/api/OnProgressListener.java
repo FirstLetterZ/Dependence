@@ -8,5 +8,5 @@ public interface OnProgressListener {
      * @param total   总数据量
      * @param current 当前进度量
      */
-    void onChanged(long total, long current);
+    void onProgress(long total, long current);
 }

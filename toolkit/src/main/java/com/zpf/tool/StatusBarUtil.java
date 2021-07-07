@@ -1,6 +1,9 @@
 package com.zpf.tool;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -11,7 +14,34 @@ import java.lang.reflect.Method;
 /**
  * Created by ZPF on 2019/3/27.
  */
-public class StatusBarTextUtil {
+public class StatusBarUtil {
+    //沉浸式状态栏
+    public static void setStatusBarTranslucent(Window window) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//判断版本是5.0以上
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {//判断版本是4.4以上
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+    }
+
+    //获取状态栏高度
+    public static int getStatusBarHeight(Context context) {
+        int height = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen",
+                "android");
+        if (resourceId != 0) {
+            height = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        if (height == 0) {
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24,
+                    context.getResources().getDisplayMetrics());
+        }
+        return height;
+    }
 
     public static boolean setBarStatusTextColorStyle(Window window, boolean darkText) {
         if (Build.MANUFACTURER.equalsIgnoreCase("XiaoMi")) {
@@ -83,10 +113,10 @@ public class StatusBarTextUtil {
     private static boolean MIUISetStatusBarLightMode(Window window, boolean dark) {
         boolean result = false;
         if (window != null) {
-            Class clazz = window.getClass();
+            Class<?> clazz = window.getClass();
             try {
-                int darkModeFlag = 0;
-                Class layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
+                int darkModeFlag;
+                Class<?> layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
                 Field field = layoutParams.getField("EXTRA_FLAG_STATUS_BAR_DARK_MODE");
                 darkModeFlag = field.getInt(layoutParams);
                 Method extraFlagField = clazz.getMethod("setExtraFlags", int.class, int.class);
