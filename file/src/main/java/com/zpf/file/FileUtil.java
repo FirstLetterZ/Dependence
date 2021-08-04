@@ -63,17 +63,20 @@ public class FileUtil {
         if (content == null) {
             return null;
         }
-        String result;
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
-            digest.update(content.getBytes(Charset.defaultCharset()));
+            byte[] bytes =   content.getBytes(Charset.defaultCharset());
+            digest.update(bytes);
             BigInteger bigInteger = new BigInteger(1, digest.digest());
-            result = bigInteger.toString(radix);
+            StringBuilder result = new StringBuilder(bigInteger.toString(radix));
+            while (result.length() < 2 * bytes.length) {
+                result.insert(0, "0");
+            }
+            return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
-            result = content;
+            return content;
         }
-        return result;
     }
 
     public static String getSuffixName(String filePath) {

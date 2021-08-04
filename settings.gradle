@@ -4,4 +4,4 @@ include ':aaa'
 include ':apptest', ':api'
 include  ':global', ':frame', ':dataparser', ':permission', ':compatPermission',
         ':dhl', ':appstack', ':fingerprint', ':toolkit', ':rvexpand', ':views', ':fragmentManager',
-        ':compatFragmentManager',':wheelpicker',':update'
+        ':compatFragmentManager',':wheelpicker',':update',':process'

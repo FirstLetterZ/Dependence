@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zpf.process">
+
+    <application>
+        <service
+            android:name=".service.HostService"
+            android:exported="false"/>
+        <service
+            android:name=".service.Service1"
+            android:exported="false"
+            android:process="@string/sdk_first_process_name" />
+        <service
+            android:name=".service.Service2"
+            android:exported="false"
+            android:process="@string/sdk_second_process_name" />
+        <service
+            android:name=".service.Service3"
+            android:exported="false"
+            android:process="@string/sdk_third_process_name" />
+        <service
+            android:name=".service.Service4"
+            android:exported="false"
+            android:process="@string/sdk_fourth_process_name" />
+        <service
+            android:name=".service.Service5"
+            android:exported="false"
+            android:process="@string/sdk_fifth_process_name" />
+    </application>
+</manifest>

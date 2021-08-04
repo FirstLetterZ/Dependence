@@ -1,7 +1,14 @@
 package com.zpf.api;
 
-import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import android.net.Uri;
 import android.view.View;
+
+import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * 图片加载
@@ -9,11 +16,14 @@ import android.view.View;
  */
 public interface ImageLoader {
 
-    void fromStringUri(View targetView, String uri);
+    Object load(@NonNull View targetView, @Nullable String path, @Nullable JSONObject args);
 
-    void fromStringUri(View targetView, String uri, @DrawableRes int holderId);
+    Object load(@NonNull View targetView, @Nullable Uri uri, @Nullable JSONObject args);
 
-    void fromStringUri(View targetView, String uri, @DrawableRes int holderId, @DrawableRes int failId);
+    Object save(@NonNull String path, @NonNull String localPath, @Nullable JSONObject args,
+                @Nullable OnDataResultListener<File> listener);
 
-    void fromSource(View targetView, @DrawableRes int redId);
+    Object share(@NonNull String path, @Nullable JSONObject args);
+
+    Object share(@NonNull Uri uri, @Nullable JSONObject args);
 }

@@ -1,0 +1,7 @@
+<resources>
+    <string name="sdk_first_process_name">:ps1</string>
+    <string name="sdk_second_process_name">:ps2</string>
+    <string name="sdk_third_process_name">:ps3</string>
+    <string name="sdk_fourth_process_name">:ps4</string>
+    <string name="sdk_fifth_process_name">:ps5</string>
+</resources>
