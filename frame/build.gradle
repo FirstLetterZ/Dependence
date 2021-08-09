@@ -11,7 +11,6 @@ android {
 
 dependencies {
     api rootProject.ext.dependencies.api
-    api rootProject.ext.dependencies.event
     compileOnly rootProject.ext.dependencies.annotations
     compileOnly rootProject.ext.dependencies.central
 }

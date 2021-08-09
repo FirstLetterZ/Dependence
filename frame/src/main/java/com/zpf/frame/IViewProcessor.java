@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.Window;
 
 import com.zpf.api.IBackPressInterceptor;
-import com.zpf.api.IEvent;
 import com.zpf.api.IFullLifecycle;
 import com.zpf.api.IPermissionResult;
 import com.zpf.api.OnActivityResultListener;
@@ -37,8 +36,6 @@ public interface IViewProcessor extends IFullLifecycle, OnActivityResultListener
     View getView();
 
     Context getContext();
-
-    boolean handleEvent(IEvent<?> event);
 
     void onReceiveLinker(IViewLinker linker);
 
