@@ -6,7 +6,6 @@ import android.text.TextWatcher;
 /**
  * Created by zpf on 2017/8/9.
  */
-
 public class SplitTextWatcher implements TextWatcher {
     private boolean autoSplit = false;
     private int splitCount;//分割次数

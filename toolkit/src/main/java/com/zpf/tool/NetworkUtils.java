@@ -1,5 +1,6 @@
 package com.zpf.tool;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -55,6 +56,7 @@ public class NetworkUtils {
         System.clearProperty("https.proxyPort");
     }
 
+    @SuppressLint("MissingPermission")
     @NetworkState
     public static int getNetworkType(Context context) {
         if (null == context) {
@@ -125,6 +127,7 @@ public class NetworkUtils {
         return NetworkState.NETWORK_NONE;
     }
 
+    @SuppressLint("MissingPermission")
     public static boolean isNetworkAvailable(Context context) {
         if (context == null) {
             return false;

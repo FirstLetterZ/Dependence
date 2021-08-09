@@ -3,7 +3,7 @@ package com.zpf.tool;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.zpf.tool.config.MainHandler;
+import com.zpf.tool.global.CentralManager;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -147,7 +147,7 @@ public class SingleGroupTask<R> {
     //发生异常导致回调时，返回size小于0
     private void callListener(final boolean success, final int size, @NonNull final List<R> list) {
         if (resultListener != null) {
-            MainHandler.runOnMainTread(new Runnable() {
+            CentralManager.runOnMainTread(new Runnable() {
                 @Override
                 public void run() {
                     if (resultListener != null) {

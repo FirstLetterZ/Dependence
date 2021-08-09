@@ -1,6 +1,6 @@
 package com.zpf.tool.toast;
 
-import android.app.Application;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.zpf.tool.config.MainHandler;
+import com.zpf.tool.global.CentralManager;
 
 public class DefToaster implements IToaster {
     private Toast mToast;
@@ -21,7 +21,7 @@ public class DefToaster implements IToaster {
     private WindowManager.LayoutParams mWindowParams;
     private static volatile long lastShow = 0;
 
-    public DefToaster(Application context) {
+    public DefToaster(Context context) {
         mToast = new Toast(context);
         float density = context.getResources().getDisplayMetrics().density;
 
@@ -64,7 +64,7 @@ public class DefToaster implements IToaster {
 
     @Override
     public void showToast(final CharSequence text) {
-        MainHandler.runOnMainTread(new Runnable() {
+        CentralManager.runOnMainTread(new Runnable() {
             @Override
             public void run() {
                 mText.setText(text);
@@ -75,7 +75,7 @@ public class DefToaster implements IToaster {
                 } else if (System.currentTimeMillis() - lastShow >= 0.5 * duration) {
                     mToast.cancel();
                     lastShow = System.currentTimeMillis();
-                    MainHandler.get().postDelayed(new Runnable() {
+                    CentralManager.runDelayed(new Runnable() {
                         @Override
                         public void run() {
                             mToast.show();

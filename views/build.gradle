@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+//apply from: '../publish.gradle'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -12,5 +12,3 @@ android {
 dependencies {
     compileOnly rootProject.ext.dependencies.annotations
 }
-
-apply from: "../bintrayUpload.gradle"

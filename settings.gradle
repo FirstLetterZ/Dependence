@@ -1,7 +1,20 @@
-include ':file'
-include ':file'
-include ':aaa'
-include ':apptest', ':api'
-include  ':global', ':frame', ':dataparser', ':permission', ':compatPermission',
-        ':dhl', ':appstack', ':fingerprint', ':toolkit', ':rvexpand', ':views', ':fragmentManager',
-        ':compatFragmentManager',':wheelpicker',':update',':process'
+//include ':aaa'
+include ':_apptest'
+include ':global',
+        ':api',
+        ':views',
+        ':dataparser',
+        ':process',
+        ':permission',
+        ':appstack',
+        ':rvexpand',
+        ':file',
+//        ':fingerprint',
+        ':fragmentManager',
+        ':wheelpicker',
+        ':update',
+        ':toolkit',
+        ':compatFragmentManager',
+        ':compatPermission',
+        ':frame',
+        ':event'

@@ -1,0 +1,161 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+Properties libProperties = new Properties()
+File libPropertiesFile = project.file("lib.properties")
+if (libPropertiesFile.exists()) {
+    libProperties.load(libPropertiesFile.newDataInputStream())
+}
+
+Properties configProperties = new Properties()
+File configPropertiesFile = project.file('config.properties')
+if (configPropertiesFile.exists()) {
+    configProperties.load(configPropertiesFile.newDataInputStream())
+} else {
+    configPropertiesFile = project.file('../config.properties')
+    if (configPropertiesFile.exists()) {
+        configProperties.load(configPropertiesFile.newDataInputStream())
+    }
+}
+
+def releaseVersion = libProperties.getProperty('project.releaseVersion')
+def snapshotVersion = libProperties.getProperty('project.snapshotVersion')
+def libDescription = libProperties.getProperty('project.description')
+def libArtifactId = libProperties.getProperty('project.artifactId')
+def libPackaging = libProperties.getProperty('project.packaging')
+def publishRelease = libProperties.getProperty('project.release')
+
+def projectName = configProperties.getProperty('project.name')
+def projectGroupId = configProperties.getProperty('project.groupId')
+def projectUrl = configProperties.getProperty('project.url')
+def projectScmUrl = configProperties.getProperty('project.scmUrl')
+def projectGitUrl = configProperties.getProperty('project.gitUrl')
+def developerId = configProperties.getProperty('developer.id')
+def developerName = configProperties.getProperty('developer.name')
+def developerEmail = configProperties.getProperty('developer.email')
+
+def accountName = ext.find("maven.account")//定义在gradle.properties内
+def accountPassword = ext.find("maven.password")//定义在gradle.properties内
+ext["signing.keyId"] = ext.find("signing.keyId")//定义在gradle.properties内
+ext["signing.password"] = ext.find("signing.password")//定义在gradle.properties内
+ext["signing.secretKeyRingFile"] = "${rootDir.path}/${ext.find("signing.fileName")}"//定义在gradle.properties内
+
+def libVersion
+def libType
+def uploadMavenUrl
+logger.info("publishRelease = $publishRelease")
+if (publishRelease == 'true' || publishRelease == true) {
+    libVersion = releaseVersion
+    libType = "release"
+    uploadMavenUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else {
+    libVersion = snapshotVersion
+    libType = "debug"
+    uploadMavenUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+}
+logger.info("===================================================================================")
+logger.info("libVersion=$libVersion")
+logger.info("libType=$libType")
+logger.info("uploadMavenUrl=$uploadMavenUrl")
+logger.info("groupId=$projectGroupId")
+logger.info("artifactId=$libArtifactId")
+logger.info("version=$libVersion")
+logger.info("packaging=$libPackaging")
+logger.info("==================================================================================")
+
+task javadoc(type: Javadoc) {
+    options.encoding = "UTF-8"
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId projectGroupId
+            artifactId libArtifactId
+            version libVersion
+            if (libPackaging == 'jar') {
+                artifact sourcesJar//需要上传的source
+                artifact javadocJar//需要上传的doc
+                artifact("$buildDir/intermediates/runtime_library_classes_jar/${libType}/classes.jar")
+            } else {
+                artifact("$buildDir/outputs/aar/${project.getName()}-${libType}.aar")
+            }
+
+            pom {
+                name = libArtifactId
+                // If your project has a dedicated site, use its URL here
+                url = projectUrl
+                description = libDescription
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = developerId
+                        name = developerName
+                        email = developerEmail
+                    }
+                }
+                // Version control info, if you're using GitHub, follow the format as seen here
+                scm {
+                    //Git地址
+                    connection = projectGitUrl
+                    developerConnection = projectScmUrl
+                    //分支地址：
+                    url = projectUrl
+                }
+                // A slightly hacky fix so that your POM will include any transitive dependencies
+                // that your library builds upon
+                withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    project.configurations.implementation.allDependencies.each {
+                        println "--- dependency ${it.group} ${it.name} ${it.version}"
+                        if (it.group != null && it.group.length() > 0) {
+                            println "添加 dependency ${it.group} ${it.name} ${it.version}"
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            dependencyNode.appendNode('version', it.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        // The repository to publish to, Sonatype/MavenCentral
+        maven {
+            // This is an arbitrary name, you may also use "mavencentral" or
+            // any other name that's descriptive for you
+            name = projectName
+            // You only need this if you want to publish snapshots, otherwise just set the URL
+            // to the release repo directly
+            url = uploadMavenUrl
+            // The username and password we've fetched earlier
+            credentials {
+                username accountName
+                password accountPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.maven
+    logger.info("<<<<<<<<<<<<<<<<<<<<<< signing >>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+}

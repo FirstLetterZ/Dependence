@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply from: '../publish.gradle'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -7,19 +7,11 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
 }
 
 dependencies {
     api rootProject.ext.dependencies.api
+    api rootProject.ext.dependencies.event
     compileOnly rootProject.ext.dependencies.annotations
-    compileOnly rootProject.ext.dependencies.global
+    compileOnly rootProject.ext.dependencies.central
 }
-
-apply from: "../bintrayUpload.gradle"

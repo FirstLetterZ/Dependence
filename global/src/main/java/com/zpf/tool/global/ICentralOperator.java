@@ -16,6 +16,7 @@ public interface ICentralOperator {
      * @param object     调用的对象
      * @param methodName 需要处理的方法
      * @param args       参数集合
+     * @return 可以为null
      */
     Object invokeMethod(Object object, String methodName, Object... args);
 

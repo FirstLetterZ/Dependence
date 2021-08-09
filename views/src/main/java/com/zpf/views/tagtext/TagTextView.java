@@ -1,5 +1,6 @@
 package com.zpf.views.tagtext;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -76,6 +77,7 @@ public class TagTextView extends View {
         textDelegate.onDraw(this, canvas);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return textDelegate.handleTouchEvent(this, event) && super.onTouchEvent(event);

@@ -1,6 +1,6 @@
 package com.zpf.tool;
 
-import com.zpf.tool.config.MainHandler;
+import com.zpf.tool.global.CentralManager;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,7 +39,7 @@ public abstract class TimeTaskUtil {
                 public void run() {
                     doInChildThread();
                     if (shouldRunOnMainThread()) {
-                        MainHandler.runOnMainTread(new Runnable() {
+                        CentralManager.runOnMainTread(new Runnable() {
                             @Override
                             public void run() {
                                 doInMainThread();

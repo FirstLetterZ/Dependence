@@ -3,7 +3,7 @@ package com.zpf.tool.toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.zpf.tool.config.AppContext;
+import com.zpf.tool.global.CentralManager;
 
 import java.lang.ref.SoftReference;
 
@@ -38,7 +38,7 @@ public class ToastUtil {
     @NonNull
     public static IToaster getDefToaster() {
         if (defToaster == null || defToaster.get() == null) {
-            defToaster = new SoftReference<>(new DefToaster(AppContext.get()));
+            defToaster = new SoftReference<>(new DefToaster(CentralManager.getAppContext()));
         }
         return defToaster.get();
     }

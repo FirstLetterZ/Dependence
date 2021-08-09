@@ -1,6 +1,7 @@
 package com.zpf.tool;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -18,7 +19,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
-import com.zpf.tool.config.AppContext;
+import com.zpf.tool.global.CentralManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -38,11 +39,11 @@ public class PublicUtil {
     }
 
     public static int getColor(int color) {
-        return AppContext.get().getResources().getColor(color);
+        return CentralManager.getAppContext().getResources().getColor(color);
     }
 
     public static String getString(int id) {
-        return AppContext.get().getResources().getString(id);
+        return CentralManager.getAppContext().getResources().getString(id);
     }
 
     public static <T> Class<T> getGenericClass(Class<?> klass) {
@@ -129,6 +130,7 @@ public class PublicUtil {
     /**
      * 将App转到前台
      */
+    @SuppressLint("MissingPermission")
     public static boolean moveTaskToTop(Context context) {
         ActivityManager myManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (myManager != null) {
@@ -236,6 +238,7 @@ public class PublicUtil {
      *
      * @return 如果返回null则代表缺少权限，若返回"unknown"代表获取失败
      */
+    @SuppressLint("MissingPermission")
     public static String getDeviceId(@NonNull Context context) {
         String result;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
