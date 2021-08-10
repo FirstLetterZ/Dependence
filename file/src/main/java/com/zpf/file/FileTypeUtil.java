@@ -1,11 +1,19 @@
 package com.zpf.file;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.webkit.MimeTypeMap;
+
+import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 /**
  * 常用文件的文件头如下：(以前六位为准)
@@ -43,16 +51,101 @@ import java.io.InputStream;
  */
 public class FileTypeUtil {
 
-    public static int readFileHeadCode(File file) {
-        return getHeadCode(readFileHeadString(file));
+    public static int getFileTypeCode(File file) {
+        return parseHeadCode(readFileHeadString(file));
     }
 
-    public static int readFileHeadCode(Context context, Uri fileUri) {
-        return getHeadCode(readFileHeadString(context, fileUri));
+    public static int getFileTypeCode(Context context, Uri fileUri) {
+        return parseHeadCode(readFileHeadString(context, fileUri));
+    }
+
+    @Nullable
+    public static String getFileMimeType(Context context, Uri fileUri) {
+        if (context == null || fileUri == null) {
+            return null;
+        }
+        String mimeType = null;
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        try {
+            mmr.setDataSource(context, fileUri);
+            mimeType = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (mimeType != null) {
+            return mimeType;
+        }
+        ContentResolver resolver = context.getContentResolver();
+        try {
+            mimeType = resolver.getType(fileUri);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mimeType;
+    }
+
+    @Nullable
+    public static String getFileMimeType(File file) {
+        if (file == null || !file.isFile()) {
+            return null;
+        }
+        String mimeType = null;
+        String filePath = file.getAbsolutePath();
+        String suffix = FileUtil.getSuffixName(filePath);
+        try {
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (mimeType != null) {
+            return mimeType;
+        }
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        try {
+            mmr.setDataSource(filePath);
+            mimeType = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (mimeType != null) {
+            return mimeType;
+        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            try {
+                mimeType = Files.probeContentType(file.toPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return mimeType;
+    }
+
+    public static String readFileHeadString(File file) {
+        InputStream inputStream;
+        try {
+            inputStream = new FileInputStream(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        byte[] bytes = FileIOUtil.readStreamBytes(inputStream, 16);
+        return bytesToHexString(bytes);
+    }
+
+    public static String readFileHeadString(Context context, Uri fileUri) {
+        InputStream inputStream;
+        try {
+            inputStream = context.getContentResolver().openInputStream(fileUri);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        byte[] bytes = FileIOUtil.readStreamBytes(inputStream, 16);
+        return bytesToHexString(bytes);
     }
 
     @FileType
-    public static int getHeadCode(String head) {
+    public static int parseHeadCode(String head) {
         if (head == null) {
             return FileType.UNKNOWN;
         }
@@ -90,32 +183,6 @@ public class FileTypeUtil {
         } else {
             return FileType.OTHER;
         }
-    }
-
-    public static String readFileHeadString(File file) {
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-            FileIOUtil.quickClose(inputStream);
-            return null;
-        }
-        byte[] bytes = FileIOUtil.readStreamBytes(inputStream, 8);
-        return bytesToHexString(bytes);
-    }
-
-    public static String readFileHeadString(Context context, Uri fileUri) {
-        InputStream inputStream = null;
-        try {
-            inputStream = context.getContentResolver().openInputStream(fileUri);
-        } catch (Exception e) {
-            e.printStackTrace();
-            FileIOUtil.quickClose(inputStream);
-            return null;
-        }
-        byte[] bytes = FileIOUtil.readStreamBytes(inputStream, 8);
-        return bytesToHexString(bytes);
     }
 
     private static String bytesToHexString(byte[] src) {

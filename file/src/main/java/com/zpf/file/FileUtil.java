@@ -1,15 +1,11 @@
 package com.zpf.file;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
-import android.os.ParcelFileDescriptor;
-import android.webkit.MimeTypeMap;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -65,7 +61,7 @@ public class FileUtil {
         }
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
-            byte[] bytes =   content.getBytes(Charset.defaultCharset());
+            byte[] bytes = content.getBytes(Charset.defaultCharset());
             digest.update(bytes);
             BigInteger bigInteger = new BigInteger(1, digest.digest());
             StringBuilder result = new StringBuilder(bigInteger.toString(radix));
@@ -79,6 +75,7 @@ public class FileUtil {
         }
     }
 
+    @NonNull
     public static String getSuffixName(String filePath) {
         if (filePath == null) {
             return "";
@@ -128,53 +125,6 @@ public class FileUtil {
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         intent.setData(fileUri);
         context.sendBroadcast(intent);
-    }
-
-    @Nullable
-    public static String getFileMimeType(ContentResolver resolver, Uri fileUri) {
-        if (resolver == null || fileUri == null) {
-            return null;
-        }
-        String mimeType = null;
-        try {
-            mimeType = resolver.getType(fileUri);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (mimeType == null) {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            try {
-                ParcelFileDescriptor pfd = resolver.openFileDescriptor(fileUri, "r");
-                mmr.setDataSource(pfd.getFileDescriptor());
-                mimeType = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return mimeType;
-    }
-
-    @Nullable
-    public static String getFileMimeType(File file) {
-        if (file == null || !file.isFile()) {
-            return null;
-        }
-        String filePath = file.getAbsolutePath();
-        String suffix = getSuffixName(filePath);
-        String mimeType = null;
-        if (suffix != null) {
-            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        }
-        if (mimeType == null) {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            try {
-                mmr.setDataSource(filePath);
-                mimeType = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return mimeType;
     }
 
     public static File zipFiles(File[] files, String filename) throws IOException {
@@ -245,7 +195,7 @@ public class FileUtil {
             ze = (ZipEntry) zList.nextElement();
             // 列举的压缩文件里面的各个文件，判断是否为目录
             if (ze.isDirectory()) {
-                File f = new File(folderPath,ze.getName());
+                File f = new File(folderPath, ze.getName());
                 f.mkdir();
                 continue;
             }

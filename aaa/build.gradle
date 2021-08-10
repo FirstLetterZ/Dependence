@@ -29,10 +29,10 @@ android {
 dependencies {
     api rootProject.ext.dependencies.appcompat
     api rootProject.ext.dependencies.api
-    api rootProject.ext.dependencies.global
+    api rootProject.ext.dependencies.central
     api 'com.zpf.android:util-retrofit:2.4.0'
-    api 'com.squareup.okhttp3:okhttp:4.9.0'
+    api 'com.squareup.okhttp3:okhttp:4.9.1'
     api 'com.squareup.retrofit2:retrofit:2.9.0'
-    api project(':update')
+    api project(':version')
 }
 

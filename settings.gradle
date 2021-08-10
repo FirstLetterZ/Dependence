@@ -1,6 +1,6 @@
-//include ':aaa'
-include ':_apptest'
-include ':global',
+include ':aaa',
+        ':_apptest',
+        ':global',
         ':api',
         ':views',
         ':dataparser',
@@ -12,7 +12,7 @@ include ':global',
 //        ':fingerprint',
         ':fragmentManager',
         ':wheelpicker',
-        ':update',
+        ':version',
         ':toolkit',
         ':compatFragmentManager',
         ':compatPermission',

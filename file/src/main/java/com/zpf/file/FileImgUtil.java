@@ -24,7 +24,7 @@ public class FileImgUtil {
             return null;
         }
         ContentResolver resolver = context.getContentResolver();
-        String type = FileUtil.getFileMimeType(resolver, fileUri);
+        String type = FileTypeUtil.getFileMimeType(context, fileUri);
         if (type == null) {
             type = "image/*";
         }
@@ -68,7 +68,7 @@ public class FileImgUtil {
         if (srcFile == null || context == null) {
             return null;
         }
-        String type = FileUtil.getFileMimeType(srcFile);
+        String type = FileTypeUtil.getFileMimeType(srcFile);
         if (type == null) {
             type = "image/*";
         }
@@ -77,7 +77,7 @@ public class FileImgUtil {
         }
         if (!displayName.contains(".")) {
             String suffix = FileUtil.getSuffixName(srcFile.getAbsolutePath());
-            if (suffix != null && suffix.length() > 0) {
+            if (suffix.length() > 0) {
                 displayName = displayName + "." + suffix;
             }
         }
