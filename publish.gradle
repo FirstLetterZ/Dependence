@@ -18,6 +18,17 @@ if (configPropertiesFile.exists()) {
     }
 }
 
+Properties accountProperties = new Properties()
+File accountFile = project.file('account.properties')
+if (accountFile.exists()) {
+    accountProperties.load(accountFile.newDataInputStream())
+} else {
+    accountFile = project.file('../account.properties')
+    if (accountFile.exists()) {
+        accountProperties.load(accountFile.newDataInputStream())
+    }
+}
+
 def releaseVersion = libProperties.getProperty('project.releaseVersion')
 def snapshotVersion = libProperties.getProperty('project.snapshotVersion')
 def libDescription = libProperties.getProperty('project.description')
@@ -34,11 +45,11 @@ def developerId = configProperties.getProperty('developer.id')
 def developerName = configProperties.getProperty('developer.name')
 def developerEmail = configProperties.getProperty('developer.email')
 
-def accountName = ext.find("maven.account")//定义在gradle.properties内
-def accountPassword = ext.find("maven.password")//定义在gradle.properties内
-ext["signing.keyId"] = ext.find("signing.keyId")//定义在gradle.properties内
-ext["signing.password"] = ext.find("signing.password")//定义在gradle.properties内
-ext["signing.secretKeyRingFile"] = "${rootDir.path}/${ext.find("signing.fileName")}"//定义在gradle.properties内
+def accountName = accountProperties.getProperty("maven.account")
+def accountPassword = accountProperties.getProperty("maven.password")
+ext["signing.keyId"] = accountProperties.getProperty("signing.keyId")
+ext["signing.password"] = accountProperties.getProperty("signing.password")
+ext["signing.secretKeyRingFile"] = "${rootDir.path}/${accountProperties.getProperty("signing.fileName")}"
 
 def libVersion
 def libType

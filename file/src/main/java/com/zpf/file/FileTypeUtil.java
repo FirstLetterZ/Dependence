@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
@@ -91,7 +90,7 @@ public class FileTypeUtil {
         }
         String mimeType = null;
         String filePath = file.getAbsolutePath();
-        String suffix = FileUtil.getSuffixName(filePath);
+        String suffix = MimeTypeMap.getFileExtensionFromUrl(filePath);
         try {
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         } catch (Exception e) {

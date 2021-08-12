@@ -93,6 +93,14 @@ public class ProcessAdmin {
         sdkInstance.processRecord.updateServiceHandler(serviceId, serviceHandler);
     }
 
+    public static boolean stopAll() {
+        if (sdkInstance == null) {
+            return false;
+        }
+        sdkInstance.processRecord.clear();
+        return true;
+    }
+
     //应该在主进程，且初始化之后设置
     //TODO 缺少低版本的解决方案
     public static void setResumeHelper(IResumeService resumeService) {

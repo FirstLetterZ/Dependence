@@ -144,4 +144,20 @@ public class ProcessRecord {
             }
         }
     }
+
+    public synchronized void clear() {
+        ServiceRecord record;
+        IServiceHandler serviceHandler;
+        for (int i = 0; i < records.size(); i++) {
+            record = records.get(i);
+            serviceHandler = record.getServiceHandler();
+            if (serviceHandler != null) {
+                try {
+                    serviceHandler.stopAllWork();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
