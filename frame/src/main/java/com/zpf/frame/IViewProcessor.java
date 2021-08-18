@@ -12,7 +12,6 @@ import android.view.Window;
 
 import com.zpf.api.IBackPressInterceptor;
 import com.zpf.api.IFullLifecycle;
-import com.zpf.api.IPermissionResult;
 import com.zpf.api.OnActivityResultListener;
 import com.zpf.api.OnPermissionResultListener;
 import com.zpf.api.OnTouchKeyListener;
@@ -23,8 +22,6 @@ import com.zpf.api.OnTouchKeyListener;
 public interface IViewProcessor extends IFullLifecycle, OnActivityResultListener, IViewStateListener,
         OnPermissionResultListener, IBackPressInterceptor, OnTouchKeyListener, ILifecycleMonitor {
     void runWithPermission(Runnable runnable, String... permissions);
-
-    void runWithPermission(IPermissionResult resultListener, String... permissions);
 
     <T extends View> T bind(@IdRes int viewId, View.OnClickListener clickListener);
 

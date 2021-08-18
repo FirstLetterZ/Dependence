@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion project.minSdkVersion
+        targetSdkVersion project.targetSdkVersion
         def date = new Date()
         def dY = date.getYear() - 120//2020年开始计算
         def formattedDate = date.format('MMddHHmm')
@@ -27,12 +27,12 @@ android {
 }
 
 dependencies {
-    api rootProject.ext.dependencies.appcompat
-    api rootProject.ext.dependencies.api
-    api rootProject.ext.dependencies.central
-    api 'com.zpf.android:util-retrofit:2.4.0'
-    api 'com.squareup.okhttp3:okhttp:4.9.1'
-    api 'com.squareup.retrofit2:retrofit:2.9.0'
-    api project(':version')
+    api project.ext.dependencies.appcompat
+    api project.ext.dependencies.api
+    api project.ext.dependencies.central
+//    api 'com.zpf.android:util-retrofit:2.4.0'
+//    api 'com.squareup.okhttp3:okhttp:4.9.1'
+//    api 'com.squareup.retrofit2:retrofit:2.9.0'
+//    api project(':version')
 }
 

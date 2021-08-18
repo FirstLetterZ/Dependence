@@ -1,26 +1,26 @@
 apply plugin: 'com.android.library'
-//apply from: '../publish.gradle'
+apply from: '../publish.gradle'
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion project.minSdkVersion
+        targetSdkVersion project.targetSdkVersion
     }
 }
 
 dependencies {
-    compileOnly(rootProject.ext.dependencies.fragment)
+    compileOnly(project.ext.dependencies.fragment)
             {
                 exclude group: 'androidx.core'
             }
-    compileOnly(rootProject.ext.dependencies.collection)
-    compileOnly(rootProject.ext.dependencies.versionedparcelable)
-    compileOnly(rootProject.ext.dependencies.core) {
+    compileOnly(project.ext.dependencies.collection)
+    compileOnly(project.ext.dependencies.versionedparcelable)
+    compileOnly(project.ext.dependencies.core) {
         exclude group: 'androidx.arch.core'
         exclude group: 'androidx.collection'
         exclude group: 'androidx.lifecycle'
         exclude group: 'androidx.versionedparcelable'
     }
-    api rootProject.ext.dependencies.permission
+    api project.ext.dependencies.permission
 }

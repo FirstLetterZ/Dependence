@@ -9,8 +9,7 @@ import androidx.annotation.Nullable;
  * 替代activity与fragment
  * Created by ZPF on 2018/3/22.
  */
-public interface IViewContainer extends ILifecycleMonitor, IActivityController
-        , IPermissionChecker, ILoadingManager {
+public interface IViewContainer extends ILifecycleMonitor, IActivityController, ILoadingManager {
 
     Object invoke(String name, Object params);
 

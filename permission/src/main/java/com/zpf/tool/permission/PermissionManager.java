@@ -38,8 +38,8 @@ import java.util.List;
  * @author Created by ZPF on 2021/6/18.
  */
 public class PermissionManager {
-    public final int REQ_PERMISSION_CODE = 10001;
-    public final String PERMISSION_RECORD = "app_permission_record_file";
+    public static final int REQ_PERMISSION_CODE = 10001;
+    public static final String PERMISSION_RECORD = "app_permission_record_file";
     private WeakReference<IPermissionResultListener> defCallBack = null;
     private SparseArray<WeakReference<IPermissionResultListener>> tempCallBacks = new SparseArray<>();
     private final HashMap<Class<?>, IPermissionChecker> checkerMap = new HashMap<>();
@@ -252,7 +252,7 @@ public class PermissionManager {
     }
 
     //麦克风权限
-    private boolean checkVoiceEnable() {
+    public boolean checkVoiceEnable() {
         try {
             AudioRecord record = new AudioRecord(MediaRecorder.AudioSource.MIC, 22050,
                     AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
