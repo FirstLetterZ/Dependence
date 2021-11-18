@@ -1,291 +1,355 @@
 package com.zpf.tool.stack;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
+/**
+ * @author Created by ZPF on 2021/10/13.
+ */
 public class HashStack<A, B> {
+    private final HashMap<A, Node<A, B>> stackMap = new HashMap<>();
+    private Node<A, B> first;
+    private Node<A, B> last;
 
-    private final HashMap<A, StackNode<A, B>> stackMap = new HashMap<>();
-    private StackNode<A, B> first;
-    private StackNode<A, B> last;
-
-    public void put(A key, B value) {
+    /**
+     * 将数据放到队列末尾
+     */
+    public void add(A key, B value) {
         if (key == null) {
             return;
         }
-        StackNode<A, B> node;
-        if (first == null) {
-            node = new StackNode<>(key, value);
-            node.elementState = StackElementState.STACK_TOP;
+        Node<A, B> node = stackMap.get(key);
+        if (last != null && node == last) {
+            node.value = value;
+            return;
+        }
+        if (node == null) {
+            node = new Node<>(key, value);
+        } else {
+            node.value = value;
+        }
+        if (node.prev != null) {
+            node.prev.next = node.next;
+        }
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        }
+        if (first == node) {
+            first = node.next;
+        }
+        if (last == node) {
+            last = node.prev;
+        }
+        if (first == null || last == null) {
             first = node;
             last = node;
+            stackMap.clear();
             stackMap.put(key, node);
         } else {
-            node = stackMap.get(key);
-            if (node == null) {
-                node = new StackNode<>(key, value);
-                node.elementState = StackElementState.STACK_TOP;
-                if (last == first) {
-                    last = node;
-                    node.prev = first;
-                    first.elementState = StackElementState.STACK_INSIDE;
-                    first.next = node;
-                } else {
-                    last.next = node;
-                    last.elementState = StackElementState.STACK_INSIDE;
-                    node.prev = last;
-                    last = node;
-                }
-                stackMap.put(key, node);
-            } else {
-                if (node.prev != null) {
-                    node.prev.next = node.next;
-                }
-                if (node.next != null) {
-                    node.next.prev = node.prev;
-                }
-                node.next = null;
-                node.prev = last;
-                last = node;
-            }
+            node.next = null;
+            last.next = node;
+            node.prev = last;
+            last = node;
         }
+        node.changeState(true);
+    }
+
+    public boolean update(A key, B value) {
+        if (key == null) {
+            return false;
+        }
+        Node<A, B> node = stackMap.get(key);
+        if (node == null) {
+            return false;
+        } else {
+            node.value = value;
+            return true;
+        }
+    }
+
+    public boolean has(A key) {
+        if (key == null) {
+            return false;
+        }
+        return stackMap.containsKey(key);
     }
 
     public B get(A key) {
-        StackNode<A, B> resultNode = getNode(key);
+        Node<A, B> resultNode = getNode(key);
         if (resultNode != null) {
-            return resultNode.item;
+            return resultNode.value;
         } else {
             return null;
         }
-    }
-
-    public StackNode<A, B> getNode(A key) {
-        if (first == null || key == null) {
-            return null;
-        }
-        return stackMap.get(key);
     }
 
     public B remove(A key) {
         if (first == null || key == null) {
             return null;
         }
-        B result = null;
-        if (first == last) {
-            if (key.equals(first.key)) {
-                first.elementState = StackElementState.STACK_OUTSIDE;
-                result = first.item;
-                first = null;
-                last = null;
-                stackMap.clear();
-            }
-        } else {
-            StackNode<A, B> node = stackMap.remove(key);
-            if (node != null) {
-                node.elementState = StackElementState.STACK_OUTSIDE;
-                result = node.item;
-                node.removeSelf();
-            }
+        Node<A, B> node = stackMap.remove(key);
+        if (node == null) {
+            return null;
         }
+        if (node.prev != null) {
+            node.prev.next = node.next;
+        }
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        }
+        if (first == node) {
+            first = node.next;
+        }
+        if (last == node) {
+            last = node.prev;
+        }
+        B result = node.value;
+        if (first == null || last == null) {
+            first = null;
+            last = null;
+            stackMap.clear();
+        }
+        node.changeState(false);
+
         return result;
     }
 
-    public boolean moveAllNext(A key) {
-        StackNode<A, B> node = stackMap.get(key);
-        if (node != null) {
-            last = node;
-            StackNode<A, B> next = node.next;
-            node.next = null;
-            node.elementState = StackElementState.STACK_TOP;
-            while (next != null) {
-                next.elementState = StackElementState.STACK_OUTSIDE;
-                stackMap.remove(next.key);
-                next = next.next;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public void moveToLast(A key) {
-        StackNode<A, B> node = stackMap.get(key);
-        if (node == null || node == last) {
-            return;
-        }
-        if (node.next == null) {
-            node.elementState = StackElementState.STACK_TOP;
-            last = node;
-        } else {
-            StackNode<A, B> nextNode = node.next;
-            nextNode.prev = node.prev;
-            if (node.prev != null) {
-                node.prev.next = nextNode;
-            }
-            if (last == null) {//理论上不存在断链情况
-                while (nextNode != null) {
-                    last = nextNode;
-                    nextNode = nextNode.next;
-                }
-            }
-            last.next = node;
-            last.elementState = StackElementState.STACK_INSIDE;
-            node.next = null;
-            node.prev = last;
-            node.elementState = StackElementState.STACK_TOP;
-            last = node;
-        }
-    }
-
-    public boolean moveAllPrev(A key) {
-        StackNode<A, B> node = stackMap.get(key);
-        if (node != null) {
-            first = node;
-            StackNode<A, B> prev = node.prev;
-            node.prev = null;
-            if (node != last) {
-                node.elementState = StackElementState.STACK_INSIDE;
-            }
-            while (prev != null) {
-                prev.elementState = StackElementState.STACK_OUTSIDE;
-                stackMap.remove(prev.key);
-                prev = prev.prev;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public void moveToFirst(A key) {
-        StackNode<A, B> node = stackMap.get(key);
-        if (node == null || node == first) {
-            return;
-        }
-        if (node.prev == null) {
-            first = node;
-            if (node == last) {
-                node.elementState = StackElementState.STACK_TOP;
-            } else {
-                node.elementState = StackElementState.STACK_INSIDE;
-            }
-        } else {
-            StackNode<A, B> prevNode = node.prev;
-            prevNode.elementState = StackElementState.STACK_INSIDE;
-            prevNode.next = node.next;
-            if (node.next != null) {
-                node.next.prev = prevNode;
-            }
-            if (first == null) {//理论上不存在断链情况
-                while (prevNode != null) {
-                    first = prevNode;
-                    prevNode = prevNode.prev;
-                }
-            }
-            first.prev = node;
-            node.next = first;
-            node.prev = null;
-            node.elementState = StackElementState.STACK_INSIDE;
-            first = node;
-        }
-    }
-
     public B getFirst() {
-        if (first != null) {
-            return first.item;
+        if (first == null) {
+            return null;
         }
-        return null;
-    }
-
-    public StackNode<A, B> getFirstNode() {
-        return first;
+        return first.value;
     }
 
     public B pollFirst() {
-        B item = null;
-        if (first != null) {
-            first.elementState = StackElementState.STACK_OUTSIDE;
-            item = first.item;
-            stackMap.remove(first.key);
-            if (first.next != null) {
-                first.next.prev = null;
-                first = first.next;
-            } else {
-                first = null;
-                last = null;
-            }
+        if (first == null) {
+            return null;
         }
-        return item;
-    }
-
-    public StackNode<A, B> pollFirstNode() {
-        StackNode<A, B> firstNode = first;
-        if (firstNode != null) {
-            firstNode.elementState = StackElementState.STACK_OUTSIDE;
-            stackMap.remove(firstNode.key);
-            if (firstNode.next != null) {
-                firstNode.next.prev = null;
-                first = firstNode.next;
-            } else {
-                first = null;
-                last = null;
-            }
+        B value = first.value;
+        stackMap.remove(first.key);
+        if (first.next != null) {
+            first.next.prev = null;
         }
-        return firstNode;
+        first.changeState(false);
+        first = first.next;
+        if (first == null) {
+            last = null;
+            stackMap.clear();
+        }
+        return value;
     }
 
     public B getLast() {
-        if (last != null) {
-            return last.item;
+        if (last == null) {
+            return null;
         }
-        return null;
-    }
-
-    public StackNode<A, B> getLastNode() {
-        return last;
+        return last.value;
     }
 
     public B pollLast() {
-        B item = null;
-        if (last != null) {
-            last.elementState = StackElementState.STACK_OUTSIDE;
-            item = last.item;
-            stackMap.remove(last.key);
-            if (last.prev != null) {
-                last.prev.next = null;
-                last = last.prev;
-                last.elementState = StackElementState.STACK_TOP;
-            } else {
-                first = null;
-                last = null;
-            }
+        if (last == null) {
+            return null;
         }
-        return item;
+        B value = last.value;
+        stackMap.remove(last.key);
+        if (last.prev != null) {
+            last.prev.next = null;
+        }
+        last.changeState(false);
+        last = last.prev;
+        if (last == null) {
+            first = null;
+            stackMap.clear();
+        }
+        return value;
     }
 
-
-    public StackNode<A, B> pollLastNode() {
-        StackNode<A, B> lastNode = last;
-        if (lastNode != null) {
-            lastNode.elementState = StackElementState.STACK_OUTSIDE;
-            stackMap.remove(lastNode.key);
-            if (lastNode.prev != null) {
-                lastNode.prev.next = null;
-                last = lastNode.prev;
-                lastNode.elementState = StackElementState.STACK_TOP;
-            } else {
-                first = null;
-                last = null;
-            }
+    public boolean removeAfter(A key) {
+        if (key == null) {
+            return false;
         }
-        return lastNode;
+        Node<A, B> node = stackMap.get(key);
+        if (node == null) {
+            return false;
+        }
+        Node<A, B> next = node.next;
+        while (next != null) {
+            stackMap.remove(next.key);
+            next.changeState(false);
+            next = next.next;
+        }
+        node.next = null;
+        last = node;
+        return true;
+    }
+
+    public boolean removeBefore(A key) {
+        if (key == null) {
+            return false;
+        }
+        Node<A, B> node = stackMap.get(key);
+        if (node == null) {
+            return false;
+        }
+        Node<A, B> prev = node.prev;
+        while (prev != null) {
+            stackMap.remove(prev.key);
+            prev.changeState(false);
+            prev = prev.prev;
+        }
+        node.prev = null;
+        first = node;
+        return true;
+    }
+
+    public boolean moveToFirst(A key) {
+        if (key == null || first == null) {
+            return false;
+        }
+        Node<A, B> node = stackMap.get(key);
+        if (node == null) {
+            return false;
+        }
+        if (node == first) {
+            return true;
+        }
+        if (node.prev != null) {
+            node.prev.next = node.next;
+        }
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        }
+        first.prev = node;
+        node.next = first;
+        node.prev = null;
+        first = node;
+        return true;
+    }
+
+    public boolean moveToLast(A key) {
+        if (key == null || last == null) {
+            return false;
+        }
+        Node<A, B> node = stackMap.get(key);
+        if (node == null) {
+            return false;
+        }
+        if (node == last) {
+            return true;
+        }
+        if (node.prev != null) {
+            node.prev.next = node.next;
+        }
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        }
+        last.next = node;
+        node.prev = last;
+        node.next = null;
+        last = node;
+        return true;
+    }
+
+    public Node<A, B> getNode(A key) {
+        if (first == null || key == null) {
+            return null;
+        }
+        return stackMap.get(key);
     }
 
     public void clear() {
+        Node<A, B> node = last;
+        while (node != null) {
+            stackMap.remove(node.key);
+            node.changeState(false);
+            node = node.prev;
+        }
         stackMap.clear();
         first = null;
         last = null;
     }
 
-    public int getSize() {
+    public int size() {
         return stackMap.size();
     }
+
+    public Iterator<Node<A, B>> iterator() {
+        return new StackIterator(first);
+    }
+
+    public static class Node<K, S> {
+        private Node<K, S> prev;
+        private Node<K, S> next;
+        private S value;
+        private final K key;
+        private boolean inStack = false;
+
+        private void changeState(boolean isInStackNow) {
+            if (isInStackNow != inStack) {
+                inStack = isInStackNow;
+                if (value instanceof NodeStateListener) {
+                    ((NodeStateListener) value).onStateChanged(isInStackNow);
+                }
+            }
+        }
+
+        private Node(K key, S value) {
+            this.value = value;
+            this.key = key;
+        }
+
+        public boolean isInStack() {
+            return inStack;
+        }
+
+        public S getValue() {
+            return value;
+        }
+
+        public K getKey() {
+            return key;
+        }
+    }
+
+    public class StackIterator implements Iterator<Node<A, B>> {
+        private Node<A, B> nextNode;
+        private Node<A, B> currentNode;
+
+        private StackIterator(Node<A, B> first) {
+            nextNode = first;
+            currentNode = null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return nextNode != null;
+        }
+
+        @Override
+        public Node<A, B> next() {
+            Node<A, B> node = nextNode;
+            if (node == null) {
+                throw new NoSuchElementException();
+            }
+            currentNode = node;
+            nextNode = node.next;
+            return node;
+        }
+
+        @Override
+        public void remove() {
+            Node<A, B> node = currentNode;
+            if (node == null) {
+                return;
+            }
+            currentNode = node.prev;
+            HashStack.this.remove(node.key);
+        }
+    }
+
+    public interface NodeStateListener {
+        void onStateChanged(boolean inStack);
+    }
+
 }

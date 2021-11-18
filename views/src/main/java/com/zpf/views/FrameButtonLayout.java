@@ -6,29 +6,34 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.zpf.views.type.IFeedbackView;
 
-public class RelativeButtonLayout extends RelativeLayout implements IFeedbackView {
+/**
+ * @author Created by ZPF on 2021/10/21.
+ */
+public class FrameButtonLayout extends FrameLayout implements IFeedbackView {
     private final TouchFeedbackDelegate delegate = new TouchFeedbackDelegate(0.8f, null);
 
-    public RelativeButtonLayout(Context context) {
+    public FrameButtonLayout(@NonNull Context context) {
         super(context);
     }
 
-    public RelativeButtonLayout(Context context, AttributeSet attrs) {
+    public FrameButtonLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public RelativeButtonLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public FrameButtonLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public RelativeButtonLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public FrameButtonLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

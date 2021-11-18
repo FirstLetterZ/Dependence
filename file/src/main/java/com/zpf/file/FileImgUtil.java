@@ -120,6 +120,10 @@ public class FileImgUtil {
         } else {
             String saveFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
                     + addParentPath + File.separator + fileName;
+            File pf = new File(saveFilePath).getParentFile();
+            if (pf != null && !pf.exists()) {
+                pf.mkdirs();
+            }
             values.put(MediaStore.MediaColumns.DATA, saveFilePath);
         }
         return resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);

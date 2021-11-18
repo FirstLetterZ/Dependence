@@ -23,6 +23,9 @@ android {
 }
 
 dependencies {
+    implementation("androidx.cardview:cardview:1.0.0")
+    api project(":api")
+    api project(":views")
     api project.ext.dependencies.central
     api project.ext.dependencies.appcompat
 }

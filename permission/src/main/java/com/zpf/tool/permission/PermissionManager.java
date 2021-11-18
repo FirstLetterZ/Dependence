@@ -91,7 +91,7 @@ public class PermissionManager {
             }
             int result = 0;
             for (String per : permissions) {
-                if (context.checkPermission(per, Process.myPid(), Process.myUid()) != PackageManager.PERMISSION_GRANTED) {
+                if (context.checkPermission(per, Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED) {
                     result++;
                 }
             }

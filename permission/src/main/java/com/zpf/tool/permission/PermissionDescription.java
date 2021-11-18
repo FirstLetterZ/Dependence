@@ -25,7 +25,7 @@ public class PermissionDescription {
     private final HashMap<String, PermissionInfo> permissions;
 
     public PermissionDescription() {
-        permissions = new HashMap<>(24);
+        permissions = new HashMap<>(36);
 
         permissions.put(Manifest.permission.WRITE_CONTACTS,
                 new PermissionInfo(Manifest.permission.WRITE_CONTACTS, "写入联系人", Manifest.permission_group.CONTACTS));
@@ -61,9 +61,11 @@ public class PermissionDescription {
                 new PermissionInfo(Manifest.permission.BODY_SENSORS, "读取生命体征相关的传感器数据", Manifest.permission_group.SENSORS));
 
         permissions.put(Manifest.permission.ACCESS_FINE_LOCATION,
-                new PermissionInfo(Manifest.permission.ACCESS_FINE_LOCATION, "获取精确位置", Manifest.permission_group.LOCATION));
+                new PermissionInfo(Manifest.permission.ACCESS_FINE_LOCATION, "精确定位", Manifest.permission_group.LOCATION));
         permissions.put(Manifest.permission.ACCESS_COARSE_LOCATION,
-                new PermissionInfo(Manifest.permission.ACCESS_COARSE_LOCATION, "获取粗略位置", Manifest.permission_group.LOCATION));
+                new PermissionInfo(Manifest.permission.ACCESS_COARSE_LOCATION, "粗略定位", Manifest.permission_group.LOCATION));
+        permissions.put(Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                new PermissionInfo(Manifest.permission.ACCESS_BACKGROUND_LOCATION, "后台定位", Manifest.permission_group.LOCATION));
 
         permissions.put(Manifest.permission.READ_EXTERNAL_STORAGE,
                 new PermissionInfo(Manifest.permission.READ_EXTERNAL_STORAGE, "读取手机存储", Manifest.permission_group.STORAGE));

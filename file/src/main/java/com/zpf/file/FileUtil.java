@@ -48,7 +48,10 @@ public class FileUtil {
         if (suffix != null) {
             builder.append(suffix);
         }
-        String fileName = digest(builder.toString(), algorithm, 16);
+        String fileName = digest(builder.toString(), algorithm, 16, false);
+        if (fileName != null && fileName.length() > 64) {
+            fileName = fileName.substring(fileName.length() - 64);
+        }
         if (type != null && type.length() > 0) {
             fileName = fileName + "." + type;
         }
@@ -56,6 +59,10 @@ public class FileUtil {
     }
 
     public static String digest(String content, String algorithm, int radix) {
+        return digest(content, algorithm, radix, true);
+    }
+
+    public static String digest(String content, String algorithm, int radix, boolean fillZero) {
         if (content == null) {
             return null;
         }
@@ -65,8 +72,10 @@ public class FileUtil {
             digest.update(bytes);
             BigInteger bigInteger = new BigInteger(1, digest.digest());
             StringBuilder result = new StringBuilder(bigInteger.toString(radix));
-            while (result.length() < 2 * bytes.length) {
-                result.insert(0, "0");
+            if (fillZero) {
+                while (result.length() < 2 * bytes.length) {
+                    result.insert(0, "0");
+                }
             }
             return result.toString();
         } catch (Exception e) {
@@ -278,13 +287,13 @@ public class FileUtil {
     }
 
     public static boolean delete(File file) {
-        if (!file.exists()) {
+        if (file == null || !file.exists()) {
             return true;
         }
         if (file.isDirectory()) {
             File[] ff = file.listFiles();
             if (ff != null && ff.length > 0) {
-                for (File f : file.listFiles()) {
+                for (File f : ff) {
                     delete(f);
                 }
             }

@@ -6,16 +6,11 @@ import androidx.annotation.Nullable;
 public interface IStackItem<T> {
 
     @NonNull
-    String getName();
+    String getKey();
 
-    @StackElementState
-    int getItemState();
-
-    void setItemState(@StackElementState int newState);
-
-    void bindItem(T t);
+    void update(T t);
 
     @Nullable
-    T getStackItem();
+    T getValue();
 
 }

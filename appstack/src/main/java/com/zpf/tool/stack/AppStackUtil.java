@@ -2,11 +2,14 @@ package com.zpf.tool.stack;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Application.ActivityLifecycleCallbacks;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Activity 栈管理
@@ -18,45 +21,65 @@ public class AppStackUtil {
     private AppStackUtil() {
     }
 
-    private static class Instance {
-        private static final AppStackUtil mInstance = new AppStackUtil();
-    }
+    private final HashMap<String, Boolean> recycledStackItem = new HashMap<>();
+    private final HashStack<String, ActivityStackItem> stackInfo = new HashStack<>();
 
-    private final ActivityStackManager stackManager = new ActivityStackManager();
-    private final ActivityLifecycleCallbacks lifecycleCallbacks = new ActivityLifecycleCallbacks() {
+    public final Application.ActivityLifecycleCallbacks lifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
         @Override
         public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-            String stackName = stackManager.getNameInStack(activity);
-            ActivityStackItem stackItem = stackManager.search(stackName);
-            if (savedInstanceState != null && stackItem != null && stackItem.getItemState() == StackElementState.STACK_REMOVING) {
+            String stackName = AppStackUtil.getNameInStack(activity);
+            Boolean shouldFinish = recycledStackItem.remove(stackName);
+            if (savedInstanceState != null && shouldFinish != null && shouldFinish) {
                 activity.finish();
                 return;
             }
-            stackManager.moveToStackTop(activity);
+            ActivityStackItem stackItem = stackInfo.get(stackName);
+            if (stackItem == null) {
+                stackItem = new ActivityStackItem(stackName);
+            }
+            stackInfo.add(stackName, stackItem);
+            stackItem.setState(LifecycleState.AFTER_CREATE);
         }
 
         @Override
         public void onActivityStarted(@NonNull Activity activity) {
-            stackManager.moveToStackTop(activity);
-            activity.getIntent().putExtra("onActivitySaveInstanceState", false);
+            activity.getIntent().removeExtra("onActivitySaveInstanceState");
+            String stackName = AppStackUtil.getNameInStack(activity);
+            ActivityStackItem stackItem = stackInfo.get(stackName);
+            if (stackItem == null) {
+                stackItem = new ActivityStackItem(stackName);
+            }
+            stackInfo.add(stackName, stackItem);
+            stackItem.setState(LifecycleState.AFTER_START);
         }
 
         @Override
         public void onActivityResumed(@NonNull Activity activity) {
-            stackManager.moveToStackTop(activity);
+            String stackName = AppStackUtil.getNameInStack(activity);
+            ActivityStackItem stackItem = stackInfo.get(stackName);
+            if (stackItem == null) {
+                stackItem = new ActivityStackItem(stackName);
+            }
+            stackInfo.add(stackName, stackItem);
+            stackItem.setState(LifecycleState.AFTER_RESUME);
         }
 
         @Override
         public void onActivityPaused(@NonNull Activity activity) {
+            String stackName = AppStackUtil.getNameInStack(activity);
+            ActivityStackItem stackItem = stackInfo.get(stackName);
+            if (stackItem != null) {
+                stackItem.setState(LifecycleState.AFTER_PAUSE);
+            }
         }
 
         @Override
         public void onActivityStopped(@NonNull Activity activity) {
-        }
-
-        @Override
-        public void onActivityPreSaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-            activity.getIntent().putExtra("onActivitySaveInstanceState", true);
+            String stackName = AppStackUtil.getNameInStack(activity);
+            ActivityStackItem stackItem = stackInfo.get(stackName);
+            if (stackItem != null) {
+                stackItem.setState(LifecycleState.AFTER_STOP);
+            }
         }
 
         @Override
@@ -66,25 +89,17 @@ public class AppStackUtil {
 
         @Override
         public void onActivityDestroyed(@NonNull Activity activity) {
-            String stackName = stackManager.getNameInStack(activity);
-            ActivityStackItem stackItem = stackManager.search(stackName);
-            if (stackItem == null) {
-                return;
-            }
-            ActivityStackItem topItem = stackManager.peek();
+            String stackName = AppStackUtil.getNameInStack(activity);
+            stackInfo.remove(stackName);
             if (activity.getIntent().getBooleanExtra("onActivitySaveInstanceState", false)) {
-                if (stackItem != null) {
-                    stackItem.setItemState(StackElementState.STACK_OUTSIDE);
-                }
-                return;
-            }
-            if (topItem != null && topItem.getStackItem() == activity) {
-                stackManager.pop();
-            } else {
-                stackManager.remove(stackName);
+                recycledStackItem.put(stackName, false);
             }
         }
     };
+
+    private static class Instance {
+        private static final AppStackUtil mInstance = new AppStackUtil();
+    }
 
     public static void init(Application application) {
         if (application != null) {
@@ -93,50 +108,86 @@ public class AppStackUtil {
     }
 
     public static int size() {
-        return Instance.mInstance.stackManager.size();
+        return Instance.mInstance.stackInfo.size();
     }
 
     @Nullable
     public static Activity getTopActivity() {
-        ActivityStackItem topItem = Instance.mInstance.stackManager.peek();
+        ActivityStackItem topItem = Instance.mInstance.stackInfo.getLast();
         if (topItem == null) {
             return null;
         } else {
-            return topItem.getStackItem();
+            return topItem.getValue();
         }
     }
 
     public static ActivityStackItem search(String name) {
-        return Instance.mInstance.stackManager.search(name);
+        return Instance.mInstance.stackInfo.get(name);
     }
 
     public static boolean finishByName(String stackItemName) {
-        return Instance.mInstance.stackManager.remove(stackItemName);
+        ActivityStackItem stackItem = Instance.mInstance.stackInfo.remove(stackItemName);
+        if (stackItem == null) {
+            Boolean shouldFinish = Instance.mInstance.recycledStackItem.get(stackItemName);
+            if (shouldFinish != null) {
+                Instance.mInstance.recycledStackItem.put(stackItemName, true);
+            }
+            return false;
+        }
+        return true;
     }
 
-    /**
-     * 从历史栈中回退到指定活动
-     * 如果活动在历史中则，结束在目标活动之上的所有活动
-     * 如果活动不在历史中，则将结束历史中的每个活动，直到到达该历史栈的根活动
-     *
-     * @return 如果活动不在历史中返回false
-     */
     public static boolean finishUntil(String stackItemName) {
-        return Instance.mInstance.stackManager.popTo(stackItemName);
+        boolean result = Instance.mInstance.stackInfo.removeAfter(stackItemName);
+        if (Instance.mInstance.recycledStackItem.size() > 0) {
+            Iterator<Map.Entry<String, Boolean>> iterator = Instance.mInstance.recycledStackItem.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Boolean> entry = iterator.next();
+                if (!Instance.mInstance.stackInfo.has(entry.getKey())) {
+                    iterator.remove();
+                }
+            }
+        }
+        return result;
     }
 
     public static void finishToRoot() {
-        Instance.mInstance.stackManager.popToRoot();
+        ActivityStackItem stackItem = Instance.mInstance.stackInfo.getFirst();
+        if (stackItem != null) {
+            Instance.mInstance.recycledStackItem.clear();
+            Instance.mInstance.stackInfo.removeAfter(stackItem.getKey());
+        }
     }
 
     public static void clear(boolean keepTop) {
-        Instance.mInstance.stackManager.clear(keepTop);
+        Instance.mInstance.recycledStackItem.clear();
+        ActivityStackItem stackItem = Instance.mInstance.stackInfo.getLast();
+        if (keepTop) {
+            Instance.mInstance.stackInfo.removeBefore(stackItem.getKey());
+        } else {
+            Instance.mInstance.stackInfo.clear();
+        }
     }
 
-    public static String getNameInStack(Activity activity) {
-        if (activity == null) {
+    public static String getNameInStack(Object obj) {
+        if (obj == null) {
             return null;
         }
-        return Instance.mInstance.stackManager.getNameInStack(activity);
+        String stackName = null;
+        StackItem annotation = obj.getClass().getAnnotation(StackItem.class);
+        if (annotation != null) {
+            stackName = annotation.name();
+        }
+        if (stackName != null) {
+            return stackName;
+        }
+        if (obj instanceof Activity) {
+            stackName = ((Activity) obj).getIntent().getStringExtra(STACK_ITEM_NAME);
+        }
+        if (stackName != null) {
+            return stackName;
+        }
+        stackName = obj.getClass().getName();
+        return stackName;
     }
 }
