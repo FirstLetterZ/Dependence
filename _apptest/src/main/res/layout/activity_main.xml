@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.zpf.views.TitleBar
+    <com.zpf.views.TopBar
         android:paddingHorizontal="16dp"
         android:layout_width="match_parent"
-        android:layout_height="44dp" />
+        android:layout_height="80dp" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"

@@ -1,11 +1,15 @@
 package com.zpf.views.type;
 
+import android.view.View;
 import android.view.ViewGroup;
 
+import com.zpf.views.StatusBar;
+
 /**
- * Created by ZPF on 2018/6/13.
+ * @author Created by ZPF on 2021/11/23.
  */
-public interface ITitleBar {
+public interface ITopBar {
+    StatusBar getStatusBar();
 
     IconText getLeftImage();
 
@@ -25,5 +29,5 @@ public interface ITitleBar {
 
     ViewGroup getTitleLayout();
 
-    ViewGroup getLayout();
+    View getView();
 }

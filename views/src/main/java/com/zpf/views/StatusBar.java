@@ -35,6 +35,16 @@ public class StatusBar extends View {
     }
 
     @Override
+    public ViewGroup.LayoutParams getLayoutParams() {
+        ViewGroup.LayoutParams layoutParams = super.getLayoutParams();
+        if (layoutParams != null) {
+            layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            layoutParams.height = statusBarHeight;
+        }
+        return layoutParams;
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int h = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
         if (h != statusBarHeight) {
@@ -46,8 +56,13 @@ public class StatusBar extends View {
         }
     }
 
+    @Override
+    public int getMinimumHeight() {
+        return statusBarHeight;
+    }
+
     //获取状态栏高度
-    public int getStatusBarHeight(Context context) {
+    public static int getStatusBarHeight(Context context) {
         int height = 0;
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen",
                 "android");

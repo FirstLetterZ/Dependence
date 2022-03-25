@@ -11,7 +11,7 @@ import android.view.View;
 public class OnTouchClickListener implements View.OnTouchListener {
     private long lastDownTime;
     private float lastY, lastX;
-    private View.OnClickListener clickListener;
+    private final View.OnClickListener clickListener;
     private final float shakeFilter;
 
     public OnTouchClickListener(View.OnClickListener clickListener) {
