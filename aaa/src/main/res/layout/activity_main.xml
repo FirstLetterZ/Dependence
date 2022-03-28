@@ -4,36 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
+    android:gravity="center"
     android:orientation="vertical"
     android:padding="40dp">
 
-    <TextView
-        android:id="@+id/tv_msg"
+    <EditText
+        android:id="@+id/et_money"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:textSize="18dp"
-        tools:text="Q" />
+        android:layout_height="wrap_content" />
 
-    <ProgressBar
-        android:id="@+id/pb_bar"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_margin="30dp" />
+        android:layout_height="80dp" />
 
     <Button
-        android:id="@+id/btn_check"
+        android:id="@+id/btn_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="检查版本" />
-
-
-    <ProgressBar
-        android:id="@+id/pb_loading"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp" />
+        android:text="test" />
 
 </LinearLayout>

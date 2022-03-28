@@ -33,10 +33,10 @@ allprojects {
         google()
     }
     ext {
-        compileSdkVersion = 21
-        buildToolsVersion = '21.0.2'
+        compileSdkVersion = 29
+        buildToolsVersion = '29.0.2'
         minSdkVersion = 19
-        targetSdkVersion = 21
+        targetSdkVersion = 30
         versionCode = 1
         versionName = "0.0.1"
         dependencies = [
