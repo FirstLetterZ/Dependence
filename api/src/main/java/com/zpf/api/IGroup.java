@@ -1,13 +1,18 @@
 package com.zpf.api;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-public interface IGroup<T> {
+import java.lang.reflect.Type;
 
-    void remove(@NonNull T t);
+/**
+ * Created by ZPF on 2022/5/30
+ */
+public interface IGroup {
 
-    void add(@NonNull T t);
+    boolean remove(@NonNull Object obj, @Nullable Type asType);
 
-    int size();
+    boolean add(@NonNull Object obj, @Nullable Type asType);
 
+    int size(@Nullable Type asType);
 }

@@ -10,7 +10,8 @@ android {
 }
 
 dependencies {
-    api project.ext.dependencies.api
+//    api project.ext.dependencies.api
+    api project(":api")
     compileOnly project.ext.dependencies.annotations
     compileOnly project.ext.dependencies.central
 }

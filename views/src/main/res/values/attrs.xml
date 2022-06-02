@@ -34,9 +34,4 @@
         <attr name="underline" format="boolean"/>
         <attr name="strikeThru" format="boolean"/>
     </declare-styleable>
-    <declare-styleable name="PhonePageLayout">
-        <attr name="isContentView" format="boolean"/>
-        <attr name="hierarchy" format="integer" />
-        <attr name="contentBelowTitle" format="boolean" />
-    </declare-styleable>
 </resources>

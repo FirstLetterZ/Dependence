@@ -10,8 +10,6 @@ public interface ItemListAdapter<T> {
 
     ItemListAdapter<T> setItemClickListener(@Nullable OnItemClickListener itemClickListener);
 
-    ItemListAdapter<T> setItemViewClickListener(@Nullable OnItemViewClickListener itemViewClickListener);
-
     ItemListAdapter<T> addData(@Nullable T data);
 
     @Nullable

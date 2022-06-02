@@ -49,18 +49,18 @@ public class TopBar extends ViewGroup implements ITopBar {
         leftLayout = new LinearLayout(context);
         leftLayout.setOrientation(LinearLayout.HORIZONTAL);
         leftLayout.setMinimumWidth(minWidth);
-        leftLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        leftLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT));
 
         ivLeft = new IconTextView(context);
-        ivLeft.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        ivLeft.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT));
         ivLeft.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
 
         tvLeft = new IconTextView(context);
         tvLeft.setGravity(Gravity.CENTER);
-        tvLeft.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        tvLeft.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT));
 
         leftLayout.addView(ivLeft);
         leftLayout.addView(tvLeft);
@@ -68,27 +68,27 @@ public class TopBar extends ViewGroup implements ITopBar {
         rightLayout = new LinearLayout(context);
         rightLayout.setOrientation(LinearLayout.HORIZONTAL);
         rightLayout.setMinimumWidth(minWidth);
-        rightLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        rightLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT));
 
         ivRight = new IconTextView(context);
-        ivRight.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        ivRight.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT));
         ivRight.setMinWidth(minWidth);
         ivRight.setGravity(Gravity.RIGHT | Gravity.CENTER);
 
         tvRight = new IconTextView(context);
         tvRight.setGravity(Gravity.CENTER);
-        tvRight.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        tvRight.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT));
 
         rightLayout.addView(tvRight);
         rightLayout.addView(ivRight);
 
         titleLayout = new LinearLayout(context);
         titleLayout.setOrientation(LinearLayout.VERTICAL);
-        titleLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        titleLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT));
         titleLayout.setGravity(Gravity.CENTER);
         titleLayout.setPadding(3 * minWidth, 0, 3 * minWidth, 0);
 
@@ -97,16 +97,16 @@ public class TopBar extends ViewGroup implements ITopBar {
         title.setEllipsize(TextUtils.TruncateAt.END);
         title.setSingleLine();
         title.setMaxLines(1);
-        title.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        title.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT));
 
         subtitle = new IconTextView(context);
         subtitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
         subtitle.setEllipsize(TextUtils.TruncateAt.END);
         subtitle.setSingleLine();
         subtitle.setMaxLines(1);
-        subtitle.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        subtitle.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT));
         subtitle.setVisibility(GONE);
 
         titleLayout.addView(title);
@@ -198,9 +198,9 @@ public class TopBar extends ViewGroup implements ITopBar {
     }
 
     @Override
-    public void setLayoutParams(ViewGroup.LayoutParams params) {
+    public void setLayoutParams(LayoutParams params) {
         if (params != null) {
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.width = LayoutParams.MATCH_PARENT;
         }
         super.setLayoutParams(params);
     }
@@ -209,7 +209,7 @@ public class TopBar extends ViewGroup implements ITopBar {
     public LayoutParams getLayoutParams() {
         LayoutParams layoutParams = super.getLayoutParams();
         if (layoutParams != null) {
-            layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            layoutParams.width = LayoutParams.MATCH_PARENT;
         }
         return layoutParams;
     }
