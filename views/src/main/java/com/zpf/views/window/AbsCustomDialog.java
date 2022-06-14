@@ -7,6 +7,8 @@ import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.zpf.views.R;
+
 /**
  * Created by ZPF on 2018/3/22.
  */
@@ -14,7 +16,7 @@ public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
     protected ICustomWindowManager manager;
 
     public AbsCustomDialog(@NonNull Context context) {
-        super(context);
+        this(context, R.style.customDialog);
         init();
     }
 

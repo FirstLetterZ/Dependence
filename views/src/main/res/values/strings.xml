@@ -1,0 +1,5 @@
+<resources>
+    <string name="dialog_button_confirm">确认</string>
+    <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_process_loading">加载中…</string>
+</resources>
