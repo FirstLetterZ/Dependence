@@ -33,7 +33,6 @@ public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
     private void init() {
         Window dialogWindow = getWindow();
         if (dialogWindow != null) {
-            dialogWindow.requestFeature(Window.FEATURE_NO_TITLE);// 取消标题
             initWindow(dialogWindow);
         }
         initView();
