@@ -14,7 +14,10 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
+
 import androidx.annotation.NonNull;
+
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -210,8 +213,7 @@ public class PublicUtil {
         }
     }
 
-
-    public static boolean openBrowser(Context context, String url) {
+    public static boolean openBySystem(Context context, String url) {
         try {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);
@@ -232,36 +234,39 @@ public class PublicUtil {
         context.startActivity(intent);
     }
 
-
     /**
      * 获取设备识别id
      *
      * @return 如果返回null则代表缺少权限，若返回"unknown"代表获取失败
      */
-    @SuppressLint("MissingPermission")
+    @SuppressLint({"MissingPermission", "HardwareIds"})
     public static String getDeviceId(@NonNull Context context) {
-        String result;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return null;
-            }
+        String result = null;
+        boolean missingPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED;
+        if (!missingPermission) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 result = Build.getSerial();
             } else {
                 result = Build.SERIAL;
             }
-        } else {
-            result = Build.SERIAL;
         }
-        if (TextUtils.isEmpty(result) || "unknown".equalsIgnoreCase(result)) {
+        if ((TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) && !missingPermission) {
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             if (telephonyManager != null) {
-                result = telephonyManager.getDeviceId();
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        result = telephonyManager.getMeid();
+                    } else {
+                        result = telephonyManager.getDeviceId();
+                    }
+                } catch (Exception e) {
+                    result = null;
+                }
             }
         }
-        if (TextUtils.isEmpty(result)) {
-            result = "unknown";
+        if (TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) {
+            result = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         return result;
     }

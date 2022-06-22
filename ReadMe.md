@@ -7,9 +7,20 @@ Android工具库
 工具库发布
 ---------
 #### 单项目发布
-> ./gradlew -p XXX clean build publish --info
- 
-其中 XXX 为 module库名，详细如下表：
+> ./gradlew -p global clean build publish --info
+./gradlew -p api clean build publish --info
+./gradlew -p views clean build publish --info
+./gradlew -p dataparser clean build publish --info
+./gradlew -p process clean build publish --info
+./gradlew -p permission clean build publish --info
+./gradlew -p file clean build publish --info
+./gradlew -p fragmentManager clean build publish --info
+./gradlew -p wheelpicker clean build publish --info
+./gradlew -p version clean build publish --info
+./gradlew -p toolkit clean build publish --info
+./gradlew -p compatFragmentManager clean build publish --info
+./gradlew -p compatPermission clean build publish --info
+./gradlew -p compatPermission clean build publish --info
 
 引用
 ---------

@@ -64,7 +64,7 @@ public class ThreeLevelSelectorModel<T> implements IWheelDataModel<List<T>> {
 
 
     @Override
-    public WheelAdapter<?> getAdapter(int position) {
+    public WheelAdapter<T> getAdapter(int position) {
         if (position < 0 || position > 2) {
             return null;
         }
