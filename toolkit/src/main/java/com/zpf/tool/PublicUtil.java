@@ -51,10 +51,10 @@ public class PublicUtil {
 
     public static <T> Class<T> getGenericClass(Class<?> klass) {
         Type type = klass.getGenericSuperclass();
-        if (type == null || !(type instanceof ParameterizedType)) return null;
+        if (!(type instanceof ParameterizedType)) return null;
         ParameterizedType parameterizedType = (ParameterizedType) type;
         Type[] types = parameterizedType.getActualTypeArguments();
-        if (types == null || types.length == 0) return null;
+        if (types.length == 0) return null;
         return (Class<T>) types[0];
     }
 
@@ -101,13 +101,14 @@ public class PublicUtil {
         return name;
     }
 
-    public static boolean isAppInstalled(Context context, String packagename) {
+    @SuppressLint("QueryPermissionsNeeded")
+    public static boolean isAppInstalled(Context context, String packageName) {
         List<PackageInfo> pInfo = context.getPackageManager().getInstalledPackages(0);
         if (pInfo == null) {
             return false;
         } else {
             for (PackageInfo info : pInfo) {
-                if (TextUtils.equals(info.packageName, packagename)) {
+                if (TextUtils.equals(info.packageName, packageName)) {
                     return true;
                 }
             }
@@ -116,18 +117,22 @@ public class PublicUtil {
     }
 
     public static boolean isPackageProcess(Context context) {
+        String mainProcessName = context.getPackageName();
+        return mainProcessName.equals(getProcessName(context));
+    }
+
+    public static String getProcessName(Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
             List<ActivityManager.RunningAppProcessInfo> appProcessInfoList = activityManager.getRunningAppProcesses();
-            String mainProcessName = context.getPackageName();
             int myPid = Process.myPid();
             for (ActivityManager.RunningAppProcessInfo info : appProcessInfoList) {
-                if (info.pid == myPid && mainProcessName.equals(info.processName)) {
-                    return true;
+                if (info.pid == myPid) {
+                    return info.processName;
                 }
             }
         }
-        return false;
+        return Build.UNKNOWN;
     }
 
     /**
@@ -268,6 +273,9 @@ public class PublicUtil {
         if (TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) {
             result = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
+        if (TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) {
+            result = Build.DISPLAY;
+        }
         return result;
     }
 
@@ -284,7 +292,7 @@ public class PublicUtil {
                 if (device.contains(w) || w.contains(device)) {
                     try {
                         // 关闭掉FinalizerWatchdogDaemon
-                        Class clazz = Class.forName("java.lang.Daemons\\$FinalizerWatchdogDaemon");
+                        Class<?> clazz = Class.forName("java.lang.Daemons\\$FinalizerWatchdogDaemon");
                         Method method = clazz.getSuperclass().getDeclaredMethod("stop");
                         method.setAccessible(true);
                         Field field = clazz.getDeclaredField("INSTANCE");
@@ -337,4 +345,7 @@ public class PublicUtil {
         }
     }
 
+    public static float dp2px(int dp) {
+        return dp * getDisplayMetrics().density;
+    }
 }

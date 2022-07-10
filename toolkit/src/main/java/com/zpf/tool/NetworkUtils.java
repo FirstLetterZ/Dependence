@@ -1,18 +1,89 @@
 package com.zpf.tool;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoCdma;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellInfoLte;
+import android.telephony.CellInfoNr;
+import android.telephony.CellInfoTdscdma;
+import android.telephony.CellInfoWcdma;
+import android.telephony.CellSignalStrength;
+import android.telephony.CellSignalStrengthCdma;
+import android.telephony.CellSignalStrengthGsm;
+import android.telephony.CellSignalStrengthLte;
+import android.telephony.CellSignalStrengthTdscdma;
+import android.telephony.CellSignalStrengthWcdma;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 public class NetworkUtils {
+    private static int mNetworkState = NetworkState.NETWORK_UNKNOWN;
+    private volatile static ConnectivityManager.NetworkCallback callback;
+
+    @SuppressLint("MissingPermission")
+    public static synchronized void checkNetworkCallbackRegistered(Context context) {
+        final Context appContext = context.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && callback == null) {
+            callback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    mNetworkState = NetworkState.NETWORK_UNKNOWN;
+                }
+
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    mNetworkState = NetworkState.NETWORK_NONE;
+                }
+
+                @Override
+                public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+                    super.onCapabilitiesChanged(network, networkCapabilities);
+                    if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                                || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)
+                        ) {
+                            mNetworkState = NetworkState.NETWORK_WIFI;
+                        } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                                || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                        ) {
+                            mNetworkState = getTelephonyNetworkType(appContext);
+                        } else {
+                            mNetworkState = NetworkState.NETWORK_UNKNOWN;
+                        }
+                    }
+                }
+            };
+            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (manager != null) {
+                try {
+                    manager.registerNetworkCallback(new NetworkRequest.Builder().build(), callback);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     public static boolean checkProxy(Context context) {
         final boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
@@ -27,7 +98,6 @@ public class NetworkUtils {
             proxyPort = android.net.Proxy.getPort(context);
         }
         return (!TextUtils.isEmpty(proxyAddress)) && (proxyPort != -1);
-
     }
 
     public static boolean checkVpnUsed() {
@@ -59,8 +129,11 @@ public class NetworkUtils {
     @SuppressLint("MissingPermission")
     @NetworkState
     public static int getNetworkType(Context context) {
+        if (mNetworkState != NetworkState.NETWORK_UNKNOWN) {
+            return mNetworkState;
+        }
         if (null == context) {
-            return NetworkState.NETWORK_NONE;
+            return NetworkState.NETWORK_UNKNOWN;
         }
         int typeCode = -1;
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -90,41 +163,33 @@ public class NetworkUtils {
                 typeCode = telephonyManager.getNetworkType();
             }
         }
-        if (typeCode > 0) {
-            String subTypeName = null;
-            if (activeNetInfo != null) {
-                subTypeName = activeNetInfo.getSubtypeName();
-            }
-            switch (typeCode) {
-                case TelephonyManager.NETWORK_TYPE_GPRS:
-                case TelephonyManager.NETWORK_TYPE_CDMA:
-                case TelephonyManager.NETWORK_TYPE_EDGE:
-                case TelephonyManager.NETWORK_TYPE_1xRTT:
-                case TelephonyManager.NETWORK_TYPE_IDEN:
-                    return NetworkState.NETWORK_2G;
-                case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                case TelephonyManager.NETWORK_TYPE_UMTS:
-                case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                case TelephonyManager.NETWORK_TYPE_HSDPA:
-                case TelephonyManager.NETWORK_TYPE_HSUPA:
-                case TelephonyManager.NETWORK_TYPE_HSPA:
-                case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                case TelephonyManager.NETWORK_TYPE_EHRPD:
-                case TelephonyManager.NETWORK_TYPE_HSPAP:
-                    return NetworkState.NETWORK_3G;
-                case TelephonyManager.NETWORK_TYPE_LTE:
-                    return NetworkState.NETWORK_4G;
-                default:
-                    if ("TD-SCDMA".equalsIgnoreCase(subTypeName)
-                            || "WCDMA".equalsIgnoreCase(subTypeName)
-                            || "CDMA2000".equalsIgnoreCase(subTypeName)) {
-                        return NetworkState.NETWORK_3G;
-                    } else {
-                        return NetworkState.NETWORK_UNKNOWN_MOBILE;
-                    }
+        if (typeCode <= 0) {
+            return NetworkState.NETWORK_UNKNOWN;
+        }
+        return parseTypeCode(typeCode);
+    }
+
+    @SuppressLint("MissingPermission")
+    private static int getTelephonyNetworkType(Context context) {
+        boolean missingPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED;
+        if (missingPermission) {
+            return 0;
+        }
+
+        int typeCode = 0;
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (telephonyManager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                typeCode = telephonyManager.getDataNetworkType();
+            } else {
+                typeCode = telephonyManager.getNetworkType();
             }
         }
-        return NetworkState.NETWORK_NONE;
+        if (typeCode <= 0) {
+            return NetworkState.NETWORK_UNKNOWN;
+        }
+        return parseTypeCode(typeCode);
     }
 
     @SuppressLint("MissingPermission")
@@ -147,4 +212,99 @@ public class NetworkUtils {
         return networkinfo != null && networkinfo.isAvailable();
     }
 
+    private static int parseTypeCode(int netType) {
+        int result;
+        switch (netType) {
+            case TelephonyManager.NETWORK_TYPE_GPRS:
+            case TelephonyManager.NETWORK_TYPE_GSM:
+            case TelephonyManager.NETWORK_TYPE_CDMA:
+            case TelephonyManager.NETWORK_TYPE_EDGE:
+            case TelephonyManager.NETWORK_TYPE_1xRTT:
+            case TelephonyManager.NETWORK_TYPE_IDEN:
+                result = NetworkState.NETWORK_2G;
+                break;
+            case TelephonyManager.NETWORK_TYPE_EVDO_A:
+            case TelephonyManager.NETWORK_TYPE_UMTS:
+            case TelephonyManager.NETWORK_TYPE_EVDO_0:
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+            case TelephonyManager.NETWORK_TYPE_HSUPA:
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+            case TelephonyManager.NETWORK_TYPE_EVDO_B:
+            case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
+            case TelephonyManager.NETWORK_TYPE_EHRPD:
+            case TelephonyManager.NETWORK_TYPE_HSPAP:
+                result = NetworkState.NETWORK_3G;
+                break;
+            case TelephonyManager.NETWORK_TYPE_LTE:
+            case TelephonyManager.NETWORK_TYPE_IWLAN:
+            case 19:
+                result = NetworkState.NETWORK_4G;
+                break;
+            case TelephonyManager.NETWORK_TYPE_NR:
+                result = NetworkState.NETWORK_5G;
+                break;
+            default:
+                result = NetworkState.NETWORK_UNKNOWN;
+        }
+
+        return result;
+    }
+
+    public static int getWifiSignalStrength(Context context) {
+        if (context == null) {
+            return 0;
+        }
+        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager == null) {
+            return 0;
+        }
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if (wifiInfo != null) {
+            return wifiInfo.getRssi();
+        } else {
+            return 0;
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    public static int getMobileSignalStrength(Context context) {
+        boolean missingPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
+        if (missingPermission) {
+            return 0;
+        }
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        List<CellInfo> cellInfoList = tm.getAllCellInfo();
+        if (null == cellInfoList) {
+            return 0;
+        }
+        int result = 0;
+        for (CellInfo cellInfo : cellInfoList) {
+            if (cellInfo instanceof CellInfoGsm) {
+                CellSignalStrengthGsm cellSignalStrengthGsm = ((CellInfoGsm) cellInfo).getCellSignalStrength();
+                result = cellSignalStrengthGsm.getDbm();
+            } else if (cellInfo instanceof CellInfoCdma) {
+                CellSignalStrengthCdma cellSignalStrengthCdma = ((CellInfoCdma) cellInfo).getCellSignalStrength();
+                result = cellSignalStrengthCdma.getDbm();
+            } else if (cellInfo instanceof CellInfoWcdma) {
+                CellSignalStrengthWcdma cellSignalStrengthWcdma = ((CellInfoWcdma) cellInfo).getCellSignalStrength();
+                result = cellSignalStrengthWcdma.getDbm();
+            } else if (cellInfo instanceof CellInfoLte) {
+                CellSignalStrengthLte cellSignalStrengthLte = ((CellInfoLte) cellInfo).getCellSignalStrength();
+                result = cellSignalStrengthLte.getDbm();
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (cellInfo instanceof CellInfoNr) {
+                    CellSignalStrength cellSignalStrengthNr = ((CellInfoNr) cellInfo).getCellSignalStrength();
+                    result = cellSignalStrengthNr.getDbm();
+                } else if (cellInfo instanceof CellInfoTdscdma) {
+                    CellSignalStrengthTdscdma cellSignalStrengthTdscdma = ((CellInfoTdscdma) cellInfo).getCellSignalStrength();
+                    result = cellSignalStrengthTdscdma.getDbm();
+                }
+            }
+            if (result != 0) {
+                break;
+            }
+        }
+        return result;
+    }
 }

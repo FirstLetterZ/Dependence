@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  */
 @IntDef(value = {NetworkState.NETWORK_NONE, NetworkState.NETWORK_WIFI,
         NetworkState.NETWORK_2G, NetworkState.NETWORK_3G, NetworkState.NETWORK_4G,
-        NetworkState.NETWORK_5G, NetworkState.NETWORK_UNKNOWN_MOBILE})
+        NetworkState.NETWORK_5G, NetworkState.NETWORK_UNKNOWN})
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NetworkState {
@@ -22,5 +22,5 @@ public @interface NetworkState {
     int NETWORK_3G = 3;
     int NETWORK_4G = 4;
     int NETWORK_5G = 5;
-    int NETWORK_UNKNOWN_MOBILE = 6;
+    int NETWORK_UNKNOWN = -1;
 }

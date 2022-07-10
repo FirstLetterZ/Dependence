@@ -1,6 +1,8 @@
 package com.zpf.views;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -9,6 +11,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import androidx.annotation.Nullable;
 
 import com.zpf.views.type.ITopBar;
 
@@ -27,9 +31,11 @@ public class TopBar extends ViewGroup implements ITopBar {
     private final IconTextView subtitle;
     private final IconTextView ivRight;
     private final IconTextView tvRight;
+    private Drawable bottomLineDrawable;
     private final int defTitleBarHeight;
-    private int leftPadding;
-    private int rightPadding;
+    private int statusBarHeight;
+    private int titleBarHeight;
+    private int bottomLineHeight;
 
     public TopBar(Context context) {
         this(context, null);
@@ -116,9 +122,6 @@ public class TopBar extends ViewGroup implements ITopBar {
         addView(titleLayout);
         addView(leftLayout);
         addView(rightLayout);
-
-        leftPadding = getPaddingLeft();
-        rightPadding = getPaddingRight();
         super.setPadding(0, 0, 0, 0);
     }
 
@@ -128,14 +131,12 @@ public class TopBar extends ViewGroup implements ITopBar {
         tvLeft.checkViewShow();
         ivRight.checkViewShow();
         tvRight.checkViewShow();
-        int statusBarHeight;
+        subtitle.checkViewShow();
         if (statusBar.getVisibility() == View.GONE) {
             statusBarHeight = 0;
         } else {
             statusBarHeight = statusBar.getMinimumHeight();
         }
-        int titleBarHeight;
-
         if (leftLayout.getVisibility() == View.GONE && titleLayout.getVisibility() == View.GONE && rightLayout.getVisibility() == View.GONE) {
             titleBarHeight = 0;
         } else if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) {
@@ -143,58 +144,52 @@ public class TopBar extends ViewGroup implements ITopBar {
         } else {
             titleBarHeight = defTitleBarHeight;
         }
-        int totalHeightMeasureSpec = MeasureSpec.makeMeasureSpec(statusBarHeight + titleBarHeight, MeasureSpec.EXACTLY);
-        int size = Math.max(0, MeasureSpec.getSize(widthMeasureSpec) - leftPadding - rightPadding);
+        int titleBarHeightMeasureSpec = MeasureSpec.makeMeasureSpec(titleBarHeight, MeasureSpec.EXACTLY);
+        int size = Math.max(0, MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight());
         int totalWidthMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.AT_MOST);
         if (titleLayout.getVisibility() != View.GONE) {
-            titleLayout.measure(totalWidthMeasureSpec, totalHeightMeasureSpec);
+            titleLayout.measure(totalWidthMeasureSpec, titleBarHeightMeasureSpec);
         }
         if (leftLayout.getVisibility() != View.GONE) {
-            leftLayout.measure(totalWidthMeasureSpec, totalHeightMeasureSpec);
+            leftLayout.measure(totalWidthMeasureSpec, titleBarHeightMeasureSpec);
         }
         if (rightLayout.getVisibility() != View.GONE) {
-            rightLayout.measure(totalWidthMeasureSpec, totalHeightMeasureSpec);
+            rightLayout.measure(totalWidthMeasureSpec, titleBarHeightMeasureSpec);
         }
+        int totalHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                statusBarHeight + titleBarHeight + bottomLineHeight, MeasureSpec.EXACTLY);
         super.onMeasure(widthMeasureSpec, totalHeightMeasureSpec);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int statusBarHeight = 0;
         if (statusBar.getVisibility() != View.GONE) {
-            statusBarHeight = statusBar.getMinimumHeight();
             statusBar.layout(l, t, r, t + statusBarHeight);
         }
         if (titleLayout.getVisibility() != View.GONE) {
-            titleLayout.layout(l + leftPadding, t + statusBarHeight, r - rightPadding, b);
+            titleLayout.layout(l + getPaddingLeft(), t + statusBarHeight,
+                    r - getPaddingRight(), t + statusBarHeight + titleBarHeight);
         }
         if (leftLayout.getVisibility() != View.GONE) {
-            leftLayout.layout(l + leftPadding, t + statusBarHeight,
-                    l + leftPadding + leftLayout.getMeasuredWidth(), b);
+            leftLayout.layout(l + getPaddingLeft(), t + statusBarHeight,
+                    l + getPaddingLeft() + leftLayout.getMeasuredWidth(), t + statusBarHeight + titleBarHeight);
         }
         if (rightLayout.getVisibility() != View.GONE) {
-            rightLayout.layout(r - rightPadding - rightLayout.getMeasuredWidth(),
-                    t + statusBarHeight, r - rightPadding, b);
+            rightLayout.layout(r - getPaddingRight() - rightLayout.getMeasuredWidth(),
+                    t + statusBarHeight, r - getPaddingRight(), t + statusBarHeight + titleBarHeight);
+        }
+        if (bottomLineDrawable != null) {
+            bottomLineDrawable.setBounds(l + getPaddingLeft(), b - bottomLineHeight,
+                    r - getPaddingRight(), b);
         }
     }
 
     @Override
-    public void setPadding(int left, int top, int right, int bottom) {
-        leftPadding = left;
-        rightPadding = right;
-        requestLayout();
-    }
-
-    @Override
-    public void setPaddingRelative(int start, int top, int end, int bottom) {
-        if (getLayoutDirection() == LAYOUT_DIRECTION_RTL) {
-            leftPadding = end;
-            rightPadding = start;
-        } else {
-            leftPadding = start;
-            rightPadding = end;
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (bottomLineHeight > 0 && bottomLineDrawable != null) {
+            bottomLineDrawable.draw(canvas);
         }
-        requestLayout();
     }
 
     @Override
@@ -210,6 +205,10 @@ public class TopBar extends ViewGroup implements ITopBar {
         LayoutParams layoutParams = super.getLayoutParams();
         if (layoutParams != null) {
             layoutParams.width = LayoutParams.MATCH_PARENT;
+            layoutParams.height = statusBarHeight + titleBarHeight + bottomLineHeight;
+            if (layoutParams.height == 0) {
+                layoutParams.height = LayoutParams.MATCH_PARENT;
+            }
         }
         return layoutParams;
     }
@@ -267,6 +266,16 @@ public class TopBar extends ViewGroup implements ITopBar {
     @Override
     public View getView() {
         return this;
+    }
+
+    @Override
+    public void setBottomLine(@Nullable Drawable drawable, int height) {
+        bottomLineDrawable = drawable;
+        if (drawable != null && height > 0) {
+            bottomLineHeight = height;
+        } else {
+            bottomLineHeight = 0;
+        }
     }
 
 }

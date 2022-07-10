@@ -36,18 +36,26 @@ public class ThreeLevelSelectorModel<T> implements IWheelDataModel<List<T>> {
                 @Override
                 public void onItemSelected(WheelView view, int itemIndex) {
                     selectIndex[position] = itemIndex;
+                    List<T> tempSecondColumn = secondColumn.get(selectIndex[0]);
+                    if (selectIndex[1] >= tempSecondColumn.size()) {
+                        selectIndex[1] = tempSecondColumn.size() - 1;
+                    }
+                    List<T> tempThirdColumn = thirdColumn.get(selectIndex[0]).get(selectIndex[1]);
+                    if (selectIndex[2] >= tempThirdColumn.size()) {
+                        selectIndex[2] = tempThirdColumn.size() - 1;
+                    }
                     if (linkageManager != null) {
                         int index = -1;
                         if (isRestoreItem) {
                             index = 0;
                         }
                         if (position == 0) {
-                            adapterList.get(1).changeDataSource(secondColumn.get(selectIndex[0]));
-                            adapterList.get(2).changeDataSource(thirdColumn.get(selectIndex[0]).get(selectIndex[1]));
+                            adapterList.get(1).changeDataSource(tempSecondColumn);
+                            adapterList.get(2).changeDataSource(tempThirdColumn);
                             linkageManager.notifyItemDataChanged(1, index);
                             linkageManager.notifyItemDataChanged(2, index);
                         } else if (position == 1) {
-                            adapterList.get(2).changeDataSource(thirdColumn.get(selectIndex[0]).get(selectIndex[1]));
+                            adapterList.get(2).changeDataSource(tempThirdColumn);
                             linkageManager.notifyItemDataChanged(2, index);
                         }
                     }

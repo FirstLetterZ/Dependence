@@ -14,8 +14,11 @@ public class ToastUtil {
     private static SoftReference<DefToaster> defToaster;
     private static IToaster realToaster;
 
-    //弹toast
-    public static void toast(final CharSequence msg) {
+    public static void toast(int resourceId) {
+        toast(CentralManager.getAppContext().getString(resourceId));
+    }
+
+    public static void toast(CharSequence msg) {
         try {
             getToaster().showToast(msg);
         } catch (Exception e) {
