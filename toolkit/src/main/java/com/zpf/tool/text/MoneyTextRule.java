@@ -7,7 +7,7 @@ public class MoneyTextRule implements TextRuleChecker {
     private final int decimalPlaces;
 
     public MoneyTextRule(int decimalPlaces) {
-        this.decimalPlaces=Math.max(0,decimalPlaces);
+        this.decimalPlaces = Math.max(0, decimalPlaces);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class MoneyTextRule implements TextRuleChecker {
         if (display.length() == 0) {
             display.append('0');
         }
-        value.delete(0,value.length());
+        value.delete(0, value.length());
         value.append(display);
     }
 
