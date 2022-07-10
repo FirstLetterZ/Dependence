@@ -78,7 +78,7 @@ allprojects {
                 okhttp               : 'com.squareup.okhttp3:okhttp:4.9.0',
                 glide                : 'com.github.bumptech.glide:glide:4.12.0',
                 /* ============================== 项目内工具库 ================================ */
-                api                  : 'io.github.firstletterz:api-base:0.2.6-SNAPSHOT',
+                api                  : 'io.github.firstletterz:api-base:0.2.4',
                 dataparser           : 'io.github.firstletterz:api-parse:1.0.0',
                 central              : 'io.github.firstletterz:tool-central:1.0.0',
                 file                 : 'io.github.firstletterz:tool-file:0.0.2',
