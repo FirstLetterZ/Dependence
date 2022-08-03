@@ -50,6 +50,7 @@ public class TopBar extends ViewGroup implements ITopBar {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         int minWidth = (int) (30 * metrics.density);
         defTitleBarHeight = (int) (44 * metrics.density);
+        titleBarHeight = defTitleBarHeight;
         statusBar = new StatusBar(context, attrs, defStyleAttr);
 
         leftLayout = new LinearLayout(context);
@@ -137,27 +138,24 @@ public class TopBar extends ViewGroup implements ITopBar {
         } else {
             statusBarHeight = statusBar.getMinimumHeight();
         }
-        if (leftLayout.getVisibility() == View.GONE && titleLayout.getVisibility() == View.GONE && rightLayout.getVisibility() == View.GONE) {
-            titleBarHeight = 0;
-        } else if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) {
-            titleBarHeight = MeasureSpec.getSize(heightMeasureSpec);
-        } else {
-            titleBarHeight = defTitleBarHeight;
-        }
         int titleBarHeightMeasureSpec = MeasureSpec.makeMeasureSpec(titleBarHeight, MeasureSpec.EXACTLY);
         int size = Math.max(0, MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight());
         int totalWidthMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.AT_MOST);
+        int showTitleBarHeight = 0;
         if (titleLayout.getVisibility() != View.GONE) {
             titleLayout.measure(totalWidthMeasureSpec, titleBarHeightMeasureSpec);
+            showTitleBarHeight = titleBarHeight;
         }
         if (leftLayout.getVisibility() != View.GONE) {
             leftLayout.measure(totalWidthMeasureSpec, titleBarHeightMeasureSpec);
+            showTitleBarHeight = titleBarHeight;
         }
         if (rightLayout.getVisibility() != View.GONE) {
             rightLayout.measure(totalWidthMeasureSpec, titleBarHeightMeasureSpec);
+            showTitleBarHeight = titleBarHeight;
         }
         int totalHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                statusBarHeight + titleBarHeight + bottomLineHeight, MeasureSpec.EXACTLY);
+                statusBarHeight + showTitleBarHeight + bottomLineHeight, MeasureSpec.EXACTLY);
         super.onMeasure(widthMeasureSpec, totalHeightMeasureSpec);
     }
 
@@ -275,6 +273,15 @@ public class TopBar extends ViewGroup implements ITopBar {
             bottomLineHeight = height;
         } else {
             bottomLineHeight = 0;
+        }
+    }
+
+    @Override
+    public void setTitleBarHeight(int height) {
+        if (height >= 0) {
+            this.titleBarHeight = height;
+        } else {
+            this.titleBarHeight = defTitleBarHeight;
         }
     }
 

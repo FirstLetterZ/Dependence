@@ -2,6 +2,7 @@ package com.zpf.views.window;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.Window;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import com.zpf.views.R;
  */
 public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
     protected ICustomWindowManager manager;
+    private boolean hasCreate = false;
 
     public AbsCustomDialog(@NonNull Context context) {
         this(context, R.style.customDialog);
@@ -36,6 +38,12 @@ public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
             initWindow(dialogWindow);
         }
         initView();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        hasCreate = true;
     }
 
     protected abstract void initView();
@@ -71,4 +79,7 @@ public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
         }
     }
 
+    public boolean isCreated() {
+        return hasCreate;
+    }
 }

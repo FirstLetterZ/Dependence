@@ -32,5 +32,7 @@ public interface ITopBar {
 
     void setBottomLine(@Nullable Drawable drawable, int height);
 
+    void setTitleBarHeight(int height);
+
     View getView();
 }
