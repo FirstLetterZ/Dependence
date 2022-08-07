@@ -9,6 +9,7 @@ Android工具库
 #### 单项目发布
 > ./gradlew -p global clean build publish --info
 ./gradlew -p api clean build publish --info
+./gradlew -p appstack clean build publish --info
 ./gradlew -p views clean build publish --info
 ./gradlew -p dataparser clean build publish --info
 ./gradlew -p process clean build publish --info
