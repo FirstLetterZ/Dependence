@@ -26,6 +26,7 @@ public class HashStack<A, B> {
         }
         if (node == null) {
             node = new Node<>(key, value);
+            stackMap.put(key, node);
         } else {
             node.value = value;
         }
@@ -346,10 +347,6 @@ public class HashStack<A, B> {
             currentNode = node.prev;
             HashStack.this.remove(node.key);
         }
-    }
-
-    public interface NodeStateListener {
-        void onStateChanged(boolean inStack);
     }
 
 }

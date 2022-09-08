@@ -37,6 +37,7 @@ import java.util.List;
 
 public class NetworkUtils {
     private static int mNetworkState = NetworkState.NETWORK_UNKNOWN;
+    private static long cacheTime = 0L;
     private volatile static ConnectivityManager.NetworkCallback callback;
 
     @SuppressLint("MissingPermission")
@@ -44,17 +45,6 @@ public class NetworkUtils {
         final Context appContext = context.getApplicationContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && callback == null) {
             callback = new ConnectivityManager.NetworkCallback() {
-                @Override
-                public void onAvailable(@NonNull Network network) {
-                    super.onAvailable(network);
-                    mNetworkState = NetworkState.NETWORK_UNKNOWN;
-                }
-
-                @Override
-                public void onLost(@NonNull Network network) {
-                    super.onLost(network);
-                    mNetworkState = NetworkState.NETWORK_NONE;
-                }
 
                 @Override
                 public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
@@ -71,7 +61,10 @@ public class NetworkUtils {
                         } else {
                             mNetworkState = NetworkState.NETWORK_UNKNOWN;
                         }
+                    } else {
+                        mNetworkState = NetworkState.NETWORK_NONE;
                     }
+                    cacheTime = System.currentTimeMillis();
                 }
             };
             ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -126,12 +119,22 @@ public class NetworkUtils {
         System.clearProperty("https.proxyPort");
     }
 
+    @NetworkState
+    public static int getNetworkType(Context context, boolean useCache) {
+        if (useCache && System.currentTimeMillis() - cacheTime < 3000 && mNetworkState != NetworkState.NETWORK_UNKNOWN) {
+            return mNetworkState;
+        }
+        int type = getNetworkType(context);
+        if (type != NetworkState.NETWORK_UNKNOWN) {
+            mNetworkState = type;
+            cacheTime = System.currentTimeMillis();
+        }
+        return type;
+    }
+
     @SuppressLint("MissingPermission")
     @NetworkState
     public static int getNetworkType(Context context) {
-        if (mNetworkState != NetworkState.NETWORK_UNKNOWN) {
-            return mNetworkState;
-        }
         if (null == context) {
             return NetworkState.NETWORK_UNKNOWN;
         }
@@ -141,9 +144,11 @@ public class NetworkUtils {
         if (connectivityManager != null) {
             try {
                 activeNetInfo = connectivityManager.getActiveNetworkInfo();
-                typeCode = activeNetInfo.getSubtype();
-                if (!activeNetInfo.isAvailable()) {
-                    return NetworkState.NETWORK_NONE;
+                if (activeNetInfo != null) {
+                    if (!activeNetInfo.isAvailable()) {
+                        return NetworkState.NETWORK_NONE;
+                    }
+                    typeCode = activeNetInfo.getSubtype();
                 }
             } catch (Exception e) {
                 e.printStackTrace();

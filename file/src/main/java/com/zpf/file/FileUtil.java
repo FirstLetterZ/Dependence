@@ -59,28 +59,48 @@ public class FileUtil {
     }
 
     public static String digest(String content, String algorithm, int radix) {
-        return digest(content, algorithm, radix, true);
+        if (content == null) {
+            return null;
+        }
+        return digest(content.getBytes(Charset.defaultCharset()), algorithm, radix, true);
     }
 
     public static String digest(String content, String algorithm, int radix, boolean fillZero) {
         if (content == null) {
             return null;
         }
+        return digest(content.getBytes(Charset.defaultCharset()), algorithm, radix, fillZero);
+    }
+
+    public static String digest(byte[] bytes, String algorithm, int radix) {
+        return digest(bytes, algorithm, radix, true);
+    }
+
+    public static String digest(byte[] bytes, String algorithm, int radix, boolean fillZero) {
+        if (bytes == null) {
+            return null;
+        }
+        StringBuilder result = null;
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
-            byte[] bytes = content.getBytes(Charset.defaultCharset());
             digest.update(bytes);
             BigInteger bigInteger = new BigInteger(1, digest.digest());
-            StringBuilder result = new StringBuilder(bigInteger.toString(radix));
+            result = new StringBuilder(bigInteger.toString(radix));
             if (fillZero) {
                 while (result.length() < 2 * bytes.length) {
                     result.insert(0, "0");
                 }
+            } else if (result.length() % 2 != 0) {
+                result.insert(0, "0");
             }
             return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
-            return content;
+            if (result == null) {
+                return null;
+            } else {
+                return result.toString();
+            }
         }
     }
 

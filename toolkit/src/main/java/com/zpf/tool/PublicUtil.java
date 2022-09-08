@@ -261,7 +261,7 @@ public class PublicUtil {
             if (telephonyManager != null) {
                 try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        result = telephonyManager.getMeid();
+                        result = telephonyManager.getImei();
                     } else {
                         result = telephonyManager.getDeviceId();
                     }
@@ -271,12 +271,21 @@ public class PublicUtil {
             }
         }
         if (TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) {
-            result = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            result = getAndroidId(context);
         }
         if (TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) {
             result = Build.DISPLAY;
         }
         return result;
+    }
+
+    @SuppressLint("HardwareIds")
+    public static String getAndroidId(Context context) {
+        try {
+            return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

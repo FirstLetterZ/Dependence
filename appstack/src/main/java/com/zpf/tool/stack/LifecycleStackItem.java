@@ -5,17 +5,16 @@ import androidx.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 
-public class LifecycleStackItem<T> implements IStackItem<T>, HashStack.NodeStateListener {
-
+public class LifecycleStackItem<T> implements IStackItem<T>, NodeStateListener {
     protected final String name;
     protected WeakReference<T> mInstance;
     @LifecycleState
     protected int lifecycleState = LifecycleState.NOT_INIT;
-    protected HashStack.NodeStateListener nodeStateListener;
+    protected NodeStateListener nodeStateListener;
 
     public LifecycleStackItem(String name) {
         if (name == null) {
-            throw new IllegalArgumentException("Parameter cannot be null!");
+            throw new IllegalArgumentException("stack name cannot be null!");
         }
         this.name = name;
     }
@@ -49,17 +48,12 @@ public class LifecycleStackItem<T> implements IStackItem<T>, HashStack.NodeState
         this.lifecycleState = lifecycleState;
     }
 
-    public void setNodeStateListener(HashStack.NodeStateListener nodeStateListener) {
+    public void setNodeStateListener(NodeStateListener nodeStateListener) {
         this.nodeStateListener = nodeStateListener;
     }
 
     @Override
     public void onStateChanged(boolean inStack) {
-        if (inStack) {
-            this.lifecycleState = LifecycleState.BEFORE_CREATE;
-        } else {
-            this.lifecycleState = LifecycleState.AFTER_DESTROY;
-        }
         if (this.nodeStateListener != null) {
             this.nodeStateListener.onStateChanged(inStack);
         }

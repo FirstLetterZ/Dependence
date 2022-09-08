@@ -17,6 +17,11 @@ import java.util.Map;
  */
 public class AppStackUtil {
     public static final String STACK_ITEM_NAME = "stack_item_name";
+    public static final String STACK_ITEM_RECYCLED = "stack_item_recycled";
+
+    private static class Instance {
+        private static final AppStackUtil mInstance = new AppStackUtil();
+    }
 
     private AppStackUtil() {
     }
@@ -33,73 +38,51 @@ public class AppStackUtil {
                 activity.finish();
                 return;
             }
-            ActivityStackItem stackItem = stackInfo.get(stackName);
-            if (stackItem == null) {
-                stackItem = new ActivityStackItem(stackName);
-            }
-            stackInfo.add(stackName, stackItem);
-            stackItem.setState(LifecycleState.AFTER_CREATE);
+            updateShowingStackItem(activity, LifecycleState.AFTER_CREATE);
         }
 
         @Override
         public void onActivityStarted(@NonNull Activity activity) {
-            activity.getIntent().removeExtra("onActivitySaveInstanceState");
-            String stackName = AppStackUtil.getNameInStack(activity);
-            ActivityStackItem stackItem = stackInfo.get(stackName);
-            if (stackItem == null) {
-                stackItem = new ActivityStackItem(stackName);
-            }
-            stackInfo.add(stackName, stackItem);
-            stackItem.setState(LifecycleState.AFTER_START);
+            updateShowingStackItem(activity, LifecycleState.AFTER_START);
         }
 
         @Override
         public void onActivityResumed(@NonNull Activity activity) {
-            String stackName = AppStackUtil.getNameInStack(activity);
-            ActivityStackItem stackItem = stackInfo.get(stackName);
-            if (stackItem == null) {
-                stackItem = new ActivityStackItem(stackName);
-            }
-            stackInfo.add(stackName, stackItem);
-            stackItem.setState(LifecycleState.AFTER_RESUME);
+            updateShowingStackItem(activity, LifecycleState.AFTER_RESUME);
         }
 
         @Override
         public void onActivityPaused(@NonNull Activity activity) {
-            String stackName = AppStackUtil.getNameInStack(activity);
-            ActivityStackItem stackItem = stackInfo.get(stackName);
-            if (stackItem != null) {
-                stackItem.setState(LifecycleState.AFTER_PAUSE);
-            }
+            updateHiddenStackItem(activity, LifecycleState.AFTER_PAUSE);
         }
 
         @Override
         public void onActivityStopped(@NonNull Activity activity) {
-            String stackName = AppStackUtil.getNameInStack(activity);
-            ActivityStackItem stackItem = stackInfo.get(stackName);
-            if (stackItem != null) {
-                stackItem.setState(LifecycleState.AFTER_STOP);
-            }
+            updateHiddenStackItem(activity, LifecycleState.AFTER_STOP);
         }
 
         @Override
         public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-            activity.getIntent().putExtra("onActivitySaveInstanceState", true);
+            activity.getIntent().putExtra(STACK_ITEM_RECYCLED, true);
         }
 
         @Override
         public void onActivityDestroyed(@NonNull Activity activity) {
-            String stackName = AppStackUtil.getNameInStack(activity);
-            stackInfo.remove(stackName);
-            if (activity.getIntent().getBooleanExtra("onActivitySaveInstanceState", false)) {
+            String stackName = getNameInStack(activity);
+            ActivityStackItem stackItem = stackInfo.get(stackName);
+            if (stackItem == null || stackItem.getValue() != activity) {
+                return;
+            }
+            stackItem.setState(LifecycleState.AFTER_DESTROY);
+            stackItem.update(null);
+            if (stackInfo.getLast() == stackItem ||
+                    !activity.getIntent().getBooleanExtra(STACK_ITEM_RECYCLED, false)) {
+                stackInfo.remove(stackName);
+            } else {
                 recycledStackItem.put(stackName, false);
             }
         }
     };
-
-    private static class Instance {
-        private static final AppStackUtil mInstance = new AppStackUtil();
-    }
 
     public static void init(Application application) {
         if (application != null) {
@@ -189,5 +172,25 @@ public class AppStackUtil {
         }
         stackName = obj.getClass().getName();
         return stackName;
+    }
+
+    private void updateShowingStackItem(Activity activity, int state) {
+        activity.getIntent().removeExtra(STACK_ITEM_RECYCLED);
+        String stackName = getNameInStack(activity);
+        ActivityStackItem stackItem = stackInfo.get(stackName);
+        if (stackItem == null) {
+            stackItem = new ActivityStackItem(stackName);
+        }
+        stackItem.update(activity);
+        stackInfo.add(stackName, stackItem);
+        stackItem.setState(state);
+    }
+
+    private void updateHiddenStackItem(Activity activity, int state) {
+        String stackName = getNameInStack(activity);
+        ActivityStackItem stackItem = stackInfo.get(stackName);
+        if (stackItem != null && stackItem.getValue() == activity) {
+            stackItem.setState(state);
+        }
     }
 }
