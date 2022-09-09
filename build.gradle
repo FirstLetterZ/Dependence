@@ -85,7 +85,7 @@ allprojects {
                 version              : 'io.github.firstletterz:tool-version:0.0.1',
                 fragmentManager      : 'io.github.firstletterz:tool-fragment-manager:0.1.0',
                 permission           : 'io.github.firstletterz:tool-permission:0.1.3',
-                appstack             : 'io.github.firstletterz:tool-stack:1.0.2',
+                appstack             : 'io.github.firstletterz:tool-stack:1.0.3',
                 process              : 'io.github.firstletterz:tool-process:0.1.0',
                 views                : 'io.github.firstletterz:ui-kit:0.2.6',
                 wheelpicker          : 'io.github.firstletterz:ui-picker-wheel:0.1.1',

@@ -157,7 +157,12 @@ public class AppStackUtil {
             return null;
         }
         String stackName = null;
-        StackItem annotation = obj.getClass().getAnnotation(StackItem.class);
+        StackItem annotation;
+        if (obj instanceof Class<?>) {
+            annotation = ((Class<?>) obj).getAnnotation(StackItem.class);
+        } else {
+            annotation = obj.getClass().getAnnotation(StackItem.class);
+        }
         if (annotation != null) {
             stackName = annotation.name();
         }
