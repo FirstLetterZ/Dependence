@@ -23,10 +23,8 @@
         <attr name="visibleCount" format="integer"/>
     </declare-styleable>
     <declare-styleable name="WheelsLayout">
-        <attr name="itemSize" format="integer"/>
         <attr name="itemWeights" format="string"/>
         <attr name="itemSpaceWidth" format="integer"/>
         <attr name="interceptParent" format="boolean"/>
-        <attr name="helper" format="string"/>
     </declare-styleable>
 </resources>

@@ -23,4 +23,10 @@
         android:layout_height="wrap_content"
         android:text="test" />
 
+    <com.zpf.wheelpicker.view.WheelsLayout
+        android:id="@+id/wheels"
+        app:lineSpacingMultiplier="2.2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-        compileSdkVersion 31
-        buildToolsVersion '31.0.0'
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 31
+        minSdkVersion project.minSdkVersion
+        targetSdkVersion project.targetSdkVersion
         def date = new Date()
         def dY = date.getYear() - 120//2020年开始计算
         def formattedDate = date.format('MMddHHmm')
@@ -13,27 +13,28 @@ android {
         versionCode code//2041年越界
         versionName '0.0.1'
     }
-
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
-    }
 }
 
 dependencies {
     api project.ext.dependencies.appcompat
-    api 'androidx.core:core-splashscreen:1.0.0-alpha02'
+    api project.ext.dependencies.gson
+//    api 'androidx.core:core-splashscreen:1.0.0-beta02'
 //    api project.ext.dependencies.api
 //    api project.ext.dependencies.central
 //    api 'com.zpf.android:util-retrofit:2.4.0'
 //    api 'com.squareup.okhttp3:okhttp:4.9.1'
 //    api 'com.squareup.retrofit2:retrofit:2.9.0'
     api project(':toolkit')
+    api project(":wheelpicker")
 }
 

@@ -19,7 +19,7 @@ public class AppFragmentManager implements IViewManager<String, Fragment> {
     private final IViewCreator<String, Fragment> mCreator;
     private final SparseArray<HashSet<String>> mParents = new SparseArray<>();
     private final HashMap<String, Integer> mTags = new HashMap<>();
-    private FragmentTransaction mTransaction;
+    private volatile FragmentTransaction mTransaction;
     private final HashMap<String, Fragment> waitCommitMap = new HashMap<>();
 
     public AppFragmentManager(FragmentManager fragmentManager, IViewCreator<String, Fragment> creator) {

@@ -8,3 +8,6 @@ android {
         targetSdkVersion project.targetSdkVersion
     }
 }
+dependencies {
+    compileOnly project.ext.dependencies.annotations
+}

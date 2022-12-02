@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,7 +16,7 @@ import android.view.View;
 import com.zpf.wheelpicker.R;
 import com.zpf.wheelpicker.adapter.WheelAdapter;
 import com.zpf.wheelpicker.interfaces.IPickerViewData;
-import com.zpf.wheelpicker.interfaces.IWheelItemData;
+import com.zpf.wheelpicker.interfaces.IStyledViewData;
 import com.zpf.wheelpicker.listener.LoopViewGestureListener;
 import com.zpf.wheelpicker.listener.OnBoundaryChangedListener;
 import com.zpf.wheelpicker.listener.OnItemSelectedListener;
@@ -63,8 +62,8 @@ public class WheelView extends View {
     private int maxTextHeight;
     private float itemHeight;//每行高度
 
-    private int upperBoundary = Integer.MAX_VALUE;//上边界
-    private int lowerBoundary = -1;//下边界
+    private int upperBoundary = OnBoundaryChangedListener.DEF_UPPER_INDEX;//上边界
+    private int lowerBoundary = OnBoundaryChangedListener.DEF_LOWER_INDEX;//下边界
     private int lastIndex = -1;
     // 第一条线Y坐标值
     private float firstLineY;
@@ -178,8 +177,9 @@ public class WheelView extends View {
         Rect rect = new Rect();
         WheelItemStyle itemStyle;
         for (int i = 0; i < adapter.getItemsCount(); i++) {
-            String s1 = getContentText(adapter.getItem(i));
-            itemStyle = getItemStyle(i);
+            Object item = adapter.getItem(i);
+            String s1 = getContentText(item);
+            itemStyle = getItemStyle(item, i);
             if (itemStyle.textSize > 0) {
                 paintCenterText.setTextSize(itemStyle.textSize);
             } else {
@@ -227,14 +227,23 @@ public class WheelView extends View {
         }
     }
 
-    public final void setCurrentItem(int currentItem) {
-        if (setItemPosition(currentItem)) {
-            invalidate();
-            onItemSelected();
-        }
+    public final void setSelectedIndex(int index) {
+        setSelectedIndex(index, false);
     }
 
-    public final int getCurrentItem() {
+    public final void setSelectedIndex(int index, boolean dataChanged) {
+        if (dataChanged) {
+            lastIndex = -1;
+            selectedItem = -1;
+        }
+        int realPosition = setItemPosition(index);
+        if (lastIndex != realPosition && onItemSelectedListener != null) {
+            onItemSelectedListener.onItemSelected(this, realPosition);
+        }
+        lastIndex = realPosition;
+    }
+
+    public final int getSelectedIndex() {
         if (adapter == null) {
             return 0;
         }
@@ -245,11 +254,7 @@ public class WheelView extends View {
     }
 
     public void onItemSelected() {
-        int currentItem = getCurrentItem();
-        if (setItemPosition(currentItem)) {
-            currentItem = getCurrentItem();
-            invalidate();
-        }
+        int currentItem = setItemPosition(getSelectedIndex());
         if (lastIndex != currentItem && onItemSelectedListener != null) {
             onItemSelectedListener.onItemSelected(this, currentItem);
         }
@@ -367,7 +372,7 @@ public class WheelView extends View {
                 String contentText = getContentText(showText);
                 final boolean hasContent = !TextUtils.isEmpty(contentText);
                 if (hasContent) {
-                    WheelItemStyle itemStyle = getItemStyle(showText);
+                    WheelItemStyle itemStyle = getItemStyle(showText, index);
                     //如果是label每项都显示的模式，并且item内容不为空、label 也不为空
                     if (!viewOptions.isCenterLabel && !TextUtils.isEmpty(viewOptions.label)) {
                         contentText = contentText + viewOptions.label;
@@ -530,7 +535,7 @@ public class WheelView extends View {
         return item.toString();
     }
 
-    private boolean setItemPosition(int currentItem) {
+    private int setItemPosition(int currentItem) {
         if (currentItem > upperBoundary) {
             currentItem = upperBoundary;
         } else if (currentItem < lowerBoundary) {
@@ -540,12 +545,17 @@ public class WheelView extends View {
         this.selectedItem = currentItem;
         this.initPosition = currentItem;
         totalScrollY = 0;//回归顶部，不然重设setCurrentItem的话位置会偏移的，就会显示出不对位置的数据
-        return currentChanged;
+        if (currentChanged) {
+            invalidate();
+        }
+        return getSelectedIndex();
     }
 
-    private WheelItemStyle getItemStyle(Object item) {
-        if (item instanceof IWheelItemData) {
-            return WheelItemStyle.mergeStyle(((IWheelItemData) item).getItemStyle(), viewOptions.itemStyle);
+    private WheelItemStyle getItemStyle(Object item, int index) {
+        if (item instanceof IStyledViewData) {
+            return WheelItemStyle.mergeStyle(((IStyledViewData) item).getItemStyle(), viewOptions.itemStyle);
+        } else if (index < lowerBoundary || index > upperBoundary) {
+            return WheelItemStyle.mergeStyle(WheelItemStyle.defErrorStyle, viewOptions.itemStyle);
         } else {
             return viewOptions.itemStyle;
         }
@@ -715,18 +725,23 @@ public class WheelView extends View {
 
     //设置上下限，如果选中条目发生变化则返回true
     public boolean setBoundary(int lower, int upper) {
-        int newUpperBoundary = Math.max(upper, lower);
-        int newLowerBoundary = Math.min(upper, lower);
+        int newUpperBoundary;
+        if (upper < 0) {
+            newUpperBoundary = OnBoundaryChangedListener.DEF_UPPER_INDEX;
+        } else {
+            newUpperBoundary = upper;
+        }
+        int newLowerBoundary = Math.max(lower, OnBoundaryChangedListener.DEF_LOWER_INDEX);
         if (newUpperBoundary != this.upperBoundary || newLowerBoundary != this.lowerBoundary) {
             this.upperBoundary = newUpperBoundary;
             this.lowerBoundary = newLowerBoundary;
-            int cIndex = getCurrentItem();
+            int cIndex = getSelectedIndex();
             if (cIndex > upperBoundary) {
                 cIndex = upperBoundary;
-                setCurrentItem(cIndex);
+                setSelectedIndex(cIndex);
             } else if (cIndex < lowerBoundary) {
                 cIndex = lowerBoundary;
-                setCurrentItem(cIndex);
+                setSelectedIndex(cIndex);
             }
             lastIndex = cIndex;
             if (onBoundaryChangedListener != null) {

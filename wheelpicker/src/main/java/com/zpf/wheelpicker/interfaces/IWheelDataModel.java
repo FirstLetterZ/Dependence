@@ -1,29 +1,34 @@
 package com.zpf.wheelpicker.interfaces;
 
+import androidx.annotation.Nullable;
+
 import com.zpf.wheelpicker.adapter.WheelAdapter;
 import com.zpf.wheelpicker.listener.OnBoundaryChangedListener;
 import com.zpf.wheelpicker.listener.OnItemSelectedListener;
 
 public interface IWheelDataModel<T> {
-    WheelAdapter<?> getAdapter(int position);
+    WheelAdapter<?> getAdapter(int column);
 
-    int getListSize();
+    int getSize();
 
-    OnItemSelectedListener getSelectedListener(int position);
+    @Nullable
+    OnItemSelectedListener getSelectedListener(int column);
 
-    OnBoundaryChangedListener getBoundaryListener(int position);
+    @Nullable
+    OnBoundaryChangedListener getBoundaryListener(int column);
 
-    boolean hasBoundary();
+    boolean overstepRollback();
 
-    int getSelectIndex(int position);
+    int getSelectIndex(int column);
 
-    void setBoundary(T start, T end);
+    void setBoundary(@Nullable T start, @Nullable T end);
 
-    void setInitData(T data);
+    void setInitData(@Nullable T data);
 
+    @Nullable
     T getSelectData();
 
     void refreshDataList();
 
-    void setLinkageManager(ILinkageManager manager);
+    void setLinkageManager(@Nullable ILinkageViewManager manager);
 }

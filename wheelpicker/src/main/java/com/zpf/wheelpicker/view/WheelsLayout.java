@@ -12,15 +12,14 @@ import android.widget.Space;
 import androidx.annotation.Nullable;
 
 import com.zpf.wheelpicker.R;
-import com.zpf.wheelpicker.interfaces.ILinkageManager;
+import com.zpf.wheelpicker.interfaces.ILinkageViewManager;
 import com.zpf.wheelpicker.interfaces.IWheelDataModel;
-import com.zpf.wheelpicker.listener.OnItemCreatedListener;
 import com.zpf.wheelpicker.model.WheelViewOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class WheelsLayout extends LinearLayout implements ILinkageManager {
+public class WheelsLayout extends LinearLayout implements ILinkageViewManager {
 
     private final ArrayList<WheelView> wheelViews = new ArrayList<>();
     private final ArrayList<Space> spaceViews = new ArrayList<>();
@@ -33,7 +32,6 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
     private int itemSpaceWidth;
     private boolean interceptParent;
     private boolean finishBuild = false;//是否已完成子视图构建
-    private OnItemCreatedListener createListener;
     private IWheelDataModel<?> dataManager;
 
     public WheelsLayout(Context context) {
@@ -57,13 +55,12 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
         }
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.WheelsLayout, 0, 0);
         if (array != null) {
-            itemSize = array.getInt(R.styleable.WheelsLayout_itemSize, 0);
             itemSpaceWidth = array.getInteger(R.styleable.WheelsLayout_itemSpaceWidth, 0);
             interceptParent = array.getBoolean(R.styleable.WheelsLayout_interceptParent, false);
             String weights = array.getString(R.styleable.WheelsLayout_itemWeights);
             if (weights != null && weights.length() > 0) {
                 String[] ws = weights.split("\\|");
-                if (ws != null && ws.length > 0) {
+                if (ws.length > 0) {
                     int[] weightArr = new int[ws.length];
                     try {
                         for (int i = 0; i < ws.length; i++) {
@@ -77,11 +74,6 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
             }
             array.recycle();
         }
-        initConfig(options);
-    }
-
-    protected void initConfig(WheelViewOptions options) {
-
     }
 
     @Override
@@ -124,10 +116,6 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
         return options;
     }
 
-    public void setOnWheelCreatedListener(OnItemCreatedListener createListener) {
-        this.createListener = createListener;
-    }
-
     public WheelView getItemView(int position) {
         if (position >= 0 && position < wheelViews.size()) {
             return wheelViews.get(position);
@@ -146,7 +134,7 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
         this.dataManager = dataManager;
         if (dataManager != null) {
             dataManager.setLinkageManager(this);
-            int listSize = dataManager.getListSize();
+            int listSize = dataManager.getSize();
             if (itemSize != listSize) {
                 setItemSize(listSize);
                 rebuildLayout();
@@ -168,7 +156,7 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
             wheelViews.clear();
             spaceViews.clear();
             finishBuild = true;
-            onFinishBuildChildren(0);
+            refreshViewItem();
             return;
         }
         Space itemSpace;
@@ -201,7 +189,6 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
                 itemView = wheelViews.get(i);
             }
             itemView.getViewOptions().initWithOptions(options);
-            onItemCreated(itemView, i);
             addView(itemView, itemLp);
         }
         if (spaceWidth > 0) {
@@ -222,7 +209,7 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
             spaceViews.remove(spaceViews.size() - 1);
         }
         finishBuild = true;
-        onFinishBuildChildren(wheelViews.size());
+        refreshViewItem();
     }
 
     public void refreshViewItem() {
@@ -237,17 +224,17 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
             }
             wheelView.setAdapter(dataManager.getAdapter(i));
             wheelView.setOnItemSelectedListener(dataManager.getSelectedListener(i));
-            if (dataManager.hasBoundary()) {
+            if (dataManager.overstepRollback()) {
                 wheelView.setOnBoundaryChangedListener(dataManager.getBoundaryListener(i));
             } else {
                 wheelView.setOnBoundaryChangedListener(null);
-                wheelView.setBoundary(-1, Integer.MAX_VALUE);
+                wheelView.setBoundary(-1, -1);
             }
             if (dataManager.getSelectIndex(i) >= 0) {
-                wheelView.setCurrentItem(dataManager.getSelectIndex(i));
+                wheelView.setSelectedIndex(dataManager.getSelectIndex(i));
             }
         }
-        if (dataManager.hasBoundary()) {
+        if (dataManager.overstepRollback()) {
             try {
                 getItemView(0).setBoundary(0, dataManager.getAdapter(0).getItemsCount() - 1);
             } catch (Exception e) {
@@ -277,6 +264,7 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
         return interceptParent;
     }
 
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (interceptParent) {
             if (getMeasuredHeight() > 0) {
@@ -297,50 +285,28 @@ public class WheelsLayout extends LinearLayout implements ILinkageManager {
         return super.dispatchTouchEvent(ev);
     }
 
-    protected void onItemCreated(WheelView wheelView, int position) {
-        if (createListener != null) {
-            createListener.onItemCreated(wheelView, position);
-        }
-    }
-
-    protected void onFinishBuildChildren(int childSize) {
-        if (createListener != null) {
-            createListener.onFinishBuildChildren(childSize);
-        }
-        refreshViewItem();
-    }
-
-    public boolean isFinishBuild() {
-        return finishBuild;
-    }
-
     @Override
-    public boolean changeItemBoundary(int itemPosition, int lowerBoundary, int upperBoundary) {
+    public void changeItemBoundary(int itemPosition, int lowerBoundary, int upperBoundary) {
         WheelView wheelView = getItemView(itemPosition);
-        if (wheelView == null) {
-            return false;
-        } else {
+        if (wheelView != null) {
             wheelView.setBoundary(lowerBoundary, upperBoundary);
-            return true;
         }
     }
 
     @Override
-    public boolean notifyItemDataChanged(int itemPosition, int selectItemIndex) {
+    public void notifyItemDataChanged(int itemPosition, int selectItemIndex) {
         if (itemPosition < 0) {
             //检查视图重构或者数据刷新
             setDataManager(dataManager);
-            return true;
+            return;
         }
         WheelView wheelView = getItemView(itemPosition);
-        if (wheelView == null) {
-            return false;
-        } else {
+        if (wheelView != null) {
             if (selectItemIndex >= 0) {
-                wheelView.setCurrentItem(selectItemIndex);
+                wheelView.setSelectedIndex(selectItemIndex, true);
+            } else {
+                wheelView.invalidate();
             }
-            wheelView.invalidate();
-            return true;
         }
     }
 }

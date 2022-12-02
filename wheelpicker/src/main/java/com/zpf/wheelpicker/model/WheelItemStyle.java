@@ -1,12 +1,17 @@
 package com.zpf.wheelpicker.model;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class WheelItemStyle {
-    public Typeface typeface = Typeface.MONOSPACE;;//字体样式
+    public Typeface typeface = Typeface.MONOSPACE;//字体样式
     public int textColorOut = 0;//字体颜色
     public int textColorCenter = 0;//字体颜色
     public float textSize = 0;//字体大小
+    public static final WheelItemStyle defErrorStyle = new WheelItemStyle(Color.RED, Color.RED);
 
     public WheelItemStyle() {
     }
@@ -22,7 +27,8 @@ public class WheelItemStyle {
         this.textSize = textSize;
     }
 
-    public static WheelItemStyle mergeStyle(WheelItemStyle style, WheelItemStyle defStyle) {
+    @NonNull
+    public static WheelItemStyle mergeStyle(@Nullable WheelItemStyle style, @Nullable WheelItemStyle defStyle) {
         if (defStyle == null) {
             defStyle = new WheelItemStyle();
         }

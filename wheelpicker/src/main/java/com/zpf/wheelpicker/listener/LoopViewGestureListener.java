@@ -17,7 +17,7 @@ public final class LoopViewGestureListener extends android.view.GestureDetector.
     }
 
     @Override
-    public final boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         wheelView.scrollBy(velocityY);
         return true;
     }
