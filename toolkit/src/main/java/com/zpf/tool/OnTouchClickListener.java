@@ -1,41 +1,56 @@
 package com.zpf.tool;
 
-import android.annotation.SuppressLint;
-import android.content.res.Resources;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 /**
  * Created by ZPF on 2018/11/21.
  */
 public class OnTouchClickListener implements View.OnTouchListener {
-    private long lastDownTime;
-    private float lastY, lastX;
     private final View.OnClickListener clickListener;
-    private final float shakeFilter;
+    private long downTime;
+    private float downX, downY;
+    private boolean callClick = false;
+    private int touchSlopSquare;
 
     public OnTouchClickListener(View.OnClickListener clickListener) {
         this.clickListener = clickListener;
-        shakeFilter = 5 * Resources.getSystem().getDisplayMetrics().density;
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            lastX = event.getRawX();
-            lastY = event.getRawY();
-            lastDownTime = System.currentTimeMillis();
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            if ((System.currentTimeMillis() - lastDownTime < 800)
-                    && (Math.abs(event.getRawX() - lastX) < shakeFilter)
-                    && (Math.abs(event.getRawY() - lastY) < shakeFilter)) {
-                if (clickListener != null) {
-                    clickListener.onClick(v);
+        final int action = event.getAction();
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+                if (touchSlopSquare == 0) {
+                    ViewConfiguration configuration = ViewConfiguration.get(v.getContext());
+                    int touchSlop = configuration.getScaledTouchSlop();
+                    touchSlopSquare = touchSlop * touchSlop;
                 }
-            }
-        } else if (event.getAction() != MotionEvent.ACTION_MOVE) {
-            lastDownTime = 0;
+                callClick = true;
+                downTime = System.currentTimeMillis();
+                downX = event.getX();
+                downY = event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float dx = downX - event.getX();
+                float dy = downY - event.getY();
+                if (dx * dx + dy * dy > touchSlopSquare) {
+                    callClick = false;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                long deltaTime = System.currentTimeMillis() - downTime;
+                if (callClick && deltaTime > 80 && deltaTime < 800) {
+                    if (clickListener != null) {
+                        clickListener.onClick(v);
+                    }
+                }
+                break;
+            default:
+                callClick = false;
+                break;
         }
         return false;
     }

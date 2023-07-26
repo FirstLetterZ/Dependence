@@ -118,7 +118,7 @@ public class WheelView extends View {
         } else if (density >= 3) {
             CENTER_CONTENT_OFFSET = density * 2.5F;
         }
-        viewOptions.itemStyle.textSize = 18 * density;//默认字体大小
+        viewOptions.itemStyle.textSize = 16 * density;//默认字体大小
         viewOptions.initWithTypedArray(a);
         if (a != null) {
             a.recycle();
@@ -690,6 +690,7 @@ public class WheelView extends View {
         if (!isIgnore && event.getAction() != MotionEvent.ACTION_DOWN) {
             invalidate();
         }
+        getParent().requestDisallowInterceptTouchEvent(!isIgnore);
         return true;
     }
 
@@ -703,8 +704,12 @@ public class WheelView extends View {
 
     public final void setAdapter(WheelAdapter<?> adapter) {
         this.adapter = adapter;
-        reMeasure();
-        invalidate();
+        if (measuredHeight == 0) {
+            requestLayout();
+        } else {
+            reMeasure();
+            invalidate();
+        }
     }
 
     public final WheelAdapter<?> getAdapter() {

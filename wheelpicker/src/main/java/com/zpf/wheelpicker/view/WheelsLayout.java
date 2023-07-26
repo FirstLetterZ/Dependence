@@ -47,7 +47,6 @@ public class WheelsLayout extends LinearLayout implements ILinkageViewManager {
         super(context, attrs, defStyleAttr);
         options = new WheelViewOptions();
         density = getResources().getDisplayMetrics().density;
-        options.itemStyle.textSize = 16 * density;
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WheelView, 0, 0);
         options.initWithTypedArray(a);
         if (a != null) {

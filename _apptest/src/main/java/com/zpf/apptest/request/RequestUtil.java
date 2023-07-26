@@ -1,5 +1,7 @@
 package com.zpf.apptest.request;
 
+import androidx.annotation.Nullable;
+
 import org.json.JSONObject;
 
 import java.util.Iterator;
@@ -48,5 +50,14 @@ public class RequestUtil {
             i++;
         }
         return queryBuilder.toString();
+    }
+
+    public static <P, R> void request(@Nullable String token, int type, @Nullable P param, @Nullable IResponseListener<R> callback) {
+        //根据type分发
+        //检验token
+        //检验参数
+        //查找缓存
+        //异步请求
+        //异步回调
     }
 }

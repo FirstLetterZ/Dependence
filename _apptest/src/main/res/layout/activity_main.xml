@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical">
 
     <com.zpf.views.TopBar
-        android:paddingHorizontal="16dp"
         android:layout_width="match_parent"
-        android:layout_height="80dp" />
+        android:layout_height="80dp"
+        android:paddingHorizontal="16dp" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
@@ -33,6 +34,18 @@
         android:id="@+id/fl_top"
         android:layout_width="match_parent"
         android:layout_height="80dp" />
+
+    <com.zpf.apptest.tst.RoundLayout
+        android:id="@+id/rl_view"
+        android:layout_width="50dp"
+        android:background="#D50000"
+        android:layout_height="50dp">
+
+        <View
+            android:background="#802294F2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.zpf.apptest.tst.RoundLayout>
 
     <FrameLayout
         android:id="@+id/fl_bottom"

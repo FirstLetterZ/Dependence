@@ -30,9 +30,13 @@ public class ReflectUtil {
             //static final同时修饰
             removeFinal = Modifier.isStatic(modify) && Modifier.isFinal(modify);
             if (removeFinal) {
-                modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-                modifiersField.setInt(field, modify & ~Modifier.FINAL);
+                try {
+                    modifiersField = Field.class.getDeclaredField("modifiers");
+                    modifiersField.setAccessible(true);
+                    modifiersField.setInt(field, modify & ~Modifier.FINAL);
+                } catch (NoSuchFieldException e) {
+                    field.setAccessible(true);
+                }
             }
             //按照类型调用设置方法
             Class<?> fieldType = field.getType();
@@ -97,7 +101,7 @@ public class ReflectUtil {
                 result = true;
             }
         } catch (Exception e) {
-            //
+            e.printStackTrace();
         } finally {
             try {
                 //权限还原

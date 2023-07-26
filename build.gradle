@@ -58,8 +58,8 @@ allprojects {
             force 'androidx.versionedparcelable:versionedparcelable:1.1.1'
             force 'androidx.recyclerview:recyclerview:1.2.1'
             force 'com.google.material:material:1.2.0'
-            force 'org.jetbrains.kotlin:kotlin-stdlib:1.5.31'
-            force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.5.31'
+            force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.8.10'
         }
         dependencies = [
                 annotations          : 'androidx.annotation:annotation:1.3.0',

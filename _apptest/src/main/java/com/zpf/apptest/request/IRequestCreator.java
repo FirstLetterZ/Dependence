@@ -1,6 +1,6 @@
 package com.zpf.apptest.request;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONObject;
 
@@ -8,5 +8,5 @@ import org.json.JSONObject;
  * @author Created by ZPF on 2021/6/23.
  */
 public interface IRequestCreator<T>  {
-    IRequestCall<T>  create(@NonNull JSONObject params);
+    IRequestCall<T>  create(@Nullable JSONObject params);
 }
