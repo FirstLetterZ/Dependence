@@ -14,13 +14,12 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
-
-import androidx.annotation.NonNull;
-
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+
+import androidx.annotation.NonNull;
 
 import com.zpf.tool.global.CentralManager;
 

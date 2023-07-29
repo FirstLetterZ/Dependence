@@ -1,8 +1,10 @@
 package com.zpf.tool.permission;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AppOpsManager;
 import android.app.Fragment;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -151,18 +153,18 @@ public class PermissionManager {
                 editor.commit();
             }
             if (showCustomRationale) {
-                callback(listener, false, requestCode, permissions, missPermissionList);
+                callback(listener, requestCode, permissions, missPermissionList);
                 return false;
             } else if (missPermissionList.size() > 0) {
                 int size = missPermissionList.size();
                 checker.requestPermissions(missPermissionList.toArray(new String[size]), requestCode);
                 return false;
             } else {
-                callback(listener, false, requestCode, permissions, null);
+                callback(listener, requestCode, permissions, null);
                 return true;
             }
         } else {
-            callback(listener, false, requestCode, permissions, null);
+            callback(listener, requestCode, permissions, null);
             return true;
         }
     }
@@ -189,20 +191,19 @@ public class PermissionManager {
         }
     }
 
-    private void callback(IPermissionResultListener listener, boolean formResult, int requestCode, String[] requestPermissions, @Nullable List<String> missPermissions) {
+    private void callback(IPermissionResultListener listener, int requestCode, String[] requestPermissions, @Nullable List<String> missPermissions) {
         if (listener == null && defCallBack != null) {
             listener = defCallBack.get();
         }
         if (listener != null) {
-            listener.onPermissionChecked(formResult, requestCode, requestPermissions, missPermissions);
+            listener.onPermissionChecked(false, requestCode, requestPermissions, missPermissions);
         }
     }
 
     public boolean checkWriteSetting(Context context) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.System.canWrite(context)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                        Uri.parse("package:" + context.getPackageName()));
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + context.getPackageName()));
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 return false;
@@ -214,8 +215,7 @@ public class PermissionManager {
     public boolean checkDrawOverlays(Context context) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(context)) {
-                Intent serviceIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + context.getPackageName()));
+                Intent serviceIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
                 context.startActivity(serviceIntent);
                 return false;
             }
@@ -225,25 +225,20 @@ public class PermissionManager {
 
     public boolean checkNoticeEnabled(Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
-            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(
-                    Context.NOTIFICATION_SERVICE);
+            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             return mNotificationManager != null && mNotificationManager.areNotificationsEnabled();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            AppOpsManager appOps =
-                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             ApplicationInfo appInfo = context.getApplicationInfo();
             String pkg = context.getApplicationContext().getPackageName();
             int uid = appInfo.uid;
             try {
                 Class<?> appOpsClass = Class.forName(AppOpsManager.class.getName());
-                Method checkOpNoThrowMethod = appOpsClass.getMethod("checkOpNoThrow", Integer.TYPE,
-                        Integer.TYPE, String.class);
+                Method checkOpNoThrowMethod = appOpsClass.getMethod("checkOpNoThrow", Integer.TYPE, Integer.TYPE, String.class);
                 Field opPostNotificationValue = appOpsClass.getDeclaredField("OP_POST_NOTIFICATION");
                 int value = (int) opPostNotificationValue.get(Integer.class);
-                return ((int) checkOpNoThrowMethod.invoke(appOps, value, uid, pkg)
-                        == AppOpsManager.MODE_ALLOWED);
-            } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException
-                    | InvocationTargetException | IllegalAccessException | RuntimeException e) {
+                return ((int) checkOpNoThrowMethod.invoke(appOps, value, uid, pkg) == AppOpsManager.MODE_ALLOWED);
+            } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException | InvocationTargetException | IllegalAccessException | RuntimeException e) {
                 return true;
             }
         } else {
@@ -251,13 +246,23 @@ public class PermissionManager {
         }
     }
 
+    public boolean checkNoticeChannelClosed(Context context, String channelId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (mNotificationManager == null) {
+                return true;
+            }
+            NotificationChannel channel = mNotificationManager.getNotificationChannel(channelId);
+            return channel != null && channel.getImportance() <= NotificationManager.IMPORTANCE_NONE;
+        }
+        return false;
+    }
+
     //麦克风权限
-    public boolean checkVoiceEnable() {
+    @SuppressLint("MissingPermission")
+    public boolean checkAudioRecordEnable() {
         try {
-            AudioRecord record = new AudioRecord(MediaRecorder.AudioSource.MIC, 22050,
-                    AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
-                    AudioRecord.getMinBufferSize(22050, AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                            AudioFormat.ENCODING_PCM_16BIT));
+            AudioRecord record = new AudioRecord(MediaRecorder.AudioSource.MIC, 22050, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, AudioRecord.getMinBufferSize(22050, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT));
             record.startRecording();
             int recordingState = record.getRecordingState();
             if (recordingState == AudioRecord.RECORDSTATE_STOPPED) {
