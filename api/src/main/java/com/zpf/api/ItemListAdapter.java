@@ -23,8 +23,4 @@ public interface ItemListAdapter<T> {
 
     @NonNull
     List<T> getDataList();
-
-    ItemListAdapter<T> setItemTypeManager(ItemTypeManager manager);
-
-    ItemListAdapter<T> setItemViewCreator(@Nullable ItemViewCreator creator);
 }

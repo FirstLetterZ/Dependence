@@ -1,11 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="customDialog" parent="android:Theme.Dialog">
+    <style name="CustomDialog" parent="android:Theme.Dialog">
         <item name="android:windowFrame">@null</item><!--取消默认Dialog的windowFrame框-->
         <item name="android:windowNoTitle">true</item><!--设置无标题Dialog-->
         <item name="android:backgroundDimEnabled">true</item><!--是否四周变暗-->
         <item name="android:windowIsFloating">true</item><!-- 是否悬浮在activity上 -->
         <item name="android:windowContentOverlay">@null</item><!-- 取消默认ContentOverlay背景 -->
         <item name="android:windowBackground">#00000000</item><!--取消window默认背景 不然四角会有黑影-->
+    </style>
+
+    <style name="BottomDialogAnim">
+        <item name="android:windowEnterAnimation">@anim/in_from_bottom</item>
+        <item name="android:windowExitAnimation">@anim/out_to_bottom</item>
     </style>
 </resources>

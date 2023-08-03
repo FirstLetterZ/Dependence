@@ -14,6 +14,9 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.os.VibratorManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -246,8 +249,7 @@ public class PublicUtil {
     @SuppressLint({"MissingPermission", "HardwareIds"})
     public static String getDeviceId(@NonNull Context context) {
         String result = null;
-        boolean missingPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED;
+        boolean missingPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED;
         if (!missingPermission) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 result = Build.getSerial();
@@ -356,4 +358,27 @@ public class PublicUtil {
     public static float dp2px(int dp) {
         return dp * getDisplayMetrics().density;
     }
+
+    @SuppressLint("MissingPermission")
+    public static boolean vibrateOnce(Context context, long milliseconds) {
+        Vibrator vibrator = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            VibratorManager manager = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            if (manager != null) {
+                vibrator = manager.getDefaultVibrator();
+            }
+        } else {
+            vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        }
+        if (vibrator == null || !vibrator.hasVibrator()) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            vibrator.vibrate(milliseconds);
+        }
+        return true;
+    }
+
 }

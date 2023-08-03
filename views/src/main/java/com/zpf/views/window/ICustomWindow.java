@@ -10,5 +10,7 @@ public interface ICustomWindow {
 
     boolean isShowing();
 
+    boolean isCreated();
+
     ICustomWindow setManager(ICustomWindowManager manager);
 }

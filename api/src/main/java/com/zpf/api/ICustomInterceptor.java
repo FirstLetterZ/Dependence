@@ -2,6 +2,6 @@ package com.zpf.api;
 
 import androidx.annotation.Nullable;
 
-public interface ICustomInterceptor {
-    boolean shouldIntercept(String key, @Nullable Object value);
+public interface ICustomInterceptor<T> {
+    boolean shouldIntercept(String key, @Nullable T value);
 }

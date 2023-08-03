@@ -1,4 +1,4 @@
-package com.zpf.views;
+package com.zpf.views.type;
 
 import android.graphics.Canvas;
 

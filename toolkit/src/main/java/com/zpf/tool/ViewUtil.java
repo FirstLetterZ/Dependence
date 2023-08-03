@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -173,6 +174,17 @@ public class ViewUtil {
                     return false;
                 }
             });
+        }
+    }
+
+    public static void zoomDrawable(Drawable drawable, int targetHeight) {
+        if (drawable != null && drawable.getIntrinsicHeight() > 0) {
+            if (drawable.getIntrinsicHeight() != targetHeight) {
+                float b = targetHeight * 1f / drawable.getIntrinsicHeight();
+                drawable.setBounds(0, 0, (int) (b * drawable.getIntrinsicWidth()), targetHeight);
+            } else {
+                drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            }
         }
     }
 }

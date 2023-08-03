@@ -9,7 +9,7 @@ import android.graphics.Shader;
 
 import androidx.annotation.NonNull;
 
-import com.zpf.views.IDrawingCanvasModifier;
+import com.zpf.views.type.IDrawingCanvasModifier;
 import com.zpf.views.ViewDrawingCanvas;
 
 public class ViewRoundHelper implements IDrawingCanvasModifier {

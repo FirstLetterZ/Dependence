@@ -18,7 +18,7 @@ public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
     private boolean hasCreate = false;
 
     public AbsCustomDialog(@NonNull Context context) {
-        this(context, R.style.customDialog);
+        this(context, R.style.CustomDialog);
         init();
     }
 
@@ -79,6 +79,16 @@ public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
         }
     }
 
+    @Override
+    public void dismiss() {
+        try {
+            super.dismiss();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public boolean isCreated() {
         return hasCreate;
     }
