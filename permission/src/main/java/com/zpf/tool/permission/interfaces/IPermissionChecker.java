@@ -1,6 +1,5 @@
 package com.zpf.tool.permission.interfaces;
 
-
 import android.content.Context;
 
 /**
@@ -14,7 +13,7 @@ public interface IPermissionChecker {
     boolean shouldShowRequestPermissionRationale(String p);
 
     //请求权限
-    void requestPermissions(String[] p, int code);
+    void requestPermissions(String[] p, int code, IPermissionResultListener listener);
 
     //用来检查是否拥有权限
     Context getContext();

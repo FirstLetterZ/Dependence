@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
 import android.provider.Settings;
-import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +27,6 @@ import com.zpf.tool.permission.interfaces.IPermissionResultListener;
 import com.zpf.tool.permission.model.ActivityPermissionChecker;
 import com.zpf.tool.permission.model.FragmentPermissionChecker;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,8 +40,7 @@ import java.util.List;
 public class PermissionManager {
     public static final int REQ_PERMISSION_CODE = 10001;
     public static final String PERMISSION_RECORD = "app_permission_record_file";
-    private WeakReference<IPermissionResultListener> defCallBack = null;
-    private SparseArray<WeakReference<IPermissionResultListener>> tempCallBacks = new SparseArray<>();
+    public IPermissionResultListener defCallBack = null;
     private final HashMap<Class<?>, IPermissionChecker> checkerMap = new HashMap<>();
 
     private PermissionManager() {
@@ -65,14 +62,6 @@ public class PermissionManager {
 
     public void removeChecker(Class<?> clz) {
         checkerMap.remove(clz);
-    }
-
-    public void setDefResultListener(IPermissionResultListener listener) {
-        if (listener == null) {
-            defCallBack = null;
-        } else {
-            defCallBack = new WeakReference<>(listener);
-        }
     }
 
     public int hasPermission(@NonNull Object requester, @NonNull String... permissions) {
@@ -157,7 +146,7 @@ public class PermissionManager {
                 return false;
             } else if (missPermissionList.size() > 0) {
                 int size = missPermissionList.size();
-                checker.requestPermissions(missPermissionList.toArray(new String[size]), requestCode);
+                checker.requestPermissions(missPermissionList.toArray(new String[size]), requestCode, listener);
                 return false;
             } else {
                 callback(listener, requestCode, permissions, null);
@@ -169,31 +158,9 @@ public class PermissionManager {
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        List<String> missPermissionList = new ArrayList<>();
-        for (int i = 0; i < grantResults.length; i++) {
-            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                if (permissions.length > i) {
-                    missPermissionList.add(permissions[i]);
-                }
-            }
-        }
-        IPermissionResultListener listener = null;
-        WeakReference<IPermissionResultListener> weakReference = tempCallBacks.get(requestCode);
-        if (weakReference == null) {
-            weakReference = defCallBack;
-        }
-        if (weakReference != null) {
-            listener = weakReference.get();
-        }
-        if (listener != null) {
-            listener.onPermissionChecked(true, requestCode, permissions, missPermissionList);
-        }
-    }
-
     private void callback(IPermissionResultListener listener, int requestCode, String[] requestPermissions, @Nullable List<String> missPermissions) {
-        if (listener == null && defCallBack != null) {
-            listener = defCallBack.get();
+        if (listener == null) {
+            listener = defCallBack;
         }
         if (listener != null) {
             listener.onPermissionChecked(false, requestCode, requestPermissions, missPermissions);

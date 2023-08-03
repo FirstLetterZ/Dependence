@@ -2,10 +2,13 @@ package com.zpf.tool.permission.model;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 
 import com.zpf.tool.permission.interfaces.IPermissionChecker;
+import com.zpf.tool.permission.interfaces.IPermissionResultListener;
 
 import java.lang.ref.WeakReference;
 
@@ -37,11 +40,25 @@ public class ActivityPermissionChecker implements IPermissionChecker {
     }
 
     @Override
-    public void requestPermissions(String[] p, int code) {
+    public void requestPermissions(String[] p, int code, IPermissionResultListener listener) {
         Activity activity = mReference.get();
-        if (activity != null) {
-            activity.requestPermissions(p, code);
+        if (activity == null) {
+            return;
         }
+        FragmentManager manager = activity.getFragmentManager();
+        if (manager == null) {
+            return;
+        }
+        Fragment cache = manager.findFragmentByTag(PermissionFragment.TAG);
+        PermissionFragment permissionFragment;
+        if (cache instanceof PermissionFragment) {
+            permissionFragment = (PermissionFragment) cache;
+        } else {
+            permissionFragment = new PermissionFragment();
+            manager.beginTransaction().add(permissionFragment, PermissionFragment.TAG).commitAllowingStateLoss();
+            manager.executePendingTransactions();
+        }
+        permissionFragment.callRequestPermissions(p, code, listener);
     }
 
     @Override
