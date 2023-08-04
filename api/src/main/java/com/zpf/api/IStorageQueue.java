@@ -6,7 +6,7 @@ package com.zpf.api;
 
 public interface IStorageQueue<T> {
 
-    IStorageQueue add(T name, Object value);
+    IStorageQueue<T> add(T name, Object value);
 
     boolean commit();
 }

@@ -6,4 +6,6 @@ public interface ITypeListAdapter<T> extends ItemListAdapter<T> {
     ITypeListAdapter<T> setItemTypeManager(ItemTypeManager manager);
 
     ITypeListAdapter<T> setItemViewCreator(@Nullable ItemViewCreator creator);
+
+    ITypeListAdapter<T> dispatch(int type, @Nullable Object listener);
 }

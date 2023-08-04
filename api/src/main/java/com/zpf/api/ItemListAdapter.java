@@ -8,19 +8,15 @@ import java.util.List;
 public interface ItemListAdapter<T> {
     int getSize();
 
-    ItemListAdapter<T> setItemClickListener(@Nullable OnItemClickListener itemClickListener);
-
-    ItemListAdapter<T> addItemListener(int type, @Nullable Object listener);
-
-    ItemListAdapter<T> addData(@Nullable T data);
+    @NonNull
+    List<T> getDataList();
 
     @Nullable
     T getDataAt(int position);
 
+    ItemListAdapter<T> setItemClickListener(@Nullable OnItemClickListener<T> itemClickListener);
+
     ItemListAdapter<T> addDataList(@Nullable List<T> list);
 
     ItemListAdapter<T> setDataList(@Nullable List<T> list);
-
-    @NonNull
-    List<T> getDataList();
 }
