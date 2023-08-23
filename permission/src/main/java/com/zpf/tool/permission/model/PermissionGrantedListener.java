@@ -7,7 +7,7 @@ import com.zpf.tool.permission.interfaces.IPermissionResultListener;
 
 import java.util.List;
 
-abstract class PermissionSuccessListener implements IPermissionResultListener {
+public abstract class PermissionGrantedListener implements IPermissionResultListener {
     @Override
     public void onPermissionChecked(boolean formResult, int requestCode, String[] requestPermissions, @Nullable List<String> missPermissions) {
         if (missPermissions == null || missPermissions.size() == 0) {
