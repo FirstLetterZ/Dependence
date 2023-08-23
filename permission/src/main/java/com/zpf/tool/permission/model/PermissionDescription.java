@@ -1,11 +1,9 @@
-package com.zpf.tool.permission;
+package com.zpf.tool.permission.model;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.Nullable;
-
-import com.zpf.tool.permission.model.PermissionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

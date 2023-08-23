@@ -18,16 +18,20 @@ public class SchemeParseResult {
 
     public final String originalUrl;
     public final int errCode;
-    public String scheme;
-    public String host;
+    public final String scheme;
+    public final String host;
+    public final String fullPath;
     public String port;
     public String fragment;
-    public List<String> pathSegments = new ArrayList<>();
-    public Map<String, String> params = new HashMap<>();
+    public final List<String> pathSegments = new ArrayList<>();
+    public final Map<String, String> params = new HashMap<>();
 
     public SchemeParseResult(String originalUrl) {
         this.originalUrl = originalUrl;
         if (originalUrl == null || originalUrl.length() == 0) {
+            scheme = null;
+            host = null;
+            fullPath = null;
             errCode = ERROR_INIT;
             return;
         }
@@ -37,6 +41,8 @@ public class SchemeParseResult {
         int index = 0;
         int start = 0;
         String key = null;
+        String tempScheme = null;
+        String tempHost = null;
         char c;
         while (parseCode == 0 && index < chars.length) {
             c = chars[index];
@@ -45,7 +51,7 @@ public class SchemeParseResult {
                     parseCode = ERROR_PARSE_SCHEME;
                 } else if (c == ':') {
                     if (index > start && index + 2 < chars.length && chars[index + 1] == '/' && chars[index + 2] == '/') {
-                        scheme = new String(chars, start, index - start);
+                        tempScheme = new String(chars, start, index - start);
                         rule = ERROR_PARSE_HOST;
                         index = index + 3;
                         start = index;
@@ -58,7 +64,7 @@ public class SchemeParseResult {
             } else if (rule == ERROR_PARSE_HOST) {
                 if (c == '/') {
                     if (index > start) {
-                        host = new String(chars, start, index - start);
+                        tempHost = new String(chars, start, index - start);
                         rule = ERROR_PARSE_PATH;
                         index = index + 1;
                         start = index;
@@ -67,7 +73,7 @@ public class SchemeParseResult {
                     }
                 } else if (c == ':') {
                     if (index > start) {
-                        host = new String(chars, start, index - start);
+                        tempHost = new String(chars, start, index - start);
                         rule = ERROR_PARSE_PORT;
                         index = index + 1;
                         start = index;
@@ -75,7 +81,7 @@ public class SchemeParseResult {
                         parseCode = ERROR_PARSE_HOST;
                     }
                 } else if (index == chars.length - 1) {
-                    host = new String(chars, start, index - start);
+                    tempHost = new String(chars, start, index - start);
                     break;
                 } else {
                     index++;
@@ -164,6 +170,16 @@ public class SchemeParseResult {
                 }
             }
         }
+        StringBuilder builder = new StringBuilder();
+        for (String s : pathSegments) {
+            if (builder.length() > 0) {
+                builder.append("/");
+            }
+            builder.append(s);
+        }
+        scheme = tempScheme;
+        host = tempHost;
+        fullPath = builder.toString();
         errCode = parseCode;
     }
 
@@ -178,8 +194,8 @@ public class SchemeParseResult {
                 ", scheme='" + scheme + '\'' +
                 ", host='" + host + '\'' +
                 ", port='" + port + '\'' +
+                ", fullPath='" + fullPath + '\'' +
                 ", fragment='" + fragment + '\'' +
-                ", pathSegments=" + pathSegments +
                 ", params=" + params +
                 '}';
     }

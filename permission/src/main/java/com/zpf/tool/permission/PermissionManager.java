@@ -92,19 +92,19 @@ public class PermissionManager {
         }
     }
 
-    public boolean checkPermission(@NonNull Object requester, @NonNull String... permissions) {
-        return checkPermission(requester, REQ_PERMISSION_CODE, null, permissions);
+    public boolean checkPermission(@NonNull Object requester, @NonNull String[] permissions) {
+        return checkPermission(requester, REQ_PERMISSION_CODE, permissions, null);
     }
 
-    public boolean checkPermission(@NonNull Object requester, @Nullable IPermissionResultListener listener, @NonNull String... permissions) {
-        return checkPermission(requester, REQ_PERMISSION_CODE, listener, permissions);
+    public boolean checkPermission(@NonNull Object requester, @NonNull String[] permissions, @Nullable IPermissionResultListener listener) {
+        return checkPermission(requester, REQ_PERMISSION_CODE, permissions, listener);
     }
 
-    public boolean checkPermission(@NonNull Object requester, int requestCode, @NonNull String... permissions) {
-        return checkPermission(requester, requestCode, null, permissions);
+    public boolean checkPermission(@NonNull Object requester, int requestCode, @NonNull String[] permissions) {
+        return checkPermission(requester, requestCode, permissions, null);
     }
 
-    public boolean checkPermission(@NonNull Object requester, int requestCode, @Nullable IPermissionResultListener listener, @NonNull String... permissions) {
+    public boolean checkPermission(@NonNull Object requester, int requestCode, @NonNull String[] permissions, @Nullable IPermissionResultListener listener) {
         if (Build.VERSION.SDK_INT >= 23) {
             IPermissionChecker checker = null;
             for (IPermissionChecker c : checkerMap.values()) {
@@ -164,6 +164,13 @@ public class PermissionManager {
         }
         if (listener != null) {
             listener.onPermissionChecked(false, requestCode, requestPermissions, missPermissions);
+        }
+    }
+
+    public void callDefaultCallBack(boolean formResult, int requestCode, String[] requestPermissions, @Nullable List<String> missPermission) {
+        IPermissionResultListener listener = defCallBack;
+        if (listener != null) {
+            listener.onPermissionChecked(formResult, requestCode, requestPermissions, missPermission);
         }
     }
 

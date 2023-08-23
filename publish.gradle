@@ -77,7 +77,7 @@ logger.info("===================================================================
 task javadoc(type: Javadoc) {
     options.encoding = "UTF-8"
     source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

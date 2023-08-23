@@ -18,7 +18,7 @@ import com.zpf.views.R;
  * @author ZPF
  * 2018/07/10.
  */
-public final class IosStyleDialog extends AbsCustomDialog {
+public class IosStyleDialog extends AbsCustomDialog {
     private ImageView ivIcon;
     private TextView tvMessage;
     private TextView tvCancel;

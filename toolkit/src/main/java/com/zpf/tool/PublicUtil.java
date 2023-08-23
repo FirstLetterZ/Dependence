@@ -88,6 +88,39 @@ public class PublicUtil {
         return versionName;
     }
 
+    public static int compareToAppVersion(Context context, String versionName) {
+        if (versionName == null || versionName.length() < 1) {
+            return -1;
+        }
+        String[] appVersionParts = getVersionName(context).split("\\.");
+        String[] compareVersionParts = versionName.split("\\.");
+        int maxLen = Math.max(appVersionParts.length, compareVersionParts.length);
+        int appVersion;
+        int compareVersion;
+        for (int i = 0; i < maxLen; i++) {
+            appVersion = 0;
+            if (i < appVersionParts.length) {
+                try {
+                    appVersion = Integer.parseInt(appVersionParts[i]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            compareVersion = 0;
+            if (i < compareVersionParts.length) {
+                try {
+                    compareVersion = Integer.parseInt(compareVersionParts[i]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if (appVersion != compareVersion) {
+                return compareVersion - appVersion;
+            }
+        }
+        return 0;
+    }
+
     public static String getAppName(Context context) {
         String name = "当前应用";
         if (context != null) {
