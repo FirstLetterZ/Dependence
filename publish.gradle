@@ -76,6 +76,7 @@ logger.info("===================================================================
 
 task javadoc(type: Javadoc) {
     options.encoding = "UTF-8"
+    failOnError false
     source = android.sourceSets.main.java.srcDirs
 //    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }

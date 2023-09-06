@@ -27,7 +27,8 @@ public class FileUriUtil {
     public static final String PROVIDER_NAME = "androidx.core.content.FileProvider";
     public static final String PROVIDER_SUFFIX = "FileProvider";
 
-    public static Uri pathToUri(@NonNull Context context, @NonNull File file) {
+    //should add "-keep public class androidx.core.content.FileProvider{*;}" in "proguard-rules.pro"
+    public static Uri getFileUri(@NonNull Context context, @NonNull File file) {
         if (Build.VERSION.SDK_INT <= 19) {
             return Uri.fromFile(file);
         }
