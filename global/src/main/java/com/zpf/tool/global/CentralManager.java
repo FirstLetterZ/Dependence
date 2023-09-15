@@ -15,7 +15,7 @@ public class CentralManager {
 
     private static Context appContext;
     private static boolean debuggable;
-    private static boolean openDebug;
+    private static int debugFlag = 0;
     private static final ConcurrentHashMap<String, ICentralOperator> operatorMap = new ConcurrentHashMap<>();
     private static ICentralOperator realManager;
 
@@ -25,16 +25,23 @@ public class CentralManager {
         realManager = admin;
     }
 
-    public static void openDebug(boolean open) {
-        openDebug = open;
+    public static void openDebugMode(boolean open) {
+        if (debugFlag != 0) {
+            return;
+        }
+        if (open) {
+            debugFlag = 1;
+        } else {
+            debugFlag = -1;
+        }
     }
 
     public static Context getAppContext() {
         return appContext;
     }
 
-    public static boolean isDebug() {
-        return debuggable && openDebug;
+    public static boolean isDebugMode() {
+        return debugFlag > 0;
     }
 
     public static boolean debuggable() {

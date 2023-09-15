@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-//apply from: '../publish.gradle'
+apply from: '../publish.gradle'
 android {
     compileSdkVersion project.compileSdkVersion
     buildToolsVersion project.buildToolsVersion

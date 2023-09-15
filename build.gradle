@@ -78,7 +78,7 @@ allprojects {
                 /* ============================== 项目内工具库 ================================ */
                 api                  : 'io.github.firstletterz:api-base:0.3.0',
                 dataparser           : 'io.github.firstletterz:api-parse:1.0.0',
-                central              : 'io.github.firstletterz:tool-central:1.0.0',
+                central              : 'io.github.firstletterz:tool-central:1.0.1',
                 file                 : 'io.github.firstletterz:tool-file:0.1.1',
                 version              : 'io.github.firstletterz:tool-version:0.0.1',
                 fragmentManager      : 'io.github.firstletterz:tool-fragment-manager:0.1.0',
