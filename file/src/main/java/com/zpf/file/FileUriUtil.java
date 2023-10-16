@@ -46,9 +46,11 @@ public class FileUriUtil {
         if (fileUri != null) {
             return fileUri;
         }
-        ContentValues contentValues = new ContentValues(1);
-        contentValues.put("_data", file.getAbsolutePath());
         ContentResolver resolver = context.getContentResolver();
+        ContentValues contentValues = new ContentValues(1);
+        fileUri = createMediaUri(resolver, file.getName(), FileTypeUtil.getFileMimeType(file));
+        contentValues.put(MediaStore.MediaColumns.DATA, file.getAbsolutePath());
+
         fileUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
         if (fileUri == null) {
             fileUri = resolver.insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI, contentValues);
@@ -88,6 +90,50 @@ public class FileUriUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static Uri createMediaUri(ContentResolver resolver, String fileName, String mimeType) {
+        String saveDirectory = Environment.DIRECTORY_DOWNLOADS;
+        Uri insertUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            insertUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+        } else {
+            insertUri = Uri.parse("content://downloads/public_downloads");
+        }
+        if (mimeType != null) {
+            String lowercaseType = mimeType.toLowerCase();
+            if (lowercaseType.startsWith("image")) {
+                saveDirectory = Environment.DIRECTORY_PICTURES;
+                insertUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            } else if (lowercaseType.startsWith("video")) {
+                saveDirectory = Environment.DIRECTORY_MOVIES;
+                insertUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+            } else if (lowercaseType.startsWith("audio")) {
+                saveDirectory = Environment.DIRECTORY_MUSIC;
+                insertUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            } else {
+                saveDirectory = Environment.DIRECTORY_DOCUMENTS;
+                insertUri = MediaStore.Files.getContentUri("external");
+            }
+        } else {
+            mimeType = "*/*";
+        }
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+        values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.put(MediaStore.MediaColumns.DATE_TAKEN, System.currentTimeMillis());
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, saveDirectory);
+        } else {
+            String saveFilePath = Environment.getExternalStoragePublicDirectory(saveDirectory).getAbsolutePath() + File.separator + fileName;
+            File pf = new File(saveFilePath).getParentFile();
+            if (pf != null && !pf.exists()) {
+                pf.mkdirs();
+            }
+            values.put(MediaStore.MediaColumns.DATA, saveFilePath);
+        }
+        return resolver.insert(insertUri, values);
     }
 
     /**

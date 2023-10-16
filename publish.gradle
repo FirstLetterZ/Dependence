@@ -74,21 +74,22 @@ logger.info("version=$libVersion")
 logger.info("packaging=$libPackaging")
 logger.info("==================================================================================")
 
-task javadoc(type: Javadoc) {
+tasks.register('javadoc', Javadoc) {
     options.encoding = "UTF-8"
     failOnError false
     source = android.sourceSets.main.java.srcDirs
 //    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register('javadocJar', Jar) {
+    dependsOn javadoc
     from javadoc.destinationDir
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier 'sources'
+    archiveClassifier.set('sources')
 }
 
 publishing {
@@ -100,7 +101,7 @@ publishing {
             if (libPackaging == 'jar') {
                 artifact sourcesJar//需要上传的source
                 artifact javadocJar//需要上传的doc
-                artifact("$buildDir/intermediates/runtime_library_classes_jar/${libType}/classes.jar")
+                artifact("$buildDir/intermediates/aar_main_jar/${libType}/classes.jar")
             } else {
                 artifact("$buildDir/outputs/aar/${project.getName()}-${libType}.aar")
             }

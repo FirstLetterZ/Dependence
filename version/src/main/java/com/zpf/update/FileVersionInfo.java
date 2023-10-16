@@ -19,9 +19,9 @@ public class FileVersionInfo {
     public FileVersionInfo() {
     }
 
-    public FileVersionInfo(String name, String spString) {
+    public FileVersionInfo(String name, String jsonString) {
         try {
-            JSONObject versionInfo = new JSONObject(spString);
+            JSONObject versionInfo = new JSONObject(jsonString);
             fileName = versionInfo.optString("fileName");
             versionCode = versionInfo.optInt("versionCode");
             versionName = versionInfo.optString("versionName");

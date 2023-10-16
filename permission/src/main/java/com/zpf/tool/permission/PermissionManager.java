@@ -8,7 +8,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
@@ -39,7 +38,6 @@ import java.util.List;
  */
 public class PermissionManager {
     public static final int REQ_PERMISSION_CODE = 10001;
-    public static final String PERMISSION_RECORD = "app_permission_record_file";
     public IPermissionResultListener defCallBack = null;
     private final HashMap<Class<?>, IPermissionChecker> checkerMap = new HashMap<>();
 
@@ -64,7 +62,7 @@ public class PermissionManager {
         checkerMap.remove(clz);
     }
 
-    public int hasPermission(@NonNull Object requester, @NonNull String... permissions) {
+    public int hasPermission(@NonNull Object requester, @NonNull String[] permissions) {
         if (Build.VERSION.SDK_INT >= 23) {
             Context context = null;
             if (requester instanceof Context) {
@@ -105,7 +103,7 @@ public class PermissionManager {
     }
 
     public boolean checkPermission(@NonNull Object requester, int requestCode, @NonNull String[] permissions, @Nullable IPermissionResultListener listener) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23 && permissions.length > 0) {
             IPermissionChecker checker = null;
             for (IPermissionChecker c : checkerMap.values()) {
                 if (c.shouldHandleRequest(requester)) {
@@ -122,52 +120,35 @@ public class PermissionManager {
                 return false;
             }
             List<String> missPermissionList = new ArrayList<>();
-            SharedPreferences.Editor editor = null;
-            SharedPreferences sp = context.getSharedPreferences(PERMISSION_RECORD, 0);
-            boolean showCustomRationale = false;
             for (String per : permissions) {
                 if (context.checkPermission(per, Process.myPid(), Process.myUid()) != PackageManager.PERMISSION_GRANTED) {
-                    if (sp != null && !sp.getBoolean(per, false)) {
-                        if (editor == null) {
-                            editor = sp.edit();
-                        }
-                        editor.putBoolean(per, true);
-                    } else if (!checker.shouldShowRequestPermissionRationale(per)) {
-                        showCustomRationale = true;
-                    }
                     missPermissionList.add(per);
                 }
             }
-            if (editor != null) {
-                editor.commit();
-            }
-            if (showCustomRationale) {
-                callback(listener, requestCode, permissions, missPermissionList);
-                return false;
-            } else if (missPermissionList.size() > 0) {
+            if (missPermissionList.size() > 0) {
                 int size = missPermissionList.size();
                 checker.requestPermissions(missPermissionList.toArray(new String[size]), requestCode, listener);
                 return false;
             } else {
-                callback(listener, requestCode, permissions, null);
+                callSuccess(listener, requestCode, permissions);
                 return true;
             }
         } else {
-            callback(listener, requestCode, permissions, null);
+            callSuccess(listener, requestCode, permissions);
             return true;
         }
     }
 
-    private void callback(IPermissionResultListener listener, int requestCode, String[] requestPermissions, @Nullable List<String> missPermissions) {
+    private void callSuccess(IPermissionResultListener listener, int requestCode, @NonNull String[] requestPermissions) {
         if (listener == null) {
             listener = defCallBack;
         }
         if (listener != null) {
-            listener.onPermissionChecked(false, requestCode, requestPermissions, missPermissions);
+            listener.onPermissionChecked(false, requestCode, requestPermissions, null);
         }
     }
 
-    public void callDefaultCallBack(boolean formResult, int requestCode, String[] requestPermissions, @Nullable List<String> missPermission) {
+    public void callDefaultCallBack(boolean formResult, int requestCode, @NonNull String[] requestPermissions, @Nullable List<String> missPermission) {
         IPermissionResultListener listener = defCallBack;
         if (listener != null) {
             listener.onPermissionChecked(formResult, requestCode, requestPermissions, missPermission);
@@ -212,7 +193,8 @@ public class PermissionManager {
                 Field opPostNotificationValue = appOpsClass.getDeclaredField("OP_POST_NOTIFICATION");
                 int value = (int) opPostNotificationValue.get(Integer.class);
                 return ((int) checkOpNoThrowMethod.invoke(appOps, value, uid, pkg) == AppOpsManager.MODE_ALLOWED);
-            } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException | InvocationTargetException | IllegalAccessException | RuntimeException e) {
+            } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException |
+                     InvocationTargetException | IllegalAccessException | RuntimeException e) {
                 return true;
             }
         } else {

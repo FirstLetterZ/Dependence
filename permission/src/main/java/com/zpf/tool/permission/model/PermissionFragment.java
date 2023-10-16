@@ -4,6 +4,8 @@ import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import com.zpf.tool.permission.PermissionManager;
 import com.zpf.tool.permission.interfaces.IPermissionResultListener;
 
@@ -21,7 +23,8 @@ public class PermissionFragment extends Fragment {
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
         List<String> missPermissionList = new ArrayList<>();
         for (int i = 0; i < grantResults.length; i++) {
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {

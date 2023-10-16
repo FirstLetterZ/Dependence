@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 
 import java.io.File;
@@ -36,7 +35,7 @@ public class FileSaveUtil {
             }
         }
         ContentResolver resolver = context.getContentResolver();
-        Uri uri = insertImageMedia(resolver, displayName, mimeType);
+        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType);
         if (uri == null) {
             return null;
         }
@@ -51,6 +50,10 @@ public class FileSaveUtil {
         if (!FileIOUtil.writeStream(inputStream, outputStream)) {
             resolver.delete(uri, null, null);
             return null;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.IS_PENDING, 0);
+            resolver.update(uri, values, null, null);
         }
         return uri;
     }
@@ -72,7 +75,7 @@ public class FileSaveUtil {
             }
         }
         ContentResolver resolver = context.getContentResolver();
-        Uri uri = insertImageMedia(resolver, displayName, mimeType);
+        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType);
         if (uri == null) {
             return null;
         }
@@ -87,58 +90,50 @@ public class FileSaveUtil {
         if (!FileIOUtil.writeStream(inputStream, outputStream)) {
             resolver.delete(uri, null, null);
             return null;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.IS_PENDING, 0);
+            resolver.update(uri, values, null, null);
         }
         return uri;
     }
 
-    private static Uri insertImageMedia(ContentResolver resolver, String fileName, String mimeType) {
-        String saveDirectory = Environment.DIRECTORY_DOWNLOADS;
-        Uri insertUri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            insertUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-        } else {
-            insertUri = Uri.parse("content://downloads/public_downloads");
-        }
-        if (mimeType != null) {
-            String lowercaseType = mimeType.toLowerCase();
-            if (lowercaseType.startsWith("image")) {
-                saveDirectory = Environment.DIRECTORY_PICTURES;
-                insertUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            } else if (lowercaseType.startsWith("video")) {
-                saveDirectory = Environment.DIRECTORY_MOVIES;
-                insertUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-            } else if (lowercaseType.startsWith("audio")) {
-                saveDirectory = Environment.DIRECTORY_MUSIC;
-                insertUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            }
-        } else {
-            mimeType = "*/*";
-        }
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-        values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
-        values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            values.put(MediaStore.MediaColumns.DATE_TAKEN, System.currentTimeMillis());
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, saveDirectory);
-        } else {
-            String saveFilePath = Environment.getExternalStoragePublicDirectory(saveDirectory).getAbsolutePath() + File.separator + fileName;
-            File pf = new File(saveFilePath).getParentFile();
-            if (pf != null && !pf.exists()) {
-                pf.mkdirs();
-            }
-            values.put(MediaStore.MediaColumns.DATA, saveFilePath);
-        }
-        return resolver.insert(insertUri, values);
-    }
-
-    public static boolean saveBitmap(Bitmap bitmap, File destFile) {
+    public static boolean saveBitmap(Bitmap bitmap, Bitmap.CompressFormat format, File destFile) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(destFile);
-            if (bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)) {
+            Bitmap.CompressFormat compressFormat;
+            if (format == null) {
+                compressFormat = Bitmap.CompressFormat.PNG;
+            } else {
+                compressFormat = format;
+            }
+            if (bitmap.compress(compressFormat, 100, out)) {
                 out.flush();
             }
+            FileIOUtil.quickClose(out);
+            return true;
+        } catch (Exception e) {
+            FileIOUtil.quickClose(out);
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean saveBitmap(Bitmap bitmap, Bitmap.CompressFormat format, Context context, Uri destUri) {
+        OutputStream out = null;
+        try {
+            out = context.getContentResolver().openOutputStream(destUri);
+            Bitmap.CompressFormat compressFormat;
+            if (format == null) {
+                compressFormat = Bitmap.CompressFormat.PNG;
+            } else {
+                compressFormat = format;
+            }
+            if (bitmap.compress(compressFormat, 100, out)) {
+                out.flush();
+            }
+            FileIOUtil.quickClose(out);
             return true;
         } catch (Exception e) {
             FileIOUtil.quickClose(out);
