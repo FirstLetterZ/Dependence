@@ -1,8 +1,10 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
+    namespace 'com.zpf.aaa'
+    compileSdk project.compileSdkVersion
     defaultConfig {
         minSdkVersion project.minSdkVersion
         targetSdkVersion project.targetSdkVersion
@@ -26,8 +28,8 @@ android {
 }
 
 dependencies {
-    api project.ext.dependencies.appcompat
-    api project.ext.dependencies.gson
+    api rootProject.ext.dependencies.appcompat
+    api rootProject.ext.dependencies.gson
 //    api 'androidx.core:core-splashscreen:1.0.0-beta02'
 //    api project.ext.dependencies.api
 //    api project.ext.dependencies.central
@@ -35,6 +37,6 @@ dependencies {
 //    api 'com.squareup.okhttp3:okhttp:4.9.1'
 //    api 'com.squareup.retrofit2:retrofit:2.9.0'
     api project(':toolkit')
-    api project(":wheelpicker")
+    api project(':wheelpicker')
 }
 

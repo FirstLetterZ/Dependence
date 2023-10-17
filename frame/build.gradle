@@ -12,6 +12,6 @@ android {
 dependencies {
 //    api project.ext.dependencies.api
     api project(":api")
-    compileOnly project.ext.dependencies.annotations
-    compileOnly project.ext.dependencies.central
+    compileOnly rootProject.ext.dependencies.annotations
+    compileOnly rootProject.ext.dependencies.central
 }

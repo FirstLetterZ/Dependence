@@ -1,8 +1,10 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
+    namespace "com.example.apptest"
+    compileSdk project.compileSdkVersion
     defaultConfig {
         minSdkVersion project.minSdkVersion
         targetSdkVersion project.targetSdkVersion
@@ -26,7 +28,7 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     api project(":api")
     api project(":views")
-    api project.ext.dependencies.central
-    api project.ext.dependencies.appcompat
+    api rootProject.ext.dependencies.central
+    api rootProject.ext.dependencies.appcompat
 }
 

@@ -1,12 +1,12 @@
-#!/bin/s
+#!/bin/sh
 #modelName="global"
 #modelName="api"
 #modelName="views"
 #modelName="dataparser"
 #modelName="process"
-modelName="permission"
+#modelName="permission"
 #modelName="appstack"
-#modelName="file"
+modelName="file"
 #modelName="fingerprint"
 #modelName="fragmentManager"
 #modelName="wheelpicker"

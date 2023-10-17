@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 //apply from: '../publish.gradle'
 android {
+    namespace  'com.zpf.tool.compat.fragment'
     compileSdkVersion project.compileSdkVersion
     buildToolsVersion project.buildToolsVersion
     defaultConfig {
@@ -10,17 +11,17 @@ android {
 }
 
 dependencies {
-    compileOnly(project.ext.dependencies.fragment)
+    compileOnly(rootProject.ext.dependencies.fragment)
             {
                 exclude group: 'androidx.core'
             }
-    compileOnly(project.ext.dependencies.collection)
-    compileOnly(project.ext.dependencies.versionedparcelable)
-    compileOnly(project.ext.dependencies.core) {
+    compileOnly(rootProject.ext.dependencies.collection)
+    compileOnly(rootProject.ext.dependencies.versionedparcelable)
+    compileOnly(rootProject.ext.dependencies.core) {
         exclude group: 'androidx.arch.core'
         exclude group: 'androidx.collection'
         exclude group: 'androidx.lifecycle'
         exclude group: 'androidx.versionedparcelable'
     }
-    api project.ext.dependencies.fragmentManager
+    api rootProject.ext.dependencies.fragmentManager
 }

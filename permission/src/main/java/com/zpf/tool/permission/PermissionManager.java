@@ -8,6 +8,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
@@ -120,26 +121,43 @@ public class PermissionManager {
                 return false;
             }
             List<String> missPermissionList = new ArrayList<>();
+            SharedPreferences.Editor editor = null;
+            SharedPreferences sp = context.getSharedPreferences("permission_manager_check_record", 0);
+            boolean showCustomRationale = false;
             for (String per : permissions) {
                 if (context.checkPermission(per, Process.myPid(), Process.myUid()) != PackageManager.PERMISSION_GRANTED) {
+                    if (sp != null && !sp.getBoolean(per, false)) {
+                        if (editor == null) {
+                            editor = sp.edit();
+                        }
+                        editor.putBoolean(per, true);
+                    } else if (!checker.shouldShowRequestPermissionRationale(per)) {
+                        showCustomRationale = true;
+                    }
                     missPermissionList.add(per);
                 }
             }
-            if (missPermissionList.size() > 0) {
+            if (editor != null) {
+                editor.commit();
+            }
+            if (showCustomRationale) {
+                callback(listener, requestCode, permissions, missPermissionList);
+                return false;
+            } else if (missPermissionList.size() > 0) {
                 int size = missPermissionList.size();
                 checker.requestPermissions(missPermissionList.toArray(new String[size]), requestCode, listener);
                 return false;
             } else {
-                callSuccess(listener, requestCode, permissions);
+                callback(listener, requestCode, permissions, null);
                 return true;
             }
         } else {
-            callSuccess(listener, requestCode, permissions);
+            callback(listener, requestCode, permissions, null);
             return true;
         }
     }
 
-    private void callSuccess(IPermissionResultListener listener, int requestCode, @NonNull String[] requestPermissions) {
+    private void callback(IPermissionResultListener listener, int requestCode, String[] requestPermissions, @Nullable List<String> missPermissions) {
         if (listener == null) {
             listener = defCallBack;
         }

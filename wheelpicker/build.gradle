@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply from: '../publish.gradle'
 android {
+    namespace 'com.zpf.wheelpicker'
     compileSdkVersion project.compileSdkVersion
     buildToolsVersion project.buildToolsVersion
     defaultConfig {
@@ -10,5 +11,5 @@ android {
 }
 
 dependencies {
-    compileOnly project.ext.dependencies.annotations
+    compileOnly rootProject.ext.dependencies.annotations
 }

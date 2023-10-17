@@ -1,102 +1,73 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    repositories {
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        maven { url 'https://maven.aliyun.com/repository/jcenter' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+plugins {
+    id 'com.android.application' version '8.1.0' apply false
+    id 'com.android.library' version '8.1.0' apply false
+    id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
+}
+ext {
+    compileSdkVersion = 33
+    buildToolsVersion = '33.0.1'
+    minSdkVersion = 19
+    targetSdkVersion = 33
+    dependencies = [
+            annotations          : 'androidx.annotation:annotation:1.3.0',
+            activity             : 'androidx.activity:activity:1.4.0',
+            core                 : 'androidx.core:core:1.8.0',//包含'androidx.arch.core'， 'androidx.collection'， 'androidx.lifecycle'， 'androidx.versionedparcelable'
+            versionedparcelable  : 'androidx.versionedparcelable:versionedparcelable:1.1.1',
+            collection           : 'androidx.collection:collection:1.2.0',
+            fragment             : 'androidx.fragment:fragment:1.4.1',
+            appcompat            : 'androidx.appcompat:appcompat:1.4.2',//包含多个依赖可能重复
+            recyclerview         : 'androidx.recyclerview:recyclerview:1.2.1',//包含多个依赖可能重复
+            viewPager            : 'androidx.viewpager:viewpager:1.0.0',
+            viewPager2           : 'androidx.viewpager2:viewpager2:1.0.0',
+            gson                 : 'com.google.code.gson:gson:2.8.6',
+            retrofitGsonConverter: 'com.squareup.retrofit2:converter-gson:2.9.0',
+            retrofit             : 'com.squareup.retrofit2:retrofit:2.9.0',
+            okhttp               : 'com.squareup.okhttp3:okhttp:4.9.0',
+            glide                : 'com.github.bumptech.glide:glide:4.12.0',
+            /* ============================== 项目内工具库 ================================ */
+            api                  : 'io.github.firstletterz:api-base:0.3.0',
+            dataparser           : 'io.github.firstletterz:api-parse:1.0.0',
+            central              : 'io.github.firstletterz:tool-central:1.0.1',
+            file                 : 'io.github.firstletterz:tool-file:0.1.2',
+            version              : 'io.github.firstletterz:tool-version:0.0.1',
+            fragmentManager      : 'io.github.firstletterz:tool-fragment-manager:0.1.0',
+            permission           : 'io.github.firstletterz:tool-permission:0.2.0',
+            appstack             : 'io.github.firstletterz:tool-stack:1.0.3',
+            process              : 'io.github.firstletterz:tool-process:0.1.0',
+            views                : 'io.github.firstletterz:ui-kit:0.2.7',
+            wheelpicker          : 'io.github.firstletterz:ui-picker-wheel:0.1.1',
+            toolkit              : 'io.github.firstletterz:tool-kit:0.2.0',
+            fingerprint          : 'io.github.firstletterz:tool-fingerprint:0.0.1-SNAPSHOT',
+            frame                : 'io.github.firstletterz:api-frame:0.1.3',
+            compatPermission     : 'io.github.firstletterz:tool-compat-permission:0.2.0-SNAPSHOT',
+            compatFragmentManager: 'io.github.firstletterz:tool-compat-fragment-manager:0.1.0',
+    ]
 }
 
 allprojects {
-    repositories {
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        maven { url 'https://maven.aliyun.com/repository/jcenter' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-        google()
-    }
-    ext {
-        compileSdkVersion = 33
-        buildToolsVersion = '33.0.1'
-        minSdkVersion = 19
-        targetSdkVersion = 31
-        unify = {
-            force 'com.github.bumptech.glide:glide:4.12.0'
-            force 'androidx.appcompat:appcompat:1.4.2'
+    configurations.configureEach {
+        resolutionStrategy {
             force 'androidx.annotation:annotation:1.3.0'
-            force 'androidx.activity:activity:1.4.0'
-            force 'androidx.arch.core:core-common:2.1.0'
-            force 'androidx.arch.core:core-runtime:2.1.0'
-            force 'androidx.core:core:1.8.0'
-            force 'androidx.collection:collection:1.2.0'
-            force 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
-            force 'androidx.fragment:fragment:1.4.1'
-            force 'androidx.lifecycle:lifecycle-common:2.4.1'
-            force 'androidx.lifecycle:lifecycle-livedata:2.4.1'
-            force 'androidx.lifecycle:lifecycle-livedata-core:2.4.1'
-            force 'androidx.lifecycle:lifecycle-runtime:2.4.1'
-            force 'androidx.lifecycle:lifecycle-viewmodel:2.4.1'
-            force 'androidx.vectordrawable:vectordrawable:1.1.0'
-            force 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
-            force 'androidx.versionedparcelable:versionedparcelable:1.1.1'
-            force 'androidx.recyclerview:recyclerview:1.2.1'
-            force 'com.google.material:material:1.2.0'
-            force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
-            force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.8.10'
+            force 'androidx.appcompat:appcompat:1.6.1'
+            force 'androidx.activity:activity:1.7.0'
+            force 'androidx.annotation:annotation:1.6.0'
+            force 'androidx.arch.core:core-common:2.2.0'
+            force 'androidx.arch.core:core-runtime:2.2.0'
+            force 'androidx.browser:browser:1.5.0'
+            force 'androidx.constraintlayout:constraintlayout:2.1.4'
+            force 'androidx.customview:customview:1.1.0'
+            force 'androidx.fragment:fragment:1.5.6'
+            force 'androidx.lifecycle:lifecycle-common:2.6.1'
+            force 'androidx.lifecycle:lifecycle-livedata:2.6.1'
+            force 'androidx.lifecycle:lifecycle-livedata-core:2.6.1'
+            force 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.1'
+            force 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+            force 'androidx.lifecycle:lifecycle-runtime:2.6.1'
+            force 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+            force 'androidx.lifecycle:lifecycle-viewmodel:2.6.1'
+            force 'androidx.transition:transition:1.3.0'
         }
-        dependencies = [
-                annotations          : 'androidx.annotation:annotation:1.3.0',
-                activity             : 'androidx.activity:activity:1.4.0',
-                core                 : 'androidx.core:core:1.8.0',//包含'androidx.arch.core'， 'androidx.collection'， 'androidx.lifecycle'， 'androidx.versionedparcelable'
-                versionedparcelable  : 'androidx.versionedparcelable:versionedparcelable:1.1.1',
-                collection           : 'androidx.collection:collection:1.2.0',
-                fragment             : 'androidx.fragment:fragment:1.4.1',
-                appcompat            : 'androidx.appcompat:appcompat:1.4.2',//包含多个依赖可能重复
-                recyclerview         : 'androidx.recyclerview:recyclerview:1.2.1',//包含多个依赖可能重复
-                viewPager            : 'androidx.viewpager:viewpager:1.0.0',
-                viewPager2           : 'androidx.viewpager2:viewpager2:1.0.0',
-                gson                 : 'com.google.code.gson:gson:2.8.6',
-                retrofitGsonConverter: 'com.squareup.retrofit2:converter-gson:2.9.0',
-                retrofit             : 'com.squareup.retrofit2:retrofit:2.9.0',
-                okhttp               : 'com.squareup.okhttp3:okhttp:4.9.0',
-                glide                : 'com.github.bumptech.glide:glide:4.12.0',
-                /* ============================== 项目内工具库 ================================ */
-                api                  : 'io.github.firstletterz:api-base:0.3.0',
-                dataparser           : 'io.github.firstletterz:api-parse:1.0.0',
-                central              : 'io.github.firstletterz:tool-central:1.0.1',
-                file                 : 'io.github.firstletterz:tool-file:0.1.1',
-                version              : 'io.github.firstletterz:tool-version:0.0.1',
-                fragmentManager      : 'io.github.firstletterz:tool-fragment-manager:0.1.0',
-                permission           : 'io.github.firstletterz:tool-permission:0.1.6',
-                appstack             : 'io.github.firstletterz:tool-stack:1.0.3',
-                process              : 'io.github.firstletterz:tool-process:0.1.0',
-                views                : 'io.github.firstletterz:ui-kit:0.2.7',
-                wheelpicker          : 'io.github.firstletterz:ui-picker-wheel:0.1.1',
-                toolkit              : 'io.github.firstletterz:tool-kit:0.2.0',
-                fingerprint          : 'io.github.firstletterz:tool-fingerprint:0.0.1-SNAPSHOT',
-                frame                : 'io.github.firstletterz:api-frame:0.1.3',
-                compatPermission     : 'io.github.firstletterz:tool-compat-permission:0.1.3',
-                compatFragmentManager: 'io.github.firstletterz:tool-compat-fragment-manager:0.1.0',
-        ]
     }
-//    tasks.withType(Javadoc).all { enabled = false }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}

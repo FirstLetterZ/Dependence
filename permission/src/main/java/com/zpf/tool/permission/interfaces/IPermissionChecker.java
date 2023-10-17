@@ -9,6 +9,9 @@ public interface IPermissionChecker {
     //检查传入对象是否为有效
     boolean shouldHandleRequest(Object requester);
 
+    //是否可以使用系统弹窗请求权限
+    boolean shouldShowRequestPermissionRationale(String p);
+
     //请求权限
     void requestPermissions(String[] p, int code, IPermissionResultListener listener);
 

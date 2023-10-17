@@ -30,6 +30,15 @@ public class FragmentPermissionChecker implements IPermissionChecker {
     }
 
     @Override
+    public boolean shouldShowRequestPermissionRationale(String p) {
+        Fragment fragment = mReference.get();
+        if (fragment != null) {
+            fragment.shouldShowRequestPermissionRationale(p);
+        }
+        return false;
+    }
+
+    @Override
     public void requestPermissions(String[] p, int code, IPermissionResultListener listener) {
         Fragment fragment = mReference.get();
         if (fragment == null) {

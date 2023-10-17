@@ -31,6 +31,15 @@ public class ActivityPermissionChecker implements IPermissionChecker {
     }
 
     @Override
+    public boolean shouldShowRequestPermissionRationale(String p) {
+        Activity activity = mReference.get();
+        if (activity != null) {
+            activity.shouldShowRequestPermissionRationale(p);
+        }
+        return false;
+    }
+
+    @Override
     public void requestPermissions(String[] p, int code, IPermissionResultListener listener) {
         Activity activity = mReference.get();
         if (activity == null) {
