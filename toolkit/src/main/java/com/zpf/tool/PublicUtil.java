@@ -32,6 +32,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by ZPF on 2018/7/26.
@@ -309,6 +310,9 @@ public class PublicUtil {
         }
         if (TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) {
             result = Build.DISPLAY;
+        }
+        if (TextUtils.isEmpty(result) || Build.UNKNOWN.equalsIgnoreCase(result)) {
+            result = UUID.randomUUID().toString();
         }
         return result;
     }

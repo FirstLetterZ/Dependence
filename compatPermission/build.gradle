@@ -17,14 +17,14 @@ dependencies {
             {
                 exclude group: 'androidx.core'
             }
-    compileOnly(rootProject.ext.dependencies.collection)
-    compileOnly(rootProject.ext.dependencies.versionedparcelable)
-    compileOnly(rootProject.ext.dependencies.core) {
-        exclude group: 'androidx.arch.core'
-        exclude group: 'androidx.collection'
-        exclude group: 'androidx.lifecycle'
-        exclude group: 'androidx.versionedparcelable'
-    }
+//    compileOnly(rootProject.ext.dependencies.collection)
+//    compileOnly(rootProject.ext.dependencies.versionedparcelable)
+//    compileOnly(rootProject.ext.dependencies.core) {
+//        exclude group: 'androidx.arch.core'
+//        exclude group: 'androidx.collection'
+//        exclude group: 'androidx.lifecycle'
+//        exclude group: 'androidx.versionedparcelable'
+//    }
 //    api 'io.github.firstletterz:tool-permission:0.2.0'
     api rootProject.ext.dependencies.permission
 }

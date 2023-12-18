@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zpf.views.stretchy.ScrollLoadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pll_load"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:boundaryWidthBottom="60dp"
+    app:boundaryWidthTop="40dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:text="this is top"
+        app:slot_location="top" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:text="this is bottom"
+        app:slot_location="bottom" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_first"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#9C27B0" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#F44336" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#E91E63" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#2196F3" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#FFC107" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#4CAF50" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#673AB7" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#009688" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#4CAF50" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#673AB7" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#009688" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#FFC107" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_last"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="#3F51B5" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </ScrollView>
+</com.zpf.views.stretchy.ScrollLoadLayout>

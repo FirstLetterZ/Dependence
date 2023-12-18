@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.List;
@@ -115,7 +116,7 @@ public class UpdateUtil {
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("MD5");
-            digest.update(content.getBytes("UTF-8"));
+            digest.update(content.getBytes(StandardCharsets.UTF_8));
             return new BigInteger(1, digest.digest()).toString(16);
         } catch (Exception e) {
             e.printStackTrace();

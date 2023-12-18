@@ -66,7 +66,7 @@ public class OverlayHelper {
         windowParams.gravity = Gravity.START | Gravity.TOP;
     }
 
-    public boolean addToWindow(View view, boolean openSetting) {
+    public boolean addToWindow(View view, int x, int y, boolean openSetting) {
         Context context = view.getContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             boolean canDrawOverlays = Settings.canDrawOverlays(context);
@@ -85,17 +85,17 @@ public class OverlayHelper {
             return true;
         }
         viewAlpha = view.getAlpha();
-        float density = context.getResources().getDisplayMetrics().density;
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         if (layoutParams == null) {
+            float density = context.getResources().getDisplayMetrics().density;
             windowParams.height = (int) (40 * density);
             windowParams.width = (int) (40 * density);
         } else {
             windowParams.height = layoutParams.height;
             windowParams.width = layoutParams.width;
         }
-        windowParams.x = (int) (32 * density);
-        windowParams.y = (int) (16 * density);
+        windowParams.x = x;
+        windowParams.y = y;
         try {
             windowManager.addView(view, windowParams);
             return true;

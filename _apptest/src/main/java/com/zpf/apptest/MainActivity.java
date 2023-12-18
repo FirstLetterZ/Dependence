@@ -11,9 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.apptest.R;
-import com.zpf.apptest.task.ITaskGroup;
-import com.zpf.apptest.task.TaskCenter;
-import com.zpf.apptest.task.TaskResult;
 import com.zpf.apptest.tst.RoundLayout;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,14 +18,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TaskCenter tc = new TaskCenter();
-        tc.setTaskGroup(1, new ITaskGroup() {
-            @Override
-            public TaskResult doJob(Object params) {
 
-                return null;
-            }
-        });
         RoundLayout roundLayout = findViewById(R.id.rl_view);
         roundLayout.setDrawCircle(true);
         float r = 8 * getResources().getDisplayMetrics().density;

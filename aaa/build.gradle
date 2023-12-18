@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -16,8 +17,11 @@ android {
         versionName '0.0.1'
     }
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
     buildTypes {
         release {
@@ -29,14 +33,17 @@ android {
 
 dependencies {
     api rootProject.ext.dependencies.appcompat
-    api rootProject.ext.dependencies.gson
+    api rootProject.ext.dependencies.recyclerview
+    api rootProject.ext.dependencies.viewPager2
+//    api rootProject.ext.dependencies.gson
 //    api 'androidx.core:core-splashscreen:1.0.0-beta02'
 //    api project.ext.dependencies.api
 //    api project.ext.dependencies.central
 //    api 'com.zpf.android:util-retrofit:2.4.0'
 //    api 'com.squareup.okhttp3:okhttp:4.9.1'
 //    api 'com.squareup.retrofit2:retrofit:2.9.0'
-    api project(':toolkit')
-    api project(':wheelpicker')
+    api project(':views')
+//    api project(':toolkit')
+//    api project(':wheelpicker')
 }
 
