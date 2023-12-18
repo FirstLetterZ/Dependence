@@ -35,7 +35,10 @@ public class FileSaveUtil {
             }
         }
         ContentResolver resolver = context.getContentResolver();
-        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType);
+        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, true);
+        if (uri == null) {
+            uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, false);
+        }
         if (uri == null) {
             return null;
         }
@@ -75,7 +78,10 @@ public class FileSaveUtil {
             }
         }
         ContentResolver resolver = context.getContentResolver();
-        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType);
+        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, true);
+        if (uri == null) {
+            uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, false);
+        }
         if (uri == null) {
             return null;
         }
@@ -111,11 +117,11 @@ public class FileSaveUtil {
             if (bitmap.compress(compressFormat, 100, out)) {
                 out.flush();
             }
-            FileIOUtil.quickClose(out);
             return true;
         } catch (Exception e) {
-            FileIOUtil.quickClose(out);
             e.printStackTrace();
+        } finally {
+            FileIOUtil.quickClose(out);
         }
         return false;
     }
@@ -124,6 +130,9 @@ public class FileSaveUtil {
         OutputStream out = null;
         try {
             out = context.getContentResolver().openOutputStream(destUri);
+            if (out == null) {
+                return false;
+            }
             Bitmap.CompressFormat compressFormat;
             if (format == null) {
                 compressFormat = Bitmap.CompressFormat.PNG;
@@ -133,11 +142,11 @@ public class FileSaveUtil {
             if (bitmap.compress(compressFormat, 100, out)) {
                 out.flush();
             }
-            FileIOUtil.quickClose(out);
             return true;
         } catch (Exception e) {
-            FileIOUtil.quickClose(out);
             e.printStackTrace();
+        } finally {
+            FileIOUtil.quickClose(out);
         }
         return false;
     }

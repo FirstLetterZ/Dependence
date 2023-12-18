@@ -34,4 +34,20 @@
         <attr name="underline" format="boolean"/>
         <attr name="strikeThru" format="boolean"/>
     </declare-styleable>
+    <declare-styleable name="StretchyScrollLayout">
+        <attr name="boundaryWidthLeft" format="dimension" />
+        <attr name="boundaryWidthTop" format="dimension" />
+        <attr name="boundaryWidthRight" format="dimension" />
+        <attr name="boundaryWidthBottom" format="dimension" />
+        <attr name="overScrollMultiple" format="integer" />
+    </declare-styleable>
+    <declare-styleable name="StretchyScrollLayout_Layout">
+        <attr name="slot_location" format="enum">
+            <enum name="content" value="0" />
+            <enum name="left" value="1" />
+            <enum name="top" value="2" />
+            <enum name="right" value="3" />
+            <enum name="bottom" value="4" />
+        </attr>
+    </declare-styleable>
 </resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zpf.views.stretchy.ScrollLoadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pll_load"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:boundaryWidthBottom="200dp"
+    app:overScrollMultiple="2">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#FFEB3B"
+        android:gravity="center"
+        android:text="this is bottom"
+        app:slot_location="bottom" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" />
+</com.zpf.views.stretchy.ScrollLoadLayout>

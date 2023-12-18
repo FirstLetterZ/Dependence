@@ -70,6 +70,12 @@ public class FileTypeUtil {
             mimeType = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                mmr.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         if (mimeType != null) {
             return mimeType;
@@ -105,6 +111,12 @@ public class FileTypeUtil {
             mimeType = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                mmr.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         if (mimeType != null) {
             return mimeType;

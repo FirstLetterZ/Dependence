@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zpf.views.stretchy.ScrollLoadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pll_load"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:boundaryWidthRight="40dp">
+
+    <TextView
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="this is left"
+        app:slot_location="left" />
+
+    <TextView
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="this is right"
+        app:slot_location="right" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" />
+</com.zpf.views.stretchy.ScrollLoadLayout>

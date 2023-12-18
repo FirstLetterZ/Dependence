@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -204,7 +206,11 @@ public class FileUtil {
         return target;
     }
 
-    public static boolean upZipFile(String filePath, String folderPath) {
+    public static boolean unzipFile(@NonNull String filePath, @NonNull String folderPath) {
+        return unzipFile(filePath, folderPath, null);
+    }
+
+    public static boolean unzipFile(@NonNull String filePath, @NonNull String folderPath, @Nullable FilenameFilter filter) {
         ZipFile zipFile;
         File folder = new File(folderPath);
         if (!folder.exists()) {
@@ -217,58 +223,79 @@ public class FileUtil {
             e.printStackTrace();
             return false;
         }
+        Exception exception = null;
         Enumeration<?> zList = zipFile.entries();
         ZipEntry ze;
         byte[] buf = new byte[1024];
         while (zList.hasMoreElements()) {
             ze = (ZipEntry) zList.nextElement();
-            // 列举的压缩文件里面的各个文件，判断是否为目录
+            String entryName = ze.getName();
             if (ze.isDirectory()) {
-                File f = new File(folderPath, ze.getName());
-                f.mkdir();
+                File f = new File(folderPath, entryName);
+                if (filter == null || filter.accept(f, entryName)) {
+                    f.mkdir();
+                }
                 continue;
+            }
+            // ze.getName()会返回 script/start.script这样的，是为了返回实体的File
+            File realFile = getRealFile(folderPath, entryName, false);
+            if (filter != null && !filter.accept(realFile, entryName)) {
+                continue;
+            }
+            File parentFolder = realFile.getParentFile();
+            if (parentFolder == null) {
+                continue;
+            }
+            if (!parentFolder.exists()) {
+                parentFolder.mkdirs();
             }
             OutputStream os;
             FileOutputStream fos;
-            // ze.getName()会返回 script/start.script这样的，是为了返回实体的File
-            File realFile = getRealFileName(folderPath, ze.getName());
             try {
                 fos = new FileOutputStream(realFile);
             } catch (FileNotFoundException e) {
-                return false;
+                exception = e;
+                break;
             }
             os = new BufferedOutputStream(fos);
             InputStream is;
             try {
                 is = new BufferedInputStream(zipFile.getInputStream(ze));
             } catch (IOException e) {
-                return false;
+                exception = e;
+                break;
             }
-            int readLen = 0;
-            // 进行一些内容复制操作
+            int readLen;
             try {
                 while ((readLen = is.read(buf, 0, 1024)) != -1) {
                     os.write(buf, 0, readLen);
                 }
             } catch (IOException e) {
-                return false;
+                exception = e;
+                break;
             }
             try {
                 is.close();
                 os.close();
             } catch (IOException e) {
-                return false;
+                exception = e;
+                break;
             }
         }
         try {
             zipFile.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (exception == null) {
+            return true;
+        } else {
+            exception.printStackTrace();
             return false;
         }
-        return true;
     }
 
-    public static File getRealFileName(String baseDir, String absFileName) {
+    public static File getRealFile(String baseDir, String absFileName, boolean autoCreate) {
         absFileName = absFileName.replace("\\", "/");
         String[] dirs = absFileName.split("/");
         File ret = new File(baseDir);
@@ -278,10 +305,8 @@ public class FileUtil {
                 substr = dirs[i];
                 ret = new File(ret, substr);
             }
-
-            if (!ret.exists())
-                ret.mkdirs();
             substr = dirs[dirs.length - 1];
+            if (!ret.exists() && autoCreate) ret.mkdirs();
             ret = new File(ret, substr);
             return ret;
         } else {
@@ -290,12 +315,38 @@ public class FileUtil {
         return ret;
     }
 
-    public static File getFileOrCreate(String folderPath, String name) {
-        File file = new File(folderPath);
-        if (!file.exists()) {
-            file.mkdirs();
+    public static File createFile(String absolutePath) {
+        return createFile(new File(absolutePath));
+    }
+
+    public static File createFile(File file) {
+        if (file.exists()) {
+            return file;
         }
-        File f = new File(file, name);
+        File parentFolder = file.getParentFile();
+        if (parentFolder == null) {
+            return file;
+        }
+        if (!parentFolder.exists()) {
+            parentFolder.mkdirs();
+        }
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
+    public static File createFile(String folderPath, String name) {
+        return createFile(new File(folderPath), name);
+    }
+
+    public static File createFile(File folder, String fileName) {
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        File f = new File(folder, fileName);
         if (!f.exists()) {
             try {
                 f.createNewFile();
@@ -312,7 +363,7 @@ public class FileUtil {
         }
         if (file.isDirectory()) {
             File[] ff = file.listFiles();
-            if (ff != null && ff.length > 0) {
+            if (ff != null) {
                 for (File f : ff) {
                     delete(f);
                 }

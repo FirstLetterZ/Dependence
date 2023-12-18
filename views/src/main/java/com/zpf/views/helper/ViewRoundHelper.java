@@ -3,20 +3,18 @@ package com.zpf.views.helper;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Shader;
 
 import androidx.annotation.NonNull;
 
-import com.zpf.views.type.IDrawingCanvasModifier;
 import com.zpf.views.ViewDrawingCanvas;
+import com.zpf.views.type.IDrawingCanvasModifier;
 
 public class ViewRoundHelper implements IDrawingCanvasModifier {
     private float connerRadius;
     private boolean isCircle = false;
     private final RectF srcRectF = new RectF();
-    private final Path path = new Path();
     private final Paint paint = new Paint();
     private ViewDrawingCanvas drawingCanvas;
 
