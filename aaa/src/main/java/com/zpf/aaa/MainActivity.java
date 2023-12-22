@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 //            startActivity(new Intent(this, TestActivity.class));
         });
         findViewById(R.id.btn_test3).setOnClickListener(v -> {
-            startActivity(new Intent(this, VideoActivity.class));
+            startActivity(new Intent(this, Test3Activity.class));
 //            startActivity(new Intent(this, TestActivity.class));
         });
     }

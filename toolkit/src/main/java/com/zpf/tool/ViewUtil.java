@@ -187,4 +187,48 @@ public class ViewUtil {
             }
         }
     }
+
+    public static Rect measureViewByAspectRatio(int contentWidth, int contentHeight, int widthMeasureSpec, int heightMeasureSpec, float aspectRatio) {
+        if (aspectRatio == 0) {
+            return null;
+        }
+        float targetRatio = -1;
+        float measureRatio = -1;
+        int measureHeight = View.MeasureSpec.getSize(heightMeasureSpec);
+        int measureWidth = View.MeasureSpec.getSize(widthMeasureSpec);
+        if (aspectRatio > 0) {
+            targetRatio = aspectRatio;
+            if (measureHeight > 0) {
+                measureRatio = measureWidth * 1f / measureHeight;
+            }
+        } else if (aspectRatio < 0 && (contentWidth > 0 && contentHeight > 0)) {
+            targetRatio = contentWidth * 1f / contentHeight;
+            if (measureHeight > 0) {
+                measureRatio = measureWidth * 1f / measureHeight;
+            }
+        }
+        if (targetRatio > 0 && Math.abs(measureRatio - targetRatio) > 0.01f) {
+            int heightMode = View.MeasureSpec.getMode(heightMeasureSpec);
+            int widthMode = View.MeasureSpec.getMode(widthMeasureSpec);
+            if (widthMode == View.MeasureSpec.EXACTLY) {
+                int targetHeight = (int) (measureWidth / targetRatio);
+                return new Rect(0, 0, measureWidth, targetHeight);
+            } else if (heightMode == View.MeasureSpec.EXACTLY) {
+                int targetWidth = (int) (measureHeight * targetRatio);
+                return new Rect(0, 0, targetWidth, measureHeight);
+            } else {
+                if (measureWidth >= contentWidth && measureHeight >= contentHeight) {
+                    return new Rect(0, 0, contentWidth, contentHeight);
+                } else if (measureWidth < contentWidth) {
+                    int targetHeight = (int) (measureWidth / targetRatio);
+                    return new Rect(0, 0, measureWidth, targetHeight);
+                } else {
+                    int targetWidth = (int) (measureHeight * targetRatio);
+                    return new Rect(0, 0, targetWidth, measureHeight);
+                }
+            }
+        } else {
+            return null;
+        }
+    }
 }

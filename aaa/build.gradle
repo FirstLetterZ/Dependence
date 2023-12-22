@@ -35,6 +35,7 @@ dependencies {
     api rootProject.ext.dependencies.appcompat
     api rootProject.ext.dependencies.recyclerview
     api rootProject.ext.dependencies.viewPager2
+    api 'androidx.constraintlayout:constraintlayout:2.1.4'
 //    api rootProject.ext.dependencies.gson
 //    api 'androidx.core:core-splashscreen:1.0.0-beta02'
 //    api project.ext.dependencies.api

@@ -2,9 +2,9 @@ package com.zpf.views.tagtext;
 
 import android.graphics.Paint;
 
-public class TagTextMeasureman {
+public class TagTextMeasureMan {
 
-    private TagTextMeasureResult measureResult = new TagTextMeasureResult();
+    private final TagTextMeasureResult measureResult = new TagTextMeasureResult();
 
     TagTextMeasureResult calculateDrawWidth(float width, String textStr, Paint paint, int startIndex) {
         measureResult.newline = false;

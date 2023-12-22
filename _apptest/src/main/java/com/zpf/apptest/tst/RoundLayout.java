@@ -7,7 +7,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
-import com.zpf.views.ViewDrawingCanvas;
+import com.zpf.views.helper.ViewDrawingCanvas;
 import com.zpf.views.helper.ViewRoundHelper;
 
 public class RoundLayout extends LinearLayout {

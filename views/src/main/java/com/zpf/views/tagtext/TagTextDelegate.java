@@ -3,6 +3,7 @@ package com.zpf.views.tagtext;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TagTextDelegate {
     private int lineHeight;
@@ -21,14 +23,14 @@ public class TagTextDelegate {
 
     public final TagTextStyle defStyle = new TagTextStyle();
     public final TagTextStyle ellipsisStyle = new TagTextStyle();
-    private final TagTextMeasureman measureman = new TagTextMeasureman();
+    private final TagTextMeasureMan measureMan = new TagTextMeasureMan();
     private int calculateHeight = -1;
     private int showHeight = 0;
     private int lastWidth = -1;
     private final ArrayList<TagTextItem> contentTextList = new ArrayList<>();
-    private TagTextPieceInfo ellipsisPart = new TagTextPieceInfo();
-    private TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-    private TagTextRecycler recycler = new TagTextRecycler();
+    private final TagTextPieceInfo ellipsisPart = new TagTextPieceInfo();
+    private final TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+    private final TagTextRecycler recycler = new TagTextRecycler();
     private float upX = -1f;
     private float upY = -1f;
     private float downX = -1f;
@@ -36,7 +38,7 @@ public class TagTextDelegate {
     private float lastY = -1f;
     private View.OnClickListener defClickListener;
     private TagItemClickListener itemClickListener;
-    private View.OnClickListener clickDispatcher = new View.OnClickListener() {
+    private final View.OnClickListener clickDispatcher = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (System.currentTimeMillis() - downTime > 1000) {
@@ -95,7 +97,7 @@ public class TagTextDelegate {
         ellipsisStyle.underline = defStyle.underline;
         ellipsisStyle.strikeThru = defStyle.strikeThru;
         if (ellipsisText == null) {
-            ellipsisText = "…全文";
+            ellipsisText = "...";
         }
     }
 
@@ -324,7 +326,19 @@ public class TagTextDelegate {
         if (b == null) {
             return a.length() > 0;
         }
-        return false;
+        return !a.equals(b);
+    }
+
+    public PointF getTextEndPoint() {
+        if (contentTextList.size() == 0) {
+            return new PointF(0f, 0f);
+        }
+        List<TagTextPieceInfo> lastTextParts = contentTextList.get(contentTextList.size() - 1).parts;
+        if (lastTextParts.size() == 0) {
+            return new PointF(0f, 0f);
+        }
+        TagTextPieceInfo lastPieceInfo = lastTextParts.get(lastTextParts.size() - 1);
+        return new PointF(lastPieceInfo.right, lastPieceInfo.bottom);
     }
 
     private int calculateDrawHeight(@NonNull View drawOn, int width) {
@@ -356,7 +370,7 @@ public class TagTextDelegate {
         for (TagTextItem textInfo : contentTextList) {
             startIndex = 0;
             textInfo.parts.clear();
-            TagTextMeasureman.TagTextMeasureResult measureResult;
+            TagTextMeasureMan.TagTextMeasureResult measureResult;
             TagTextPieceInfo pieceInfo = null;
             if (textInfo.textStr != null && textInfo.textStr.length() > 0) {
                 if (usedWidth < 0) {
@@ -371,10 +385,10 @@ public class TagTextDelegate {
                         }
                     }
                     if (currentLine == maxLines) {
-                        measureResult = measureman.calculateDrawWidth(
+                        measureResult = measureMan.calculateDrawWidth(
                                 realWidth - usedWidth - ellipsisWidth, textInfo.textStr, textPaint, startIndex);
                     } else {
-                        measureResult = measureman.calculateDrawWidth(
+                        measureResult = measureMan.calculateDrawWidth(
                                 realWidth - usedWidth, textInfo.textStr, textPaint, startIndex);
                     }
                     if (measureResult.drawWidth > 0) {
@@ -392,7 +406,7 @@ public class TagTextDelegate {
                                     && measureResult.endIndex < textInfo.textStr.length()) {
                                 float mdw = measureResult.drawWidth;
                                 int msi = measureResult.startIndex;
-                                TagTextMeasureman.TagTextMeasureResult lastPartMeasureResult = measureman.calculateDrawWidth(
+                                TagTextMeasureMan.TagTextMeasureResult lastPartMeasureResult = measureMan.calculateDrawWidth(
                                         realWidth - usedWidth - mdw,
                                         textInfo.textStr, textPaint, measureResult.endIndex);
                                 if (lastPartMeasureResult.endIndex == textInfo.textStr.length()) {

@@ -1,6 +1,7 @@
 package com.zpf.views.button;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -12,13 +13,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.zpf.views.helper.ViewDrawingCanvas;
+import com.zpf.views.helper.ViewRoundHelper;
 import com.zpf.views.type.IFeedbackView;
+import com.zpf.views.type.IRoundView;
 
 /**
  * @author Created by ZPF on 2021/10/21.
  */
-public class FrameButtonLayout extends FrameLayout implements IFeedbackView {
+public class FrameButtonLayout extends FrameLayout implements IFeedbackView, IRoundView {
     private final TouchFeedbackDelegate delegate = new TouchFeedbackDelegate(0.8f, null);
+    private ViewRoundHelper roundHelper = null;
+    private boolean skipDraw = true;
 
     public FrameButtonLayout(@NonNull Context context) {
         super(context);
@@ -65,5 +71,81 @@ public class FrameButtonLayout extends FrameLayout implements IFeedbackView {
     @Override
     public void onRestore(View view) {
         delegate.onRestore(view);
+    }
+
+    public void setDrawCircle(boolean circle) {
+        prepareViewRoundHelper().setDrawCircle(circle);
+    }
+    @Override
+    public boolean isDrawCircle() {
+        if (roundHelper != null) {
+            return roundHelper.isDrawCircle();
+        }
+        return false;
+    }
+
+    public void setConnerRadius(float radius) {
+        prepareViewRoundHelper().setConnerRadius(radius);
+    }
+    @Override
+    public float getConnerRadius() {
+        if (roundHelper != null) {
+            return roundHelper.getConnerRadius();
+        }
+        return 0f;
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (roundHelper != null) {
+            roundHelper.prepareCanvas(w, h);
+        }
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        if (roundHelper != null && roundHelper.isEnable()) {
+            skipDraw = false;
+            ViewDrawingCanvas viewDrawingCanvas = roundHelper.getDrawingCanvas();
+            if (viewDrawingCanvas == null) {
+                super.draw(canvas);
+            } else {
+                super.draw(viewDrawingCanvas.canvas);
+                roundHelper.ModifyCanvas(canvas);
+            }
+            skipDraw = true;
+        } else {
+            super.draw(canvas);
+        }
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        if (roundHelper != null && roundHelper.isEnable()) {
+            if (skipDraw) {
+                ViewDrawingCanvas viewDrawingCanvas = roundHelper.getDrawingCanvas();
+                if (viewDrawingCanvas == null) {
+                    super.dispatchDraw(canvas);
+                } else {
+                    super.dispatchDraw(viewDrawingCanvas.canvas);
+                    roundHelper.ModifyCanvas(canvas);
+                }
+            } else {
+                super.dispatchDraw(canvas);
+            }
+        } else {
+            super.dispatchDraw(canvas);
+        }
+    }
+    protected ViewRoundHelper prepareViewRoundHelper() {
+        ViewRoundHelper oldHelper = roundHelper;
+        if (oldHelper != null) {
+            return oldHelper;
+        }
+        ViewRoundHelper newHelper = new ViewRoundHelper();
+        roundHelper = newHelper;
+        return newHelper;
+
     }
 }

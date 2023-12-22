@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -173,6 +174,8 @@ public class TagTextView extends View {
     public boolean shouldDrawEllipsis() {
         return textDelegate.shouldDrawEllipsis();
     }
+
+    public PointF getTextEndPoint() {return textDelegate.getTextEndPoint();}
 
     @Override
     public void scrollTo(int x, int y) {

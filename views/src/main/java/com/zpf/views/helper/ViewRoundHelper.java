@@ -7,11 +7,12 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import com.zpf.views.ViewDrawingCanvas;
 import com.zpf.views.type.IDrawingCanvasModifier;
+import com.zpf.views.type.IRoundView;
 
-public class ViewRoundHelper implements IDrawingCanvasModifier {
+public class ViewRoundHelper implements IDrawingCanvasModifier, IRoundView {
     private float connerRadius;
     private boolean isCircle = false;
     private final RectF srcRectF = new RectF();
@@ -21,14 +22,24 @@ public class ViewRoundHelper implements IDrawingCanvasModifier {
     public ViewRoundHelper() {
         paint.setAntiAlias(true);
     }
-
+    @Override
     public void setDrawCircle(boolean circle) {
         this.isCircle = circle;
+        this.connerRadius = 0f;
     }
 
+    @Override
+    public boolean isDrawCircle() {
+        return isCircle;
+    }
+    @Override
     public void setConnerRadius(float radius) {
         this.connerRadius = radius;
         this.isCircle = false;
+    }
+    @Override
+    public float getConnerRadius() {
+        return connerRadius;
     }
 
     public void prepareCanvas(int width, int height) {
@@ -56,6 +67,9 @@ public class ViewRoundHelper implements IDrawingCanvasModifier {
 
     @Override
     public boolean ModifyCanvas(@NonNull Canvas canvas) {
+        if (!isEnable()) {
+            return false;
+        }
         final ViewDrawingCanvas realCanvas = drawingCanvas;
         if (realCanvas == null) {
             return false;
@@ -75,7 +89,15 @@ public class ViewRoundHelper implements IDrawingCanvasModifier {
         return true;
     }
 
+    @Nullable
     public ViewDrawingCanvas getDrawingCanvas() {
-        return drawingCanvas;
+        if (isEnable()) {
+            return drawingCanvas;
+        }
+        return null;
+    }
+
+    public boolean isEnable() {
+        return isCircle || connerRadius > 0f;
     }
 }

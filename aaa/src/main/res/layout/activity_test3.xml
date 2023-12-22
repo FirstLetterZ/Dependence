@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zpf.views.stretchy.ScrollLoadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pll_load"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#03A9F4"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <com.zpf.views.button.FrameButtonLayout
+            android:id="@+id/fl_button1"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E91E63"
+                android:gravity="center"
+                android:text="这是一个测试用的按钮"
+                android:textColor="#fff"
+                android:textSize="16sp" />
+        </com.zpf.views.button.FrameButtonLayout>
+
+
+        <com.zpf.views.button.LinearButtonLayout
+            android:id="@+id/ll_button2"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fl_button1">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E91E63"
+                android:gravity="center"
+                android:text="这是一个测试用的按钮"
+                android:textColor="#fff"
+                android:textSize="16sp" />
+        </com.zpf.views.button.LinearButtonLayout>
+
+
+
+        <com.zpf.views.button.RelativeButtonLayout
+            android:id="@+id/rl_button3"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_button2">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E91E63"
+                android:gravity="center"
+                android:text="这是一个测试用的按钮"
+                android:textColor="#fff"
+                android:textSize="16sp" />
+        </com.zpf.views.button.RelativeButtonLayout>
+
+        <com.zpf.views.tagtext.TagTextView
+            android:id="@+id/ttv_test"
+            android:layout_width="275dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#999"
+            app:fontSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/view_pointer2"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <View
+            android:layout_width="36dp"
+            android:layout_height="18dp"
+            android:background="#CDDC39"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/view_bottom"
+            app:layout_constraintEnd_toEndOf="@id/ttv_test" />
+
+
+        <TextView
+            android:id="@+id/view_pointer1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="  收起"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/view_pointer2"
+            app:layout_constraintEnd_toEndOf="@id/ttv_test"
+            app:layout_constraintStart_toStartOf="@id/ttv_test" />
+
+        <TextView
+            android:id="@+id/view_pointer2"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:includeFontPadding="false"
+            android:text="收起"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/view_bottom"
+            app:layout_constraintEnd_toEndOf="@id/ttv_test" />
+
+        <View
+            android:id="@+id/view_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="#4CAF50"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.zpf.views.stretchy.ScrollLoadLayout>
