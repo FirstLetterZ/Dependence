@@ -360,96 +360,66 @@ public class TagTextDelegate {
             ellipsisWidth = textPaint.measureText(ellipsisText);
         }
         recycler.reset(drawOn.getPaddingStart(), drawOn.getPaddingTop(), fontHeight, lHeight);
-        int currentLine = 0;
+        int currentLine = 1;
         int startIndex;
         float usedWidth = 0f;
-        boolean newline = true;
+        boolean newline = false;
         boolean newParagraph = false;
         float addParagraphSpace = 0f;
-        int i = 0;
-        for (TagTextItem textInfo : contentTextList) {
-            startIndex = 0;
-            textInfo.parts.clear();
-            TagTextMeasureMan.TagTextMeasureResult measureResult;
-            TagTextPieceInfo pieceInfo = null;
-            if (textInfo.textStr != null && textInfo.textStr.length() > 0) {
-                if (usedWidth < 0) {
-                    continue;
-                }
-                while (startIndex < textInfo.textStr.length()) {
-                    if (newline) {
-                        currentLine++;
-                        usedWidth = 0f;
-                        if (newParagraph) {
-                            addParagraphSpace = addParagraphSpace + paragraphSpace;
-                        }
-                    }
-                    if (currentLine == maxLines) {
-                        measureResult = measureMan.calculateDrawWidth(
-                                realWidth - usedWidth - ellipsisWidth, textInfo.textStr, textPaint, startIndex);
-                    } else {
-                        measureResult = measureMan.calculateDrawWidth(
-                                realWidth - usedWidth, textInfo.textStr, textPaint, startIndex);
-                    }
-                    if (measureResult.drawWidth > 0) {
-                        pieceInfo = recycler.obtainOnePiece(startIndex, measureResult.endIndex, usedWidth,
-                                measureResult.drawWidth, currentLine, addParagraphSpace);
-                    } else {
-                        pieceInfo = null;
-                    }
-                    startIndex = measureResult.endIndex;
-                    if (currentLine == maxLines) {
-                        newline = false;
-                        if (measureResult.newline) {
-                            boolean shouldDrawEllipsis = ellipsisWidth > 0;
-                            if (pieceInfo != null && shouldDrawEllipsis && i == contentTextList.size() - 1
-                                    && measureResult.endIndex < textInfo.textStr.length()) {
-                                float mdw = measureResult.drawWidth;
-                                int msi = measureResult.startIndex;
-                                TagTextMeasureMan.TagTextMeasureResult lastPartMeasureResult = measureMan.calculateDrawWidth(
-                                        realWidth - usedWidth - mdw,
-                                        textInfo.textStr, textPaint, measureResult.endIndex);
-                                if (lastPartMeasureResult.endIndex == textInfo.textStr.length()) {
-                                    recycler.recombination(
-                                            pieceInfo,
-                                            msi,
-                                            lastPartMeasureResult.endIndex,
-                                            usedWidth,
-                                            mdw + lastPartMeasureResult.drawWidth,
-                                            currentLine,
-                                            addParagraphSpace);
-                                    shouldDrawEllipsis = false;
-                                } else {
-                                    measureResult.drawWidth = mdw;
-                                    measureResult.startIndex = msi;
-                                }
-                            }
-                            if (pieceInfo != null) {
-                                textInfo.parts.add(pieceInfo);
-                            }
-                            if (shouldDrawEllipsis) {
-                                recycler.recombination(ellipsisPart, 0, ellipsisText.length(),
-                                        usedWidth + measureResult.drawWidth, ellipsisWidth, currentLine, addParagraphSpace);
-                            }
-                            usedWidth = -1;
-                            break;
-                        } else {
-                            if (pieceInfo != null) {
-                                textInfo.parts.add(pieceInfo);
-                            }
-                            usedWidth = usedWidth + measureResult.drawWidth;
-                        }
-                    } else {
-                        if (pieceInfo != null) {
-                            textInfo.parts.add(pieceInfo);
-                        }
-                        newline = measureResult.newline;
-                        usedWidth = usedWidth + measureResult.drawWidth;
-                        newParagraph = measureResult.newParagraph;
-                    }
-                }
+        TagTextItem item;
+        for (int i = 0; i < contentTextList.size(); i++) {
+            if (usedWidth < 0) {
+                break;
             }
-            i++;
+            item = contentTextList.get(i);
+            item.parts.clear();
+            if (item.textStr == null || item.textStr.length() == 0) {
+                continue;
+            }
+            startIndex = 0;
+            TagTextMeasureMan.TagTextMeasureResult measureResult;
+            TagTextPieceInfo pieceInfo;
+            while (startIndex < item.textStr.length()) {
+                if (newline) {
+                    currentLine++;
+                    usedWidth = 0f;
+                    if (newParagraph) {
+                        addParagraphSpace = addParagraphSpace + paragraphSpace;
+                    }
+                }
+                measureResult = measureMan.calculateDrawWidth(
+                        realWidth - usedWidth, item.textStr, textPaint, startIndex);
+                if (currentLine == maxLines) {
+                    if (ellipsisWidth > 0) {
+                        if (measureResult.newline || usedWidth + measureResult.drawWidth + ellipsisWidth >= realWidth) {
+                            measureResult = measureMan.calculateDrawWidth(
+                                    realWidth - usedWidth - ellipsisWidth, item.textStr, textPaint, startIndex);
+                            recycler.recombination(ellipsisPart, 0, ellipsisText.length(),
+                                    width - drawOn.getPaddingEnd() - ellipsisWidth, ellipsisWidth, currentLine, addParagraphSpace);
+                            usedWidth = -1;
+                        }
+                    }
+                    if (usedWidth > 0 && measureResult.newline) {
+                        usedWidth = -1;
+                    }
+                }
+                if (measureResult.drawWidth > 0) {
+                    pieceInfo = recycler.obtainOnePiece(startIndex, measureResult.endIndex, usedWidth,
+                            measureResult.drawWidth, currentLine, addParagraphSpace);
+                } else {
+                    pieceInfo = null;
+                }
+                if (pieceInfo != null) {
+                    item.parts.add(pieceInfo);
+                }
+                if (usedWidth < 0) {
+                    break;
+                }
+                startIndex = measureResult.endIndex;
+                newline = measureResult.newline;
+                usedWidth = usedWidth + measureResult.drawWidth;
+                newParagraph = measureResult.newParagraph;
+            }
         }
         return (int) (drawOn.getPaddingTop() + drawOn.getPaddingBottom() + addParagraphSpace + 0.499f + currentLine * lHeight);
     }

@@ -127,7 +127,7 @@ public class StretchyScrollLayout extends ViewGroup {
             boundaryWidths[i] = Math.max(0, size[i]);
         }
         if (rollBackAnimator == null) {
-            scrollTo(getScrollX(), getScrollY());
+            scrollTo(getOffsetX(), getOffsetY());
         }
     }
 
@@ -137,7 +137,7 @@ public class StretchyScrollLayout extends ViewGroup {
         }
         boundaryWidths[location] = Math.max(0, size);
         if (rollBackAnimator == null) {
-            scrollTo(getScrollX(), getScrollY());
+            scrollTo(getOffsetX(), getOffsetY());
         }
     }
 
@@ -306,25 +306,27 @@ public class StretchyScrollLayout extends ViewGroup {
                 if (dx == 0 && dy == 0) {
                     postToChildren = true;
                 } else {
-                    int oldScrollX = getScrollX();
-                    int oldScrollY = getScrollY();
+                    int oldOffsetX = getOffsetX();
+                    int oldOffsetY = getOffsetY();
                     if (dx != 0) {
-                        if ((oldScrollX == 0 && canContentScrollHorizontally(dx)) || !canScrollHorizontally(dx)) {
+                        if ((oldOffsetX == 0 && canContentScrollHorizontally(dx)) || !canScrollHorizontally(dx)) {
                             postToChildren = true;
                             dx = 0;
                         } else {
-                            dx = computeRealScroll(dx, oldScrollX, -boundaryWidths[0], boundaryWidths[2]);
+                            dx = computeRealScroll(dx, oldOffsetX, -boundaryWidths[0], boundaryWidths[2]);
                         }
                     }
                     if (dy != 0) {
-                        if ((oldScrollY == 0 && canContentScrollVertically(dy)) || !canSelfScrollVertically(dy)) {
+                        if ((oldOffsetY == 0 && canContentScrollVertically(dy)) || !canSelfScrollVertically(dy)) {
                             postToChildren = true;
                             dy = 0;
                         } else {
-                            dy = computeRealScroll(dy, oldScrollY, -boundaryWidths[1], boundaryWidths[3]);
+                            dy = computeRealScroll(dy, oldOffsetY, -boundaryWidths[1], boundaryWidths[3]);
                         }
                     }
-                    handleMove(dx, dy);
+                    if (dx != 0 || dy != 0) {
+                        handleMoveOffset(dx + oldOffsetX, dy + oldOffsetY);
+                    }
                 }
                 if (postToChildren) {
                     if (lastChildAction != MotionEvent.ACTION_DOWN && lastChildAction != MotionEvent.ACTION_MOVE) {
@@ -394,10 +396,8 @@ public class StretchyScrollLayout extends ViewGroup {
         return overScrollMultiple;
     }
 
-    protected void handleMove(int dx, int dy) {
-        if (dx != 0 || dy != 0) {
-            scrollBy(dx, dy);
-        }
+    protected void handleMoveOffset(int offsetX, int offsetY) {
+        scrollTo(offsetX, offsetY);
     }
 
     protected void replaceView(@Nullable View oldeView, @Nullable View newView) {
@@ -427,7 +427,7 @@ public class StretchyScrollLayout extends ViewGroup {
         if (rollBackAnimator != null) {
             rollBackAnimator.cancel();
             rollBackAnimator = null;
-            updateBoundaryStates(getScrollX(), getScrollY());
+            updateBoundaryStates(getOffsetX(), getOffsetY());
         }
     }
 
@@ -435,8 +435,8 @@ public class StretchyScrollLayout extends ViewGroup {
         if (rollBackAnimator != null) {
             rollBackAnimator.cancel();
         }
-        final int startX = getScrollX();
-        final int startY = getScrollY();
+        final int startX = getOffsetX();
+        final int startY = getOffsetY();
         if (startX == 0 && startY == 0) {
             updateBoundaryStates(startX, startY);
             return;
@@ -454,7 +454,7 @@ public class StretchyScrollLayout extends ViewGroup {
             float fv = (float) animator.getAnimatedValue();
             int x = (int) (startX + (endX - startX) * fv);
             int y = (int) (startY + (endY - startY) * fv);
-            scrollTo(x, y);
+            handleMoveOffset(x, y);
         });
         animator.start();
     }
@@ -479,8 +479,16 @@ public class StretchyScrollLayout extends ViewGroup {
         }
     }
 
+    protected int getOffsetX() {
+        return getScrollX();
+    }
+
+    protected int getOffsetY() {
+        return getScrollY();
+    }
+
     protected boolean canSelfScrollVertically(int direction) {
-        int offset = getScrollY();
+        int offset = getOffsetY();
         if (direction < 0) {
             int minScrollSize = -boundaryWidths[1] * overScrollMultiple;
             return offset > minScrollSize;
@@ -490,8 +498,8 @@ public class StretchyScrollLayout extends ViewGroup {
         }
     }
 
-    public boolean canSelfScrollHorizontally(int direction) {
-        int offset = getScrollX();
+    protected boolean canSelfScrollHorizontally(int direction) {
+        int offset = getOffsetX();
         if (direction < 0) {
             int minScrollSize = -boundaryWidths[0] * overScrollMultiple;
             return offset > minScrollSize;
@@ -516,7 +524,7 @@ public class StretchyScrollLayout extends ViewGroup {
         return view.canScrollVertically(direction);
     }
 
-    public boolean canContentScrollHorizontally(int direction) {
+    protected boolean canContentScrollHorizontally(int direction) {
         if (direction == 0) {
             return false;
         }
@@ -555,9 +563,9 @@ public class StretchyScrollLayout extends ViewGroup {
         } else if (dScroll < 0) {
             if (cScroll < 0) {
                 if (boundaryPositive < 0) {
-                    return (int) (dScroll / (cScroll * 1.0f / boundaryNegative + 1.0f));
-                } else {
                     return Math.min(-cScroll, -dScroll);
+                } else {
+                    return (int) (dScroll / (cScroll * 1.0f / boundaryNegative + 1.0f));
                 }
             } else if (cScroll > 0) {
                 return Math.min(-cScroll, dScroll);

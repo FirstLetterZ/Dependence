@@ -4,6 +4,7 @@
     android:id="@+id/pll_load"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:boundaryWidthLeft="50dp"
     app:boundaryWidthRight="40dp">
 
     <TextView

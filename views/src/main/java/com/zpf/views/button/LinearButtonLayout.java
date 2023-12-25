@@ -41,15 +41,17 @@ public class LinearButtonLayout extends LinearLayout implements IFeedbackView, I
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        switch (ev.getAction()) {
-            case MotionEvent.ACTION_DOWN: {
-                onTouch(this);
-                break;
+        if (isEnabled() && (isClickable() || isLongClickable())) {
+            switch (ev.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    onTouch(this);
+                    break;
+                }
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_OUTSIDE:
+                    onRestore(this);
             }
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_OUTSIDE:
-                onRestore(this);
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -72,6 +74,7 @@ public class LinearButtonLayout extends LinearLayout implements IFeedbackView, I
     public void setDrawCircle(boolean circle) {
         prepareViewRoundHelper().setDrawCircle(circle);
     }
+
     @Override
     public boolean isDrawCircle() {
         if (roundHelper != null) {
@@ -134,6 +137,7 @@ public class LinearButtonLayout extends LinearLayout implements IFeedbackView, I
             super.dispatchDraw(canvas);
         }
     }
+
     protected ViewRoundHelper prepareViewRoundHelper() {
         ViewRoundHelper oldHelper = roundHelper;
         if (oldHelper != null) {

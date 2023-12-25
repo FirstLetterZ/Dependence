@@ -18,12 +18,16 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         ScrollLoadLayout pullLoadLayout = findViewById(R.id.pll_load);
+        pullLoadLayout.setLoadEnable(true, 1);
+        pullLoadLayout.setLoadEnable(true, 3);
         pullLoadLayout.addStateListener((target, left, top, right, bottom) -> {
             if (top == ScrollLoadLayout.STATE_LOADING) {
                 pullLoadLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         pullLoadLayout.finishLoading(1);
+                        pullLoadLayout.setLoadEnable(false, 1);
+
                     }
                 }, 3000L);
             }
@@ -32,6 +36,7 @@ public class TestActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         pullLoadLayout.finishLoading(3);
+                        pullLoadLayout.setLoadEnable(false, 3);
                     }
                 }, 3000L);
             }

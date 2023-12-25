@@ -45,15 +45,17 @@ public class FrameButtonLayout extends FrameLayout implements IFeedbackView, IRo
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        switch (ev.getAction()) {
-            case MotionEvent.ACTION_DOWN: {
-                onTouch(this);
-                break;
+        if (isEnabled() && (isClickable() || isLongClickable())) {
+            switch (ev.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    onTouch(this);
+                    break;
+                }
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_OUTSIDE:
+                    onRestore(this);
             }
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_OUTSIDE:
-                onRestore(this);
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -87,6 +89,7 @@ public class FrameButtonLayout extends FrameLayout implements IFeedbackView, IRo
     public void setConnerRadius(float radius) {
         prepareViewRoundHelper().setConnerRadius(radius);
     }
+
     @Override
     public float getConnerRadius() {
         if (roundHelper != null) {
@@ -138,6 +141,7 @@ public class FrameButtonLayout extends FrameLayout implements IFeedbackView, IRo
             super.dispatchDraw(canvas);
         }
     }
+
     protected ViewRoundHelper prepareViewRoundHelper() {
         ViewRoundHelper oldHelper = roundHelper;
         if (oldHelper != null) {

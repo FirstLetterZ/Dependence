@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi;
 public class ScrollLoadLayout extends StretchyScrollLayout {
     public static final int STATE_LOADING = 4;
 
+    protected final boolean[] loadEnable = new boolean[]{false, false, false, false};
     public ScrollLoadLayout(Context context) {
         super(context);
     }
@@ -58,7 +59,7 @@ public class ScrollLoadLayout extends StretchyScrollLayout {
         if (oldState == STATE_LOADING) {
             return oldState;
         }
-        if (oldState == STATE_OVER_BOUNDARY && rollBackAnimator != null) {
+        if (loadEnable[location] && oldState == STATE_OVER_BOUNDARY && rollBackAnimator != null) {
             int stateSize = boundaryStates.length;
             int oppositeDirectionState = boundaryStates[(location + stateSize / 2) % stateSize];
             if (oppositeDirectionState != STATE_LOADING) {
@@ -66,6 +67,21 @@ public class ScrollLoadLayout extends StretchyScrollLayout {
             }
         }
         return super.computeState(oldState, scrollValue, maxScrollValue);
+    }
+
+    public void setLoadEnable(boolean[] flags) {
+        if (flags.length != loadEnable.length) {
+            return;
+        }
+        System.arraycopy(flags, 0, loadEnable, 0, loadEnable.length);
+    }
+
+    public void setLoadEnable(boolean enable, int location) {
+        if (location < 0 || location >= boundaryWidths.length) {
+            return;
+        }
+        int oldState = boundaryStates[location];
+        loadEnable[location] = enable;
     }
 
     public void finishLoading(int location) {

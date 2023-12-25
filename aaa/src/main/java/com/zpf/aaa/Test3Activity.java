@@ -21,14 +21,14 @@ import com.zpf.views.tagtext.TagTextView;
 public class Test3Activity extends AppCompatActivity {
     private final int requestMaxLine = 2;
     private int textWidth;
-    private String content1 = "活力满满，和皮卡丘一起点燃今天的早晨吧！活力满满，和皮卡丘一起点燃今天的早晨吧！丘一起点燃今天的早晨吧！丘一起点燃今天的早晨吧！丘一起点燃今天的早晨吧！丘！丘一起点燃今天的早晨吧！丘今！一起点燃今天的早晨早晨吧！";
-    private String content2 = "活力满满，和皮卡丘一起点燃今天的早晨吧！活力满满，和皮卡丘一起点燃今天的早晨吧！丘一起点燃今天的早晨吧！丘一起点燃今天的早晨吧！丘一起点燃今天的早晨吧！丘！丘一起点燃今天的早晨吧！丘今！丘一起点燃今天的早晨吧！";
+    private String content1 = "本报北京9月6日讯（记者 高毅哲）今天，教育部学习贯彻习近平新时代中国特色社会主义思想主题教育总结会议在京召开。教育部党组书记、部长、部主题教育领导小组组长怀进鹏出席会议并作总结讲话。主题教育中央第二十三指导组组长、上海市政协主席胡文容，主题教育中央第二十三指导组副组长、十四届全国人大财政经济委员会副主任委员于春生出席会议。教育部党组成员、副部长、部主题教育领导小组副组长王嘉毅主持会议。";
+    private String content2 = "本报北京9月6日讯（记者 高毅哲）今天\n\n教育部学习贯彻习近平新时代中国特色社会主义思想主题教育总结会议在京召开";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test3);
-        String content = content1;
+        String content = content2;
         final float density = getResources().getDisplayMetrics().density;
         final int mt = (int) (200 * density);
         final int paddingTop = (int) (16 * density);
@@ -79,6 +79,7 @@ public class Test3Activity extends AppCompatActivity {
         FrameButtonLayout button1 = findViewById(R.id.fl_button1);
         LinearButtonLayout button2 = findViewById(R.id.ll_button2);
         RelativeButtonLayout button3 = findViewById(R.id.rl_button3);
+        button3.setClickable(true);
         button1.setConnerRadius(12 * density);
         button2.setConnerRadius(24 * density);
         button3.setDrawCircle(true);
