@@ -90,10 +90,15 @@ public class FileUriUtil {
         return null;
     }
 
-    public static Uri createMediaUri(ContentResolver resolver, String fileName, String mimeType, boolean external) {
+    public static Uri createMediaUri(ContentResolver resolver, String fileName, String mimeType, boolean external, boolean saveToDownload) {
         String saveDirectory = Environment.DIRECTORY_DOWNLOADS;
         Uri insertUri;
-        if (mimeType != null) {
+        if (mimeType == null) {
+            mimeType = "*/*";
+        }
+        if (saveToDownload) {
+            insertUri = getFileDownloadUri(external);
+        } else {
             String lowercaseType = mimeType.toLowerCase();
             if (lowercaseType.startsWith("image")) {
                 saveDirectory = Environment.DIRECTORY_PICTURES;
@@ -117,23 +122,7 @@ public class FileUriUtil {
                     insertUri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
                 }
             } else {
-                saveDirectory = Environment.DIRECTORY_DOCUMENTS;
-                if (external) {
-                    insertUri = MediaStore.Files.getContentUri("external");
-                } else {
-                    insertUri = MediaStore.Files.getContentUri("internal");
-                }
-            }
-        } else {
-            mimeType = "*/*";
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (external) {
-                    insertUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-                } else {
-                    insertUri = MediaStore.Downloads.INTERNAL_CONTENT_URI;
-                }
-            } else {
-                insertUri = Uri.parse("content://downloads/public_downloads");
+                insertUri = getFileDownloadUri(external);
             }
         }
         ContentValues values = new ContentValues();
@@ -152,6 +141,18 @@ public class FileUriUtil {
             values.put(MediaStore.MediaColumns.DATA, saveFilePath);
         }
         return resolver.insert(insertUri, values);
+    }
+
+    public static Uri getFileDownloadUri(boolean external) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (external) {
+                return MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+            } else {
+                return MediaStore.Downloads.INTERNAL_CONTENT_URI;
+            }
+        } else {
+            return Uri.parse("content://downloads/public_downloads");
+        }
     }
 
     /**

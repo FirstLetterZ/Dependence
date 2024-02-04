@@ -28,7 +28,7 @@ public class Test3Activity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test3);
-        String content = content2;
+        String content = content1;
         final float density = getResources().getDisplayMetrics().density;
         final int mt = (int) (200 * density);
         final int paddingTop = (int) (16 * density);

@@ -13,6 +13,7 @@ public class TouchFeedbackDelegate implements IFeedbackView {
     private Drawable originalBackground;
     private float touchDownAlpha;
     private Drawable touchDownBackground;
+    private boolean isTouchDown;
 
     public TouchFeedbackDelegate() {
     }
@@ -30,7 +31,7 @@ public class TouchFeedbackDelegate implements IFeedbackView {
 
     @Override
     public void onTouch(View view) {
-        if (!view.isEnabled()) {
+        if (!view.isEnabled() || isTouchDown) {
             return;
         }
         originalAlpha = view.getAlpha();
@@ -41,11 +42,15 @@ public class TouchFeedbackDelegate implements IFeedbackView {
         if (touchDownBackground != null) {
             view.setBackground(touchDownBackground);
         }
+        isTouchDown = true;
     }
 
     @Override
     public void onRestore(View view) {
-        view.setAlpha(originalAlpha);
-        view.setBackground(originalBackground);
+        if (isTouchDown) {
+            view.setAlpha(originalAlpha);
+            view.setBackground(originalBackground);
+        }
+        isTouchDown = false;
     }
 }

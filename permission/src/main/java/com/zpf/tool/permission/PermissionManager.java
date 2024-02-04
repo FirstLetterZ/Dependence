@@ -162,7 +162,7 @@ public class PermissionManager {
             listener = defCallBack;
         }
         if (listener != null) {
-            listener.onPermissionChecked(false, requestCode, requestPermissions, null);
+            listener.onPermissionChecked(false, requestCode, requestPermissions, missPermissions);
         }
     }
 

@@ -80,7 +80,6 @@ public class ScrollLoadLayout extends StretchyScrollLayout {
         if (location < 0 || location >= boundaryWidths.length) {
             return;
         }
-        int oldState = boundaryStates[location];
         loadEnable[location] = enable;
     }
 

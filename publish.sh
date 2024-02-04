@@ -1,11 +1,11 @@
 #!/bin/sh
 #modelName="global"
 #modelName="api"
-modelName="views"
+#modelName="views"
 #modelName="dataparser"
 #modelName="process"
 #modelName="permission"
-#modelName="appstack"
+modelName="appstack"
 #modelName="file"
 #modelName="fingerprint"
 #modelName="fragmentManager"

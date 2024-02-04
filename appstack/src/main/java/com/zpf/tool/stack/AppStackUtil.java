@@ -104,7 +104,11 @@ public class AppStackUtil {
         }
     }
 
-    public static ActivityStackItem search(String name) {
+    public static ActivityStackItem search(Object obj) {
+        return Instance.mInstance.stackInfo.get(getNameInStack(obj));
+    }
+
+    public static ActivityStackItem searchByName(String name) {
         return Instance.mInstance.stackInfo.get(name);
     }
 
@@ -169,7 +173,9 @@ public class AppStackUtil {
         if (stackName != null) {
             return stackName;
         }
-        if (obj instanceof Activity) {
+        if (obj instanceof Class<?>) {
+            stackName = ((Class<?>) obj).getName();
+        } else if (obj instanceof Activity) {
             stackName = ((Activity) obj).getIntent().getStringExtra(STACK_ITEM_NAME);
         }
         if (stackName != null) {

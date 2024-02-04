@@ -342,7 +342,7 @@ public class TagTextDelegate {
     }
 
     private int calculateDrawHeight(@NonNull View drawOn, int width) {
-        float realWidth = width - drawOn.getPaddingStart() - drawOn.getPaddingEnd();
+        int realWidth = width - drawOn.getPaddingStart() - drawOn.getPaddingEnd();
         if (realWidth <= 0 || contentTextList.size() == 0) {
             return drawOn.getPaddingTop() + drawOn.getPaddingBottom();
         }
@@ -351,7 +351,6 @@ public class TagTextDelegate {
         Paint.FontMetrics metrics = textPaint.getFontMetrics();
         final float fontHeight = -metrics.ascent - metrics.descent;
         final int lHeight = Math.max((int) (fontHeight + 0.5f), lineHeight);
-
         float ellipsisWidth;
         ellipsisPart.reset();
         if (ellipsisText == null || ellipsisText.length() == 0) {
@@ -387,15 +386,17 @@ public class TagTextDelegate {
                         addParagraphSpace = addParagraphSpace + paragraphSpace;
                     }
                 }
-                measureResult = measureMan.calculateDrawWidth(
-                        realWidth - usedWidth, item.textStr, textPaint, startIndex);
+                measureResult = measureMan.calculateDrawWidth(realWidth - usedWidth, item.textStr, textPaint, startIndex);
                 if (currentLine == maxLines) {
                     if (ellipsisWidth > 0) {
                         if (measureResult.newline || usedWidth + measureResult.drawWidth + ellipsisWidth >= realWidth) {
-                            measureResult = measureMan.calculateDrawWidth(
-                                    realWidth - usedWidth - ellipsisWidth, item.textStr, textPaint, startIndex);
+                            measureResult = measureMan.calculateDrawWidth(realWidth - usedWidth - ellipsisWidth,
+                                    item.textStr, textPaint, startIndex);
                             recycler.recombination(ellipsisPart, 0, ellipsisText.length(),
-                                    width - drawOn.getPaddingEnd() - ellipsisWidth, ellipsisWidth, currentLine, addParagraphSpace);
+                                    drawOn.getPaddingStart() + usedWidth + measureResult.drawWidth,
+                                    ellipsisWidth, currentLine, addParagraphSpace);
+//                            recycler.recombination(ellipsisPart, 0, ellipsisText.length(),
+//                                    width - drawOn.getPaddingEnd() - ellipsisWidth, ellipsisWidth, currentLine, addParagraphSpace);
                             usedWidth = -1;
                         }
                     }
@@ -404,8 +405,8 @@ public class TagTextDelegate {
                     }
                 }
                 if (measureResult.drawWidth > 0) {
-                    pieceInfo = recycler.obtainOnePiece(startIndex, measureResult.endIndex, usedWidth,
-                            measureResult.drawWidth, currentLine, addParagraphSpace);
+                    pieceInfo = recycler.obtainOnePiece(startIndex, measureResult.endIndex,
+                            drawOn.getPaddingStart() + usedWidth, measureResult.drawWidth, currentLine, addParagraphSpace);
                 } else {
                     pieceInfo = null;
                 }

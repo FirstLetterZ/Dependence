@@ -18,7 +18,7 @@ import java.io.OutputStream;
  * @author Created by ZPF on 2021/5/31.
  */
 public class FileSaveUtil {
-    public static Uri saveFile(Context context, File srcFile, String displayName, String mimeType) {
+    public static Uri saveFile(Context context, File srcFile, String displayName, String mimeType, boolean saveToDownload) {
         if (srcFile == null || context == null || !srcFile.exists()) {
             return null;
         }
@@ -35,9 +35,9 @@ public class FileSaveUtil {
             }
         }
         ContentResolver resolver = context.getContentResolver();
-        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, true);
+        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, true, saveToDownload);
         if (uri == null) {
-            uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, false);
+            uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, false, saveToDownload);
         }
         if (uri == null) {
             return null;
@@ -61,7 +61,7 @@ public class FileSaveUtil {
         return uri;
     }
 
-    public static Uri saveUri(Context context, Uri fileUri, String displayName, String mimeType) {
+    public static Uri saveUri(Context context, Uri fileUri, String displayName, String mimeType, boolean saveToDownload) {
         if (fileUri == null || context == null) {
             return null;
         }
@@ -78,9 +78,9 @@ public class FileSaveUtil {
             }
         }
         ContentResolver resolver = context.getContentResolver();
-        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, true);
+        Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, true, saveToDownload);
         if (uri == null) {
-            uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, false);
+            uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, false, saveToDownload);
         }
         if (uri == null) {
             return null;

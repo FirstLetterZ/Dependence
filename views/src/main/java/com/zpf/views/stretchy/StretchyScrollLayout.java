@@ -34,6 +34,8 @@ public class StretchyScrollLayout extends ViewGroup {
     protected final View[] boundaryViews = new View[4];
     protected View contentView = null;
     private int lastChildAction = MotionEvent.ACTION_CANCEL;
+    protected int internalMoveX = 0;
+    protected int internalMoveY = 0;
     protected float touchX = 0f;
     protected float touchY = 0f;
     protected int activePointerId = 0;
@@ -201,32 +203,57 @@ public class StretchyScrollLayout extends ViewGroup {
             child.layout(lp.leftMargin, lp.topMargin, lp.leftMargin + child.getMeasuredWidth(), lp.topMargin + child.getMeasuredHeight());
         }
         for (int i = 0; i < boundaryViews.length; i++) {
-            child = boundaryViews[i];
-            if (child == null) {
-                continue;
-            }
-            int childWidth = child.getMeasuredWidth();
-            int childHeight = child.getMeasuredHeight();
-            if (childHeight == 0 || childWidth == 0) {
-                continue;
-            }
-            MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
-            switch (i) {
-                case 0:
-                    child.layout(l - childWidth - lp.rightMargin, t + lp.topMargin, l - lp.rightMargin, t + lp.topMargin + childHeight);
-                    break;
-                case 1:
-                    child.layout(l + lp.leftMargin, t - childHeight - lp.bottomMargin, l + lp.leftMargin + childWidth, t - lp.bottomMargin);
-                    break;
-                case 2:
-                    child.layout(r + lp.leftMargin, t + lp.topMargin, r + lp.leftMargin + childWidth, t + lp.topMargin + childHeight);
-                    break;
-                case 3:
-                    child.layout(l + lp.leftMargin, b + lp.topMargin, l + lp.leftMargin + childWidth, b + childHeight + lp.topMargin);
-                    break;
-            }
+            layoutChild(l, t, r, b, boundaryViews[i], i);
         }
     }
+
+    protected void layoutChild(int l, int t, int r, int b, View child, int location) {
+        if (child == null || location < 0 || location >= boundaryViews.length) {
+            return;
+        }
+        int childWidth = child.getMeasuredWidth();
+        int childHeight = child.getMeasuredHeight();
+        if (childHeight == 0 || childWidth == 0) {
+            return;
+        }
+        MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+        int left;
+        int top;
+        int right;
+        int bottom;
+        switch (location) {
+            case 0:
+                left = l - childWidth - lp.rightMargin - Math.min(0, internalMoveX);
+                top = t + lp.topMargin;
+                right = l - lp.rightMargin - Math.min(0, internalMoveX);
+                bottom = t + lp.topMargin + childHeight;
+                break;
+            case 1:
+                left = l + lp.leftMargin;
+                top = t - childHeight - lp.bottomMargin - Math.min(0, internalMoveY);
+                right = l + lp.leftMargin + childWidth;
+                bottom = t - lp.bottomMargin - Math.min(0, internalMoveY);
+                break;
+            case 2:
+                left = r + lp.leftMargin - Math.max(0, internalMoveX);
+                top = t + lp.topMargin;
+                right = r + lp.leftMargin + childWidth - Math.max(0, internalMoveX);
+                bottom = t + lp.topMargin + childHeight;
+                break;
+            case 3:
+                left = l + lp.leftMargin;
+                top = b + lp.topMargin - Math.max(0, internalMoveY);
+                right = l + lp.leftMargin + childWidth;
+                bottom = b + childHeight + lp.topMargin - Math.max(0, internalMoveY);
+                break;
+            default:
+                return;
+        }
+        if (child.getLeft() != left || child.getTop() != top || child.getRight() != right || child.getBottom() != bottom) {
+            child.layout(left, top, right, bottom);
+        }
+    }
+
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
         return p instanceof LayoutParams;
@@ -309,7 +336,7 @@ public class StretchyScrollLayout extends ViewGroup {
                     int oldOffsetX = getOffsetX();
                     int oldOffsetY = getOffsetY();
                     if (dx != 0) {
-                        if ((oldOffsetX == 0 && canContentScrollHorizontally(dx)) || !canScrollHorizontally(dx)) {
+                        if ((oldOffsetX == 0 && canContentScrollHorizontally(dx)) || !canSelfScrollHorizontally(dx)) {
                             postToChildren = true;
                             dx = 0;
                         } else {
@@ -396,6 +423,22 @@ public class StretchyScrollLayout extends ViewGroup {
         return overScrollMultiple;
     }
 
+    public void internalMoveTo(int x, int y) {
+        int minX = -boundaryWidths[0] * overScrollMultiple;
+        int maxX = boundaryWidths[2] * overScrollMultiple;
+        int minY = -boundaryWidths[1] * overScrollMultiple;
+        int maxY = boundaryWidths[3] * overScrollMultiple;
+        int realX = Math.max(Math.min(maxX, x), minX);
+        int realY = Math.max(Math.min(maxY, y), minY);
+        if (internalMoveX != realX || internalMoveY != realY) {
+            internalMoveX = realX;
+            internalMoveY = realY;
+            for (int i = 0; i < boundaryViews.length; i++) {
+                layoutChild(getLeft(), getTop(), getRight(), getBottom(), boundaryViews[i], i);
+            }
+        }
+    }
+
     protected void handleMoveOffset(int offsetX, int offsetY) {
         scrollTo(offsetX, offsetY);
     }
@@ -459,15 +502,15 @@ public class StretchyScrollLayout extends ViewGroup {
         animator.start();
     }
 
-    protected void updateBoundaryStates(int scrollX, int scrollY) {
+    protected void updateBoundaryStates(int offsetX, int offsetY) {
         int olsStateLeft = boundaryStates[0];
         int olsStateTop = boundaryStates[1];
         int olsStateRight = boundaryStates[2];
         int olsStateBottom = boundaryStates[3];
-        boundaryStates[0] = computeState(0, Math.abs(Math.min(0, scrollX)), boundaryWidths[0]);
-        boundaryStates[1] = computeState(1, Math.abs(Math.min(0, scrollY)), boundaryWidths[1]);
-        boundaryStates[2] = computeState(2, Math.max(0, scrollX), boundaryWidths[2]);
-        boundaryStates[3] = computeState(3, Math.max(0, scrollY), boundaryWidths[3]);
+        boundaryStates[0] = computeState(0, Math.abs(Math.min(0, offsetX)), boundaryWidths[0]);
+        boundaryStates[1] = computeState(1, Math.abs(Math.min(0, offsetY)), boundaryWidths[1]);
+        boundaryStates[2] = computeState(2, Math.max(0, offsetX), boundaryWidths[2]);
+        boundaryStates[3] = computeState(3, Math.max(0, offsetY), boundaryWidths[3]);
         if (olsStateLeft != boundaryStates[0] || olsStateTop != boundaryStates[1] || olsStateRight != boundaryStates[2] || olsStateBottom != boundaryStates[3]) {
             onStateChanged(boundaryStates[0], boundaryStates[1], boundaryStates[2], boundaryStates[3]);
         }
@@ -480,10 +523,16 @@ public class StretchyScrollLayout extends ViewGroup {
     }
 
     protected int getOffsetX() {
+        if (internalMoveX != 0) {
+            return internalMoveX;
+        }
         return getScrollX();
     }
 
     protected int getOffsetY() {
+        if (internalMoveY != 0) {
+            return internalMoveY;
+        }
         return getScrollY();
     }
 

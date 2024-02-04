@@ -12,8 +12,8 @@ import androidx.annotation.Nullable;
 import com.zpf.views.BottomMenuView;
 import com.zpf.views.R;
 
-class BottomDialog extends AbsCustomDialog {
-    public final BottomMenuView menuView = new BottomMenuView(getContext());
+public class BottomDialog extends AbsCustomDialog {
+    public BottomMenuView menuView;
 
     public BottomDialog(@NonNull Context context) {
         super(context);
@@ -29,6 +29,7 @@ class BottomDialog extends AbsCustomDialog {
 
     @Override
     protected void initView() {
+        menuView = new BottomMenuView(getContext());
         setContentView(menuView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT));
     }
 

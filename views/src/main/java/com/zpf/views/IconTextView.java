@@ -236,6 +236,27 @@ public class IconTextView extends TextView implements IconText {
         return this;
     }
 
+    public void bindIconText(IconTextEntry entry) {
+        if (entry == null) {
+            return;
+        }
+        if (entry.getTextSize() != 0) {
+            setTextSize(entry.getTextSize());
+        }
+        if (entry.getTextColor() != 0) {
+            setTextColor(entry.getTextColor());
+        }
+        if (entry.getIconResId() != 0) {
+            setIconFont(entry.getIconResId());
+        } else if (entry.getImageResId() != 0) {
+            setImageOnly(entry.getImageResId());
+        } else if (entry.getTextResId() != 0) {
+            setText(entry.getTextResId());
+        } else if (!TextUtils.isEmpty(entry.getTextString())) {
+            setText(entry.getTextString());
+        }
+    }
+
     /**
      * 缩放
      */
