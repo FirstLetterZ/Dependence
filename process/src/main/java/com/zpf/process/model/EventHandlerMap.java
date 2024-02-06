@@ -96,12 +96,13 @@ public class EventHandlerMap {
                 if (eventIndex != null && eventIndex.events().length > 0) {
                     continue;
                 }
-                if (handled = handler.handleEvent(event, params, eventCallback)) {
-                    break;
+                 handler.handleEvent(event, params, eventCallback);
+                if (handler.handleEvent(event, params, eventCallback)) {
+                   return true;
                 }
             }
         }
-        return handled;
+        return false;
     }
 
     private String getDataKey(Object obj) {

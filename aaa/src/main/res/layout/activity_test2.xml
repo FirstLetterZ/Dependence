@@ -8,6 +8,7 @@
     app:boundaryWidthRight="40dp">
 
     <TextView
+        android:id="@+id/tv_left"
         android:layout_width="20dp"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -15,6 +16,7 @@
         app:slot_location="left" />
 
     <TextView
+        android:id="@+id/tv_right"
         android:layout_width="20dp"
         android:layout_height="match_parent"
         android:gravity="center"

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="DashedView">
-        <attr name="dashColor" format="color"/>
-        <attr name="dashGap" format="dimension"/>
-        <attr name="dashWidth" format="dimension"/>
-        <attr name="strokeWidth" format="dimension"/>
+        <attr name="dashColor" format="color" />
+        <attr name="dashGap" format="dimension" />
+        <attr name="dashWidth" format="dimension" />
+        <attr name="strokeWidth" format="dimension" />
         <attr name="dashType" format="enum">
-            <enum name="horizontal" value="0"/>
-            <enum name="vertical" value="1"/>
-            <enum name="circle" value="2"/>
+            <enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
+            <enum name="circle" value="2" />
         </attr>
     </declare-styleable>
     <declare-styleable name="TriangleView">
@@ -22,17 +22,17 @@
     </declare-styleable>
     <declare-styleable name="TagTextView">
         <attr name="ellipsisColor" format="color" />
-        <attr name="ellipsisText" format="string"/>
-        <attr name="maxLines" format="integer"/>
-        <attr name="paragraphSpace" format="dimension"/>
-        <attr name="lineHeight" format="dimension"/>
-        <attr name="maxHeight" format="dimension"/>
-        <attr name="fontSize" format="dimension"/>
-        <attr name="fontColor" format="color"/>
-        <attr name="bold" format="boolean"/>
-        <attr name="italic" format="boolean"/>
-        <attr name="underline" format="boolean"/>
-        <attr name="strikeThru" format="boolean"/>
+        <attr name="ellipsisText" format="string" />
+        <attr name="maxLines" format="integer" />
+        <attr name="paragraphSpace" format="dimension" />
+        <attr name="lineHeight" format="dimension" />
+        <attr name="maxHeight" format="dimension" />
+        <attr name="fontSize" format="dimension" />
+        <attr name="fontColor" format="color" />
+        <attr name="bold" format="boolean" />
+        <attr name="italic" format="boolean" />
+        <attr name="underline" format="boolean" />
+        <attr name="strikeThru" format="boolean" />
     </declare-styleable>
     <declare-styleable name="StretchyScrollLayout">
         <attr name="boundaryWidthLeft" format="dimension" />
@@ -49,5 +49,6 @@
             <enum name="right" value="3" />
             <enum name="bottom" value="4" />
         </attr>
+        <attr name="intercept_scrolling" format="boolean" />
     </declare-styleable>
 </resources>

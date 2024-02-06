@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -23,33 +24,22 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import com.zpf.tool.global.CentralManager;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Created by ZPF on 2018/7/26.
  */
-
 public class PublicUtil {
 
     public static DisplayMetrics getDisplayMetrics() {
         return Resources.getSystem().getDisplayMetrics();
-    }
-
-    public static int getColor(int color) {
-        return CentralManager.getAppContext().getResources().getColor(color);
-    }
-
-    public static String getString(int id) {
-        return CentralManager.getAppContext().getResources().getString(id);
     }
 
     public static <T> Class<T> getGenericClass(Class<?> klass) {
@@ -61,39 +51,38 @@ public class PublicUtil {
         return (Class<T>) types[0];
     }
 
-    public static int getVersionCode(Context context) {
-        if (context != null) {
-            try {
-                PackageManager manager = context.getPackageManager();
-                PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-                return info.versionCode;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return 0;
-            }
+    public static int getVersionCode(@NonNull Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            return info.versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
         }
-        return 0;
     }
 
-    public static String getVersionName(Context context) {
-        String versionName = "0.0.1";
-        if (context != null) {
-            try {
-                PackageManager manager = context.getPackageManager();
-                PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-                versionName = info.versionName;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    @Nullable
+    public static String getVersionName(@NonNull Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            return info.versionName;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return versionName;
+        return null;
     }
 
-    public static int compareToAppVersion(Context context, String versionName) {
+    public static int compareToAppVersion(@NonNull Context context, String versionName) {
         if (versionName == null || versionName.length() < 1) {
             return -1;
         }
-        String[] appVersionParts = getVersionName(context).split("\\.");
+        String currentAppVersion = getVersionName(context);
+        if (currentAppVersion == null || currentAppVersion.length() < 1) {
+            return 1;
+        }
+        String[] appVersionParts = currentAppVersion.split("\\.");
         String[] compareVersionParts = versionName.split("\\.");
         int maxLen = Math.max(appVersionParts.length, compareVersionParts.length);
         int appVersion;
@@ -122,42 +111,36 @@ public class PublicUtil {
         return 0;
     }
 
-    public static String getAppName(Context context) {
-        String name = "当前应用";
-        if (context != null) {
-            try {
-                PackageManager manager = context.getPackageManager();
-                PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-                int labelRes = info.applicationInfo.labelRes;
-                name = context.getResources().getString(labelRes);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    @Nullable
+    public static String getAppName(@NonNull Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            int labelRes = info.applicationInfo.labelRes;
+            return context.getResources().getString(labelRes);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return name;
+        return null;
     }
 
     @SuppressLint("QueryPermissionsNeeded")
-    public static boolean isAppInstalled(Context context, String packageName) {
+    public static boolean isAppInstalled(@NonNull Context context, @NonNull String packageName) {
         List<PackageInfo> pInfo = context.getPackageManager().getInstalledPackages(0);
-        if (pInfo == null) {
-            return false;
-        } else {
-            for (PackageInfo info : pInfo) {
-                if (TextUtils.equals(info.packageName, packageName)) {
-                    return true;
-                }
+        for (PackageInfo info : pInfo) {
+            if (TextUtils.equals(info.packageName, packageName)) {
+                return true;
             }
         }
         return false;
     }
 
-    public static boolean isPackageProcess(Context context) {
+    public static boolean isPackageProcess(@NonNull Context context) {
         String mainProcessName = context.getPackageName();
         return mainProcessName.equals(getProcessName(context));
     }
 
-    public static String getProcessName(Context context) {
+    public static String getProcessName(@NonNull Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
             List<ActivityManager.RunningAppProcessInfo> appProcessInfoList = activityManager.getRunningAppProcesses();
@@ -175,13 +158,14 @@ public class PublicUtil {
      * 将App转到前台
      */
     @SuppressLint("MissingPermission")
-    public static boolean moveTaskToTop(Context context) {
+    public static boolean moveTaskToTop(@NonNull Context context) {
         ActivityManager myManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (myManager != null) {
             List<ActivityManager.RunningTaskInfo> runningTaskList = myManager.getRunningTasks(16);
             if (runningTaskList != null && runningTaskList.size() > 0) {
                 for (ActivityManager.RunningTaskInfo taskInfo : runningTaskList) {
-                    if (TextUtils.equals(context.getPackageName(), taskInfo.topActivity.getPackageName())) {
+                    ComponentName topName = taskInfo.topActivity;
+                    if (topName != null && TextUtils.equals(context.getPackageName(), topName.getPackageName())) {
                         myManager.moveTaskToFront(taskInfo.id, 0);
                         return true;
                     }
@@ -196,7 +180,7 @@ public class PublicUtil {
      *
      * @return -1--未运行；0--在后台；1--在前台；
      */
-    public static int getAppState(Context context) {
+    public static int getAppState(@NonNull Context context) {
         int result = -1;
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
@@ -222,7 +206,7 @@ public class PublicUtil {
      * @param money 金额
      * @param scale 保留位置
      */
-    public static BigDecimal scaleNumber(Number money, int scale) {
+    public static BigDecimal scaleNumber(@Nullable Number money, int scale) {
         BigDecimal amount;
         if (money == null) {
             amount = BigDecimal.ZERO;
@@ -231,14 +215,14 @@ public class PublicUtil {
         } else {
             amount = BigDecimal.valueOf(money.doubleValue());
         }
-        return amount.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        return amount.setScale(scale, RoundingMode.HALF_UP);
     }
 
-    public static String scaleNumberString(Number money, int scale) {
+    public static String scaleNumberString(@Nullable Number money, int scale) {
         return scaleNumber(money, scale).toPlainString();
     }
 
-    public static String stripTrailingZerosString(Number money, int scale) {
+    public static String stripTrailingZerosString(@Nullable Number money, int scale) {
         BigDecimal amount;
         if (money == null) {
             amount = BigDecimal.ZERO;
@@ -324,35 +308,6 @@ public class PublicUtil {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    /**
-     * 修复部分机型 AssetManager.finalize() 引发超时崩溃的问题
-     */
-    public static boolean fixAssetManager(String[] keyWords) {
-        if (keyWords != null && keyWords.length > 0) {
-            String device = Build.BRAND + " " + Build.MODEL;
-            for (String w : keyWords) {
-                if (w == null || w.length() == 0) {
-                    continue;
-                }
-                if (device.contains(w) || w.contains(device)) {
-                    try {
-                        // 关闭掉FinalizerWatchdogDaemon
-                        Class<?> clazz = Class.forName("java.lang.Daemons\\$FinalizerWatchdogDaemon");
-                        Method method = clazz.getSuperclass().getDeclaredMethod("stop");
-                        method.setAccessible(true);
-                        Field field = clazz.getDeclaredField("INSTANCE");
-                        field.setAccessible(true);
-                        method.invoke(field.get(null));
-                        return true;
-                    } catch (Throwable e) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     public static String getMetaDataValue(@NonNull Context context, @NonNull String metaDataName) {

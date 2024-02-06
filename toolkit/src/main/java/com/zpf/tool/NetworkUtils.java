@@ -37,6 +37,7 @@ import java.util.List;
 
 public class NetworkUtils {
     private static int mNetworkState = NetworkState.NETWORK_UNKNOWN;
+    private static int mSignalStrength = Integer.MIN_VALUE;
     private static long cacheTime = 0L;
     private volatile static ConnectivityManager.NetworkCallback callback;
 
@@ -64,6 +65,9 @@ public class NetworkUtils {
                     } else {
                         mNetworkState = NetworkState.NETWORK_NONE;
                     }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        mSignalStrength = networkCapabilities.getSignalStrength();
+                    }
                     cacheTime = System.currentTimeMillis();
                 }
             };
@@ -79,10 +83,9 @@ public class NetworkUtils {
     }
 
     public static boolean checkProxy(Context context) {
-        final boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
         String proxyAddress;
         int proxyPort;
-        if (IS_ICS_OR_LATER) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             proxyAddress = System.getProperty("http.proxyHost");
             String portStr = System.getProperty("http.proxyPort");
             proxyPort = Integer.parseInt((portStr != null ? portStr : "-1"));
@@ -120,9 +123,11 @@ public class NetworkUtils {
     }
 
     @NetworkState
-    public static int getNetworkType(Context context, boolean useCache) {
-        if (useCache && System.currentTimeMillis() - cacheTime < 3000 && mNetworkState != NetworkState.NETWORK_UNKNOWN) {
-            return mNetworkState;
+    public static int getNetworkType(Context context, long cacheEffective) {
+        if (mNetworkState != NetworkState.NETWORK_UNKNOWN) {
+            if (System.currentTimeMillis() - cacheTime <= cacheEffective) {
+                return mNetworkState;
+            }
         }
         int type = getNetworkType(context);
         if (type != NetworkState.NETWORK_UNKNOWN) {
@@ -253,6 +258,27 @@ public class NetworkUtils {
         }
 
         return result;
+    }
+
+    public static int getSignalStrength(Context context, long cacheEffective) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && mSignalStrength != Integer.MIN_VALUE) {
+            if (System.currentTimeMillis() - cacheTime <= cacheEffective) {
+                return mSignalStrength;
+            }
+        }
+        int typeCode = getNetworkType(context, cacheEffective);
+        int strength;
+        if (typeCode == NetworkState.NETWORK_WIFI) {
+            strength = getWifiSignalStrength(context);
+        } else if (typeCode == NetworkState.NETWORK_UNKNOWN || typeCode == NetworkState.NETWORK_NONE) {
+            strength = 0;
+        } else {
+            strength = getMobileSignalStrength(context);
+        }
+        if (strength != 0) {
+            mSignalStrength = strength;
+        }
+        return strength;
     }
 
     public static int getWifiSignalStrength(Context context) {
