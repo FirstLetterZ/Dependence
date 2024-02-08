@@ -535,13 +535,14 @@ public class StretchyScrollLayout extends ViewGroup {
         }
         final int startX = offsetX;
         final int startY = offsetY;
-        updateBoundaryStates(startX, startY);
         if (startX == 0 && startY == 0) {
+            updateBoundaryStates(startX, startY);
             return;
         }
         final ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.addListener(rollBackListener);
         rollBackAnimator = animator;
+        updateBoundaryStates(startX, startY);
         final int endX = computeHorizontallyRollbackEnd(startX);
         final int endY = computeVerticallyRollbackEnd(startY);
         long rollbackTime = Math.max(Math.abs(startX - endX), Math.abs(startY - endY)) / rollbackSpeed;

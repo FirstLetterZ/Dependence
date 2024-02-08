@@ -7,11 +7,18 @@
     app:boundaryWidthBottom="60dp"
     app:boundaryWidthTop="40dp">
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:gravity="center"
         android:text="this is top"
+        app:intercept_scrolling="true"
         app:slot_location="top" />
 
     <TextView
@@ -19,11 +26,6 @@
         android:layout_height="60dp"
         android:gravity="center"
         android:text="this is bottom"
+        app:intercept_scrolling="true"
         app:slot_location="bottom" />
-
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vp_page"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" />
 </com.zpf.views.stretchy.ScrollLoadLayout>
