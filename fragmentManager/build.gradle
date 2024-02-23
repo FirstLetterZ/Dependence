@@ -9,5 +9,5 @@ android {
     }
 }
 dependencies {
-    compileOnly rootProject.ext.dependencies.annotations
+    compileOnly "androidx.annotation:annotation:1.6.0"
 }
