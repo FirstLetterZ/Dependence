@@ -42,5 +42,6 @@ dependencies {
     implementation(libs.viewPager2)
     implementation(libs.constraintlayout)
     implementation(project(":views"))
+    implementation(project(":toolkit"))
 }
 

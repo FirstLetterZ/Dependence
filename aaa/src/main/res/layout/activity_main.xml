@@ -8,6 +8,12 @@
     android:orientation="vertical"
     android:padding="40dp">
 
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp" />
+
     <Button
         android:id="@+id/btn_test1"
         android:layout_width="wrap_content"
