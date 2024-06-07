@@ -1,8 +1,8 @@
 #!/bin/sh
 #modelName="global"
-#modelName="api"
+modelName="api"
 #modelName="views"
-modelName="dataparser"
+#modelName="dataparser"
 #modelName="process"
 #modelName="permission"
 #modelName="appstack"

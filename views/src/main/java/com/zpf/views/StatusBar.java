@@ -47,10 +47,10 @@ public class StatusBar extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int h = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        if (h != statusBarHeight) {
-            getLayoutParams().height = statusBarHeight;
-            setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
-                    statusBarHeight);
+        int minHeight = getMinimumHeight();
+        if (h != minHeight) {
+            getLayoutParams().height = minHeight;
+            setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec), minHeight);
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
@@ -58,20 +58,18 @@ public class StatusBar extends View {
 
     @Override
     public int getMinimumHeight() {
-        return statusBarHeight;
+        return statusBarHeight + getPaddingTop() + getPaddingBottom();
     }
 
     //获取状态栏高度
     public static int getStatusBarHeight(Context context) {
         int height = 0;
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen",
-                "android");
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId != 0) {
             height = context.getResources().getDimensionPixelSize(resourceId);
         }
         if (height == 0) {
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24,
-                    context.getResources().getDisplayMetrics());
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, context.getResources().getDisplayMetrics());
         }
         return height;
     }

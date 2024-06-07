@@ -11,6 +11,7 @@ import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class TriangleView extends View {
@@ -60,7 +61,7 @@ public class TriangleView extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         path.reset();
         if (direction == Direction.LEFT) {//向左

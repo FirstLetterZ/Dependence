@@ -29,7 +29,9 @@ android {
 
 dependencies {
     implementation(project(":api"))
+    implementation(project(":toolkit"))
     implementation(project(":views"))
+    implementation(libs.gson)
     implementation(libs.tool.central)
     implementation(libs.appcompat)
 }

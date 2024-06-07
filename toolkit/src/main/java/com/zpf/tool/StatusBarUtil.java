@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 
 import java.lang.reflect.Field;
@@ -63,10 +64,23 @@ public class StatusBarUtil {
     }
 
     public static boolean SetStatusBarLightMode(Window window, boolean darkText) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                if (darkText) {
+                    controller.setSystemBarsAppearance(
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+                } else {
+                    controller.setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+                }
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int visible = window.getDecorView().getSystemUiVisibility();
             if (darkText) {
-                window.getDecorView().setSystemUiVisibility(visible | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                visible = visible | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                window.getDecorView().setSystemUiVisibility(visible);
             } else {
                 visible = visible & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
                 window.getDecorView().setSystemUiVisibility(visible);

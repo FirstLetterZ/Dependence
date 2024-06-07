@@ -16,7 +16,11 @@ public class LinkagePickerModel2<T extends ILinkageViewData<T>> extends LinkageP
             if (selects == null || selects.size() < column) {
                 return null;
             }
-            return selects.get(column - 1).getNext();
+            T selectVal = selects.get(column - 1);
+            if (selectVal == null) {
+                return null;
+            }
+            return selectVal.getNext();
         });
     }
 
