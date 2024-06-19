@@ -16,12 +16,14 @@ public class ViewRoundHelper implements IDrawingCanvasModifier, IRoundView {
     private float connerRadius;
     private boolean isCircle = false;
     private final RectF srcRectF = new RectF();
-    private final Paint paint = new Paint();
+    private final Paint paint ;
     private ViewDrawingCanvas drawingCanvas;
 
     public ViewRoundHelper() {
+        paint = new Paint();
         paint.setAntiAlias(true);
     }
+
     @Override
     public void setDrawCircle(boolean circle) {
         this.isCircle = circle;

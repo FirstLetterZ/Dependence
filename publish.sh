@@ -1,7 +1,7 @@
 #!/bin/sh
 #modelName="global"
-modelName="api"
-#modelName="views"
+#modelName="api"
+modelName="views"
 #modelName="dataparser"
 #modelName="process"
 #modelName="permission"
