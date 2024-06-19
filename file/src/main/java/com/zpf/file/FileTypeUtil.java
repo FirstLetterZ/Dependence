@@ -58,6 +58,10 @@ public class FileTypeUtil {
         return parseHeadCode(readFileHeadString(context, fileUri));
     }
 
+    public static int getFileTypeCode(InputStream inputStream) {
+        return parseHeadCode(readFileHeadString(inputStream));
+    }
+
     @Nullable
     public static String getFileMimeType(Context context, Uri fileUri) {
         if (context == null || fileUri == null) {
@@ -132,27 +136,34 @@ public class FileTypeUtil {
     }
 
     public static String readFileHeadString(File file) {
-        InputStream inputStream;
         try {
-            inputStream = new FileInputStream(file);
+            InputStream inputStream = new FileInputStream(file);
+            return readFileHeadString(inputStream);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-        byte[] bytes = FileIOUtil.readStreamBytes(inputStream, 16);
-        return bytesToHexString(bytes);
     }
 
     public static String readFileHeadString(Context context, Uri fileUri) {
-        InputStream inputStream;
         try {
-            inputStream = context.getContentResolver().openInputStream(fileUri);
+            InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
+            return readFileHeadString(inputStream);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String readFileHeadString(InputStream inputStream) {
         byte[] bytes = FileIOUtil.readStreamBytes(inputStream, 16);
-        return bytesToHexString(bytes);
+        String head = bytesToHexString(bytes);
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return head;
     }
 
     @FileType

@@ -13,9 +13,9 @@
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:orientation="vertical"
+        android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:layout_height="wrap_content">
+        android:orientation="vertical">
 
         <Button
             android:layout_width="wrap_content"
@@ -30,8 +30,12 @@
             android:text="002" />
 
         <com.zpf.views.TriangleView
-            android:layout_marginTop="20dp"
+            android:id="@+id/triangle"
+            app:triangle_direction="right"
             android:layout_width="200dp"
-            android:layout_height="320dp"/>
+            android:layout_height="320dp"
+            android:layout_marginTop="20dp"
+            app:bottom_radius="32dp"
+            app:top_radius="20dp" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </LinearLayout>

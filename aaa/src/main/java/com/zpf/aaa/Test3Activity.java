@@ -8,9 +8,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.zpf.views.button.FrameButtonLayout;
-import com.zpf.views.button.LinearButtonLayout;
-import com.zpf.views.button.RelativeButtonLayout;
 import com.zpf.views.tagtext.TagItemClickListener;
 import com.zpf.views.tagtext.TagTextStyle;
 import com.zpf.views.tagtext.TagTextView;
@@ -76,13 +73,6 @@ public class Test3Activity extends AppCompatActivity {
             }
         });
 
-        FrameButtonLayout button1 = findViewById(R.id.fl_button1);
-        LinearButtonLayout button2 = findViewById(R.id.ll_button2);
-        RelativeButtonLayout button3 = findViewById(R.id.rl_button3);
-        button3.setClickable(true);
-        button1.setConnerRadius(12 * density);
-        button2.setConnerRadius(24 * density);
-        button3.setDrawCircle(true);
     }
 
     private void checkState(TagTextView tagTextView, View pointer1, View pointer2) {

@@ -10,17 +10,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.apptest.R;
 import com.google.gson.reflect.TypeToken;
 import com.zpf.tool.type.TypeTokenUtil;
+import com.zpf.views.TriangleView;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private    List<Pair<String, Integer>> list = new ArrayList<Pair<String, Integer>>();
+    private List<Pair<String, Integer>> list = new ArrayList<Pair<String, Integer>>();
+    private int d = 0;
+    TriangleView triangle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        triangle = findViewById(R.id.triangle);
+        float d = getResources().getDisplayMetrics().density;
+//        triangle.setCornerRadius(5 * d, 10 * d);
+
     }
 
     public void clickOne(View view) {
@@ -34,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             Class<?> listCls = list.getClass();
             Class<?> tokenCls = token.getClass();
             Class<?> itemCls = item.getClass();
-            Log.e("ZPF", "listCls=" + listCls.toString() + ";tokenCls=" + tokenCls.toString()+";itemCls="+itemCls);
+            Log.e("ZPF", "listCls=" + listCls.toString() + ";tokenCls=" + tokenCls.toString() + ";itemCls=" + itemCls);
 
             Type type2 = TypeTokenUtil.getClassType(itemCls);
             Type type3 = TypeTokenUtil.getClassType(listCls);
@@ -44,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void clickTwo(View view) {
-
+        int d = (triangle.getDirection() + 1) % 4;
+        triangle.setDirection(d);
+        triangle.invalidate();
     }
 }

@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
@@ -57,7 +60,6 @@ public class ViewUtil {
         return view != null && (float) view.getScrollY() >= (float) view.getContentHeight() * view.getScale() - (float) view.getMeasuredHeight();
     }
 
-
     //获取虚拟按键高度
     public static int getNavigationBarHeight(Context context) {
         int height = 0;
@@ -74,7 +76,7 @@ public class ViewUtil {
     }
 
     //收起软键盘
-    public static boolean pickUpKeyboard(Activity activity) {
+    public static boolean hideKeyboard(Activity activity) {
         if (activity == null) {
             return false;
         }
@@ -91,7 +93,7 @@ public class ViewUtil {
         return false;
     }
 
-    public static boolean pickUpKeyBoard(View view) {
+    public static boolean hideKeyBoard(View view) {
         if (view == null) {
             return false;
         }
@@ -230,5 +232,18 @@ public class ViewUtil {
         } else {
             return null;
         }
+    }
+
+    public static Bitmap createBitmap(View view) {
+        int width = view.getMeasuredWidth();
+        int height = view.getMeasuredHeight();
+        if (width <= 0 || height <= 0) {
+            return null;
+        }
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        view.draw(canvas);
+        return bitmap;
     }
 }

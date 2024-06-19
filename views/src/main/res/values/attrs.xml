@@ -19,6 +19,8 @@
             <enum name="right" value="2" />
             <enum name="bottom" value="3" />
         </attr>
+        <attr name="top_radius" format="dimension" />
+        <attr name="bottom_radius" format="dimension" />
     </declare-styleable>
     <declare-styleable name="TagTextView">
         <attr name="ellipsisColor" format="color" />
