@@ -13,7 +13,7 @@ import com.zpf.views.BottomMenuView;
 import com.zpf.views.R;
 
 public class BottomDialog extends AbsCustomDialog {
-    public BottomMenuView menuView;
+    protected BottomMenuView menuView;
 
     public BottomDialog(@NonNull Context context) {
         super(context);
@@ -33,12 +33,13 @@ public class BottomDialog extends AbsCustomDialog {
         setContentView(menuView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT));
     }
 
+    public BottomMenuView getMenuView() {
+        return menuView;
+    }
+
     @Override
     protected void initWindow(@NonNull Window window) {
-        window.getDecorView().setPadding(0, 0, 0, 0);
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        super.initWindow(window);
         WindowManager.LayoutParams lp = window.getAttributes();
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;

@@ -1,9 +1,7 @@
 package com.zpf.tool.permission;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AppOpsManager;
-import android.app.Fragment;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -31,7 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -40,11 +38,11 @@ import java.util.List;
 public class PermissionManager {
     public static final int REQ_PERMISSION_CODE = 10001;
     public IPermissionResultListener defCallBack = null;
-    private final HashMap<Class<?>, IPermissionChecker> checkerMap = new HashMap<>();
+    private final HashSet<IPermissionChecker> checkerMap = new HashSet<>();
 
     private PermissionManager() {
-        addChecker(Activity.class, new ActivityPermissionChecker());
-        addChecker(Fragment.class, new FragmentPermissionChecker());
+        addChecker(new ActivityPermissionChecker());
+        addChecker(new FragmentPermissionChecker());
     }
 
     public static PermissionManager get() {
@@ -55,12 +53,12 @@ public class PermissionManager {
         private static final PermissionManager instance = new PermissionManager();
     }
 
-    public void addChecker(Class<?> clz, IPermissionChecker checker) {
-        checkerMap.put(clz, checker);
+    public void addChecker(@NonNull IPermissionChecker checker) {
+        checkerMap.add(checker);
     }
 
-    public void removeChecker(Class<?> clz) {
-        checkerMap.remove(clz);
+    public void removeChecker(@NonNull IPermissionChecker checker) {
+        checkerMap.remove(checker);
     }
 
     public int hasPermission(@NonNull Object requester, @NonNull String[] permissions) {
@@ -69,7 +67,7 @@ public class PermissionManager {
             if (requester instanceof Context) {
                 context = (Context) requester;
             } else {
-                for (IPermissionChecker c : checkerMap.values()) {
+                for (IPermissionChecker c : checkerMap) {
                     if (c.shouldHandleRequest(requester)) {
                         context = c.getContext();
                         break;
@@ -106,7 +104,7 @@ public class PermissionManager {
     public boolean checkPermission(@NonNull Object requester, int requestCode, @NonNull String[] permissions, @Nullable IPermissionResultListener listener) {
         if (Build.VERSION.SDK_INT >= 23 && permissions.length > 0) {
             IPermissionChecker checker = null;
-            for (IPermissionChecker c : checkerMap.values()) {
+            for (IPermissionChecker c : checkerMap) {
                 if (c.shouldHandleRequest(requester)) {
                     checker = c;
                     break;

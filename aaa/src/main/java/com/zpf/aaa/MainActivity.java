@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.zpf.tool.text.RuleTextWatcher;
 import com.zpf.tool.text.SplitTextRule;
+import com.zpf.views.window.ProgressDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_test1).setOnClickListener(v -> {
-            startActivity(new Intent(this, TestActivity.class));
+//            IosStyleDialog dialog=new IosStyleDialog(this);
+            ProgressDialog dialog=new ProgressDialog(this);
+
+//            dialog.getTitle().setText("title");
+//            dialog.getMessage().setText("getMessage");
+            dialog.show();
+
+//            startActivity(new Intent(this, TestActivity.class));
 //            startActivity(new Intent(this, TestActivity.class));
         });
         findViewById(R.id.btn_test2).setOnClickListener(v -> {

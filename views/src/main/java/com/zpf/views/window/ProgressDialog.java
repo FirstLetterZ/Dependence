@@ -5,7 +5,6 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,12 +38,9 @@ public class ProgressDialog extends AbsCustomDialog {
 
     @Override
     protected void initWindow(@NonNull Window window) {
-        window.getDecorView().setPadding(0, 0, 0, 0);
+        super.initWindow(window);
         window.setDimAmount(0.16f);
         window.getAttributes().gravity = Gravity.CENTER;
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
     @Override

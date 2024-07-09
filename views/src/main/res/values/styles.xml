@@ -6,7 +6,7 @@
         <item name="android:backgroundDimEnabled">true</item><!--是否四周变暗-->
         <item name="android:windowIsFloating">true</item><!-- 是否悬浮在activity上 -->
         <item name="android:windowContentOverlay">@null</item><!-- 取消默认ContentOverlay背景 -->
-        <item name="android:windowBackground">#00000000</item><!--取消window默认背景 不然四角会有黑影-->
+        <item name="android:windowBackground">@android:color/transparent</item><!--取消window默认背景 不然四角会有黑影-->
     </style>
 
     <style name="BottomDialogAnim">

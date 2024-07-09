@@ -1,7 +1,6 @@
 package com.zpf.views.window;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -37,8 +36,7 @@ public class IosStyleDialog extends AbsCustomDialog {
 
     @Override
     protected void initWindow(@NonNull Window window) {
-        window.getDecorView().setPadding(0, 0, 0, 0);
-        window.getAttributes().gravity = Gravity.CENTER;
+        super.initWindow(window);
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 

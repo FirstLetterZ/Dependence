@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,7 +49,10 @@ public abstract class AbsCustomDialog extends Dialog implements ICustomWindow {
 
     protected abstract void initView();
 
-    protected abstract void initWindow(@NonNull Window window);
+    protected  void initWindow(@NonNull Window window){
+        window.getDecorView().setPadding(0, 0, 0, 0);
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
 
     @Override
     protected void onStart() {
