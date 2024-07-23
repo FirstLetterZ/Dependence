@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Log
@@ -36,15 +35,11 @@ class SelectorImageView @JvmOverloads constructor(
         textBorder = dm.density * 1.5f
     }
 
-    private var selectColor = Color.parseColor("#04ABF1")
-    private var selectBgColor = Color.parseColor("#4D44ABF1")
-    private var normalColor = Color.RED
-//    private val cancelSelectBox= Runnable {
-//        selectRect.set(0f, 0f, 0f, 0f)
-//        invalidate()
-//    }
-
-    private val dataList = ArrayList<TextRect>()
+    private var normalBorderColor: Int = Color.RED
+    private var normalRectColor: Int = Color.TRANSPARENT
+    private var selectBorderColor: Int = Color.BLUE
+    private var selectRectColor: Int = Color.TRANSPARENT
+    val dataList = ArrayList<TextRect>()
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val imgContent = drawable
@@ -60,7 +55,6 @@ class SelectorImageView @JvmOverloads constructor(
         }
         calcDrawBox()
     }
-
 
     fun setTextList(list: List<TextRect>?) {
         dataList.clear()
@@ -137,27 +131,48 @@ class SelectorImageView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (!selectRect.isEmpty) {
-            paint.setColor(selectBgColor)
-            paint.style = Paint.Style.FILL
-            canvas.drawRoundRect(selectRect, boxRadius, boxRadius, paint)
-            paint.setColor(selectColor)
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = boxBorder
-            canvas.drawRoundRect(selectRect, boxRadius, boxRadius, paint)
+            if (selectRectColor != 0) {
+                paint.setColor(selectRectColor)
+                paint.style = Paint.Style.FILL
+                canvas.drawRoundRect(selectRect, boxRadius, boxRadius, paint)
+            }
+            if (selectBorderColor != 0) {
+                paint.setColor(selectBorderColor)
+                paint.style = Paint.Style.STROKE
+                paint.strokeWidth = boxBorder
+                canvas.drawRoundRect(selectRect, boxRadius, boxRadius, paint)
+            }
         }
         if (drawable == null) {
             return
         }
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = textBorder
         dataList.forEach { item ->
             item.drawInfo?.let { d ->
                 if (item.select || item.tempSelect) {
-                    paint.setColor(selectColor)
+                    if (selectRectColor != 0) {
+                        paint.setColor(selectRectColor)
+                        paint.style = Paint.Style.FILL
+                        d.drawPath(canvas, paint)
+                    }
+                    if (selectBorderColor != 0) {
+                        paint.setColor(selectBorderColor)
+                        paint.style = Paint.Style.STROKE
+                        paint.strokeWidth = textBorder
+                        d.drawPath(canvas, paint)
+                    }
                 } else {
-                    paint.setColor(normalColor)
+                    if (normalRectColor != 0) {
+                        paint.setColor(normalRectColor)
+                        paint.style = Paint.Style.FILL
+                        d.drawPath(canvas, paint)
+                    }
+                    if (normalBorderColor != 0) {
+                        paint.setColor(normalBorderColor)
+                        paint.style = Paint.Style.STROKE
+                        paint.strokeWidth = textBorder
+                        d.drawPath(canvas, paint)
+                    }
                 }
-                d.draw(canvas, paint)
             }
         }
     }
@@ -206,7 +221,7 @@ class SelectorImageView @JvmOverloads constructor(
             return
         }
         val scale: Float = mw.toFloat() / imageWidth.toFloat()
-        dataList.filter { it.text.contains("微风") }.forEach { data ->
+        dataList.forEach { data ->
             try {
                 val pointList = data.polygons.map { p ->
                     floatArrayOf(p[0] * scale, p[1] * scale)
@@ -217,17 +232,6 @@ class SelectorImageView @JvmOverloads constructor(
                 e.printStackTrace()
             }
         }
-//        dataList.forEach { data ->
-//            try {
-//                val pointList = data.polygons.map { p ->
-//                    floatArrayOf(p[0] * scale, p[1] * scale)
-//                }
-//                val border = RoundBorder(pointList, 4, boxRadius)
-//                data.drawInfo = border
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
         invalidate()
     }
 }

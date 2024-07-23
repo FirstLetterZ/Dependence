@@ -1,31 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.zpf.views.stretchy.ScrollLoadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/pll_load"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:boundaryWidthBottom="60dp"
-    app:boundaryWidthTop="40dp">
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vp_page"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" />
+    <Button
+        android:id="@+id/btn_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="select" />
 
-    <TextView
+    <FrameLayout
+        android:id="@+id/layout_video"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:gravity="center"
-        android:text="this is top"
-        app:intercept_scrolling="true"
-        app:slot_location="top" />
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:gravity="center"
-        android:text="this is bottom"
-        app:intercept_scrolling="true"
-        app:slot_location="bottom" />
-</com.zpf.views.stretchy.ScrollLoadLayout>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_message"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Hello"
+            android:textColor="#fff" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/shape_black_bottom_mask" />
+    </FrameLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

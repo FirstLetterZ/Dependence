@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation(fileTree("libs"))
     implementation(libs.appcompat)
     implementation(libs.recyclerview)
     implementation(libs.viewPager)
@@ -43,6 +44,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.constraintlayout)
     implementation(project(":views"))
+    implementation(project(":file"))
     implementation(project(":toolkit"))
+    implementation(project(":compatPermission"))
 }
 

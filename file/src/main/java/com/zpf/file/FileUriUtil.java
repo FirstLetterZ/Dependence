@@ -157,13 +157,6 @@ public class FileUriUtil {
             }
         } else {//todo zpf
 //            "content://downloads/public_downloads"
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-                if (external) {
-                    return MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-                } else {
-                    return MediaStore.Downloads.INTERNAL_CONTENT_URI;
-                }
-            }
             File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             return Uri.fromFile(downloadDir);
         }
