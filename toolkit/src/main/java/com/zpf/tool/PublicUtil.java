@@ -373,4 +373,70 @@ public class PublicUtil {
         return true;
     }
 
+    public String upperCaseNumber(int number, boolean isMoney) {
+        String[] numbers;
+        String[] units;
+        if (isMoney) {
+            numbers = new String[]{"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
+            units = new String[]{"", "拾", "佰", "仟", "万", "十万", "佰万", "仟万", "亿", "拾亿", "佰亿", "仟亿", "万亿"};
+        } else {
+            numbers = new String[]{"零", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+            units = new String[]{"", "十", "百", "千", "万", "十万", "百万", "千万", "亿", "十亿", "百亿", "千亿", "万亿"};
+        }
+        return formatNumber(number, numbers, units, true);
+    }
+
+    public static String formatNumber(int value, String[] numberDisplay, String[] unitDisplay, boolean foldZero) throws IndexOutOfBoundsException {
+        if (numberDisplay == null) {
+            return null;
+        }
+        int len = numberDisplay.length;
+        if (len == 0) {
+            return String.valueOf(value);
+        }
+        StringBuilder builder = new StringBuilder();
+        int n = value;
+        int m;
+        int i = 0;
+        String zeroDisplay = numberDisplay[0];
+        String temp = zeroDisplay;
+        while (n > 0) {
+            m = n % len;
+            n /= len;
+            if (m == 0) {
+                if (foldZero) {
+                    if (builder.length() > 0 && temp != null && !temp.equals(zeroDisplay)) {
+                        temp = zeroDisplay;
+                    } else {
+                        temp = null;
+                    }
+                } else {
+                    temp = zeroDisplay;
+                }
+            } else {
+                if (i < unitDisplay.length) {
+                    temp = unitDisplay[i];
+                } else {
+                    temp = null;
+                }
+                if (temp != null) {
+                    for (int j = temp.length() - 1; j >= 0; j--) {
+                        builder.append(temp.charAt(j));
+                    }
+                }
+                temp = numberDisplay[m];
+            }
+            if (temp != null) {
+                builder.append(temp);
+            }
+            i++;
+        }
+        if (builder.length() > 0) {
+            return builder.reverse().toString();
+        } else if (zeroDisplay != null) {
+            return zeroDisplay;
+        } else {
+            return "";
+        }
+    }
 }

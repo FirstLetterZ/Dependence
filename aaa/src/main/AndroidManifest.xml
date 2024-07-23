@@ -34,6 +34,9 @@
         <activity
             android:name=".Test3Activity"
             android:screenOrientation="portrait" />
+  <activity
+            android:name=".Test4Activity"
+            android:screenOrientation="portrait" />
 
     </application>
 </manifest>

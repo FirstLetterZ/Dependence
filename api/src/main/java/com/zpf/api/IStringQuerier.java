@@ -3,7 +3,7 @@ package com.zpf.api;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public interface IQuerier<T> {
+public interface IStringQuerier extends IQuerier<String> {
     @Nullable
-    T query(@NonNull String condition);
+    String query(@NonNull String condition);
 }

@@ -2,11 +2,13 @@ package com.zpf.aaa;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.zpf.tool.PublicUtil;
 import com.zpf.tool.text.RuleTextWatcher;
 import com.zpf.tool.text.SplitTextRule;
 import com.zpf.views.window.ProgressDialog;
@@ -25,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_test1).setOnClickListener(v -> {
 //            IosStyleDialog dialog=new IosStyleDialog(this);
-            ProgressDialog dialog=new ProgressDialog(this);
+            ProgressDialog dialog = new ProgressDialog(this);
 
 //            dialog.getTitle().setText("title");
 //            dialog.getMessage().setText("getMessage");
@@ -35,18 +37,34 @@ public class MainActivity extends AppCompatActivity {
 //            startActivity(new Intent(this, TestActivity.class));
         });
         findViewById(R.id.btn_test2).setOnClickListener(v -> {
-            startActivity(new Intent(this, Test2Activity.class));
+//            startActivity(new Intent(this, Test2Activity.class));
 //            startActivity(new Intent(this, TestActivity.class));
+            test(0);
+            test(5);
+            test(10);
+            test(12);
+            test(20);
+            test(26);
+            test(100);
+            test(101);
+            test(110);
+            test(125);
+            test(10086);
+            test(900900909);
         });
         findViewById(R.id.btn_test3).setOnClickListener(v -> {
             startActivity(new Intent(this, Test3Activity.class));
 //            startActivity(new Intent(this, TestActivity.class));
         });
+        findViewById(R.id.btn_test4).setOnClickListener(v -> {
+            startActivity(new Intent(this, Test4Activity.class));
+//            startActivity(new Intent(this, TestActivity.class));
+        });
         final StringBuilder builder1 = new StringBuilder();
         final List<String> list1 = new ArrayList<>();
         EditText etInput = findViewById(R.id.et_input);
-        RuleTextWatcher ruleTextWatcher=new RuleTextWatcher();
-        ruleTextWatcher.addRuleChecker(new SplitTextRule(new int[]{3,4,4}));
+        RuleTextWatcher ruleTextWatcher = new RuleTextWatcher();
+        ruleTextWatcher.addRuleChecker(new SplitTextRule(new int[]{3, 4, 4}));
         etInput.addTextChangedListener(ruleTextWatcher);
 //        etInput.addTextChangedListener(new TextWatcher() {
 //            @Override
@@ -105,6 +123,21 @@ public class MainActivity extends AppCompatActivity {
         }
         builder.append("]");
         return builder.toString();
+    }
+
+    String[] numList1 = new String[]{"零", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+    String[] unitList1 = new String[]{};
+//    String[] unitList1 = new String[]{null, "十", "百", "千", "万", "十万", "百万", "千万", "亿", "十亿", "百亿", "千亿", "万亿"};
+
+    String[] numList2 = new String[]{"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
+    String[] unitList2 = new String[]{"", "拾", "佰", "仟", "万", "十万", "佰万", "仟万", "亿", "拾亿", "佰亿", "仟亿", "万亿"};
+
+    public void test(int num) {
+        String value = PublicUtil.formatNumber(num, numList1, unitList1, false);
+        if (value != null && value.startsWith("一十")) {
+            value = value.substring(1);
+        }
+        Log.e("ZPF", "test==>num=" + num + " ; value=" + value);
     }
 
 }

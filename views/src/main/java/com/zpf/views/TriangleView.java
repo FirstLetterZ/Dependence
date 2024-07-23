@@ -9,7 +9,6 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
@@ -34,7 +33,7 @@ public class TriangleView extends View {
 
     private final Path path;
     private final Paint paint;
-    private int direction = Direction.TOP;
+    private int direction = Direction.BOTTOM;
     private float topRadius;
     private float bottomRadius;
 
@@ -124,28 +123,29 @@ public class TriangleView extends View {
         float y1;
         float x2;
         float y2;
-        if (direction == Direction.LEFT) {//向左
+        int realDirection = direction % 4;
+        if (realDirection == Direction.LEFT) {//向左
             x0 = 0f;
             y0 = height * 0.5f;
             x1 = width;
             y1 = 0f;
             x2 = width;
             y2 = height;
-        } else if (direction == Direction.TOP) {//向上
+        } else if (realDirection == Direction.TOP) {//向上
             x0 = width * 0.5f;
             y0 = 0f;
             x1 = width;
             y1 = height;
             x2 = 0f;
             y2 = height;
-        } else if (direction == Direction.RIGHT) {//向右
+        } else if (realDirection == Direction.RIGHT) {//向右
             x0 = width;
             y0 = height * 0.5f;
             x1 = 0f;
             y1 = 0f;
             x2 = 0f;
             y2 = height;
-        } else if (direction == Direction.BOTTOM) {//向下
+        } else if (realDirection == Direction.BOTTOM) {//向下
             x0 = width * 0.5f;
             y0 = height;
             x1 = 0f;
@@ -182,7 +182,6 @@ public class TriangleView extends View {
             for (RectF rectF : dots) {
                 if (rectF != null) {
                     path.moveTo(rectF.centerX(), rectF.centerY());
-                    Log.e("ZPF", "rectF==>" + rectF.toString());
                     if (direction == Direction.RIGHT) {
                         path.addOval(rectF, Path.Direction.CCW);
                     } else {
@@ -229,12 +228,8 @@ public class TriangleView extends View {
         return new RectF(cx - radius, cy - radius, cx + radius, cy + radius);
     }
 
-    //todo zpf
     private PointF calcPoint(float x0, float y0, float x1, float y1, float x2, float y2) {
-        Log.e("ZPF", "calcPoint==>x0=" + x0 + ";y0=" + y0 + ";x1=" + x1 + ";y1=" + y1 + ";x2=" + x2 + ";y2=" + y2);
         PointF point = new PointF();
-//        (x1 - x0) * (x1 - point.x) + (y1 - y0) * (y1 - point.y) = 0;
-//        (x2 - x0) * (x2 - point.x) + (y2 - y0) * (y2 - point.y) = 0;
         if (y1 == y0) {
             point.x = x1;
             point.y = (x2 - x0) * (x2 - x1) / (y2 - y0) + y2;

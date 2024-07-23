@@ -34,6 +34,9 @@ public class FileSaveUtil {
         if (mimeType == null) {
             mimeType = FileTypeUtil.getFileMimeType(srcFile);
         }
+        if (displayName == null || displayName.isEmpty()) {
+            displayName = srcFile.getName();
+        }
         return saveFile(context, inputStream, displayName, mimeType, saveToDownload);
     }
 
@@ -60,6 +63,14 @@ public class FileSaveUtil {
         }
         if (displayName == null) {
             displayName = "Media_" + System.currentTimeMillis();
+            String[] types = mimeType.split("/");
+            String suffix = null;
+            if (types.length > 1) {
+                suffix = mimeType.split("/")[1];
+            }
+            if (suffix != null && suffix.length() > 1) {
+                displayName = displayName + "." + suffix;
+            }
         }
         ContentResolver resolver = context.getContentResolver();
         Uri uri = FileUriUtil.createMediaUri(resolver, displayName, mimeType, true, saveToDownload);

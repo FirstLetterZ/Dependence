@@ -11,9 +11,9 @@
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/et_input"
         android:layout_width="match_parent"
-        android:digits="12345 67890"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp" />
+        android:layout_marginVertical="8dp"
+        android:digits="12345 67890" />
 
     <Button
         android:id="@+id/btn_test1"
@@ -35,4 +35,15 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="8dp"
         android:text="test3" />
+
+    <Button
+        android:id="@+id/btn_test4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:text="test4" />
+
+    <com.zpf.aaa.utils.TestView
+        android:layout_width="200dp"
+        android:layout_height="100dp" />
 </LinearLayout>

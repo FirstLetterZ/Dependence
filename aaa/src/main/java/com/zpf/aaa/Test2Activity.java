@@ -16,7 +16,7 @@ public class Test2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test4);
+        setContentView(R.layout.activity_test2);
         StretchyScrollLayout pullLoadLayout = findViewById(R.id.pll_load);
 //        pullLoadLayout.setLoadEnable(true, 0);
 //        pullLoadLayout.setLoadEnable(true, 2);

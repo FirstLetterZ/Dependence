@@ -140,7 +140,12 @@ public class FileUriUtil {
             }
             values.put(MediaStore.MediaColumns.DATA, saveFilePath);
         }
-        return resolver.insert(insertUri, values);
+        try {
+            return resolver.insert(insertUri, values);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static Uri getFileDownloadUri(boolean external) {
@@ -150,8 +155,17 @@ public class FileUriUtil {
             } else {
                 return MediaStore.Downloads.INTERNAL_CONTENT_URI;
             }
-        } else {
-            return Uri.parse("content://downloads/public_downloads");
+        } else {//todo zpf
+//            "content://downloads/public_downloads"
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+                if (external) {
+                    return MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+                } else {
+                    return MediaStore.Downloads.INTERNAL_CONTENT_URI;
+                }
+            }
+            File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            return Uri.fromFile(downloadDir);
         }
     }
 

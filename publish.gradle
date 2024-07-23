@@ -54,14 +54,17 @@ ext["signing.secretKeyRingFile"] = "${rootDir.path}/${accountProperties.getPrope
 def libVersion
 def libType
 def uploadMavenUrl
+def outputJarDir
 logger.info("publishRelease = $publishRelease")
 if (publishRelease == 'true' || publishRelease == true) {
     libVersion = releaseVersion
     libType = "release"
+    outputJarDir = "syncReleaseLibJars"
     uploadMavenUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 } else {
     libVersion = snapshotVersion
     libType = "debug"
+    outputJarDir = "syncDebugLibJars"
     uploadMavenUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 }
 logger.info("===================================================================================")
@@ -101,7 +104,7 @@ publishing {
             if (libPackaging == 'jar') {
                 artifact sourcesJar//需要上传的source
                 artifact javadocJar//需要上传的doc
-                artifact("$buildDir/intermediates/aar_main_jar/${libType}/classes.jar")
+                artifact("$buildDir/intermediates/aar_main_jar/${libType}/${outputJarDir}/classes.jar")
             } else {
                 artifact("$buildDir/outputs/aar/${project.getName()}-${libType}.aar")
             }

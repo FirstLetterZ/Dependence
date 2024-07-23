@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.viewPager)
     implementation(libs.viewPager2)
+    implementation(libs.gson)
     implementation(libs.constraintlayout)
     implementation(project(":views"))
     implementation(project(":toolkit"))
