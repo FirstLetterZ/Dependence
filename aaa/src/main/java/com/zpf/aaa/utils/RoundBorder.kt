@@ -2,14 +2,17 @@ package com.zpf.aaa.utils
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
+import com.zpf.views.RoundCornerCuttingPoint
 
 class RoundBorder(
     private val points: List<FloatArray>, private val n: Int, radius: Float
 ) {
     private val cornerList = ArrayList<RoundCornerCuttingPoint>(n)
     private val maxOutBound = RectF()
+    private val path = Path()
 
     init {
         var p0: FloatArray
@@ -29,13 +32,7 @@ class RoundBorder(
             }
             cornerList.add(
                 RoundCornerCuttingPoint(
-                    p0[0],
-                    p0[1],
-                    p1[0],
-                    p1[1],
-                    p2[0],
-                    p2[1],
-                    radius
+                    p0[0], p0[1], p1[0], p1[1], p2[0], p2[1], radius
                 )
             )
             if (i == 0) {
@@ -55,6 +52,18 @@ class RoundBorder(
                 }
             }
         }
+        cornerList.forEachIndexed { i, it ->
+            if (i == 0) {
+                path.moveTo(it.point2.x, it.point2.y)
+            } else {
+                path.lineTo(it.point2.x, it.point2.y)
+            }
+            if (!it.arcRect.isEmpty) {
+                path.arcTo(it.arcRect, it.startAngle, it.sweepAngle)
+            }
+            path.lineTo(it.point1.x, it.point1.y)
+        }
+        path.close()
     }
 
     fun isInMaxOutBound(x: Float, y: Float): Boolean {
@@ -90,15 +99,8 @@ class RoundBorder(
         return true
     }
 
-    fun draw(canvas: Canvas, paint: Paint) {
-        var last: RoundCornerCuttingPoint = cornerList.last()
-        cornerList.forEach {
-            canvas.drawLine(last.point1.x, last.point1.y, it.point2.x, it.point2.y, paint)
-            if(!it.startAngle.isNaN()&&!it.sweepAngle.isNaN()){
-                canvas.drawArc(it.arcRect, it.startAngle, it.sweepAngle, false, paint)
-            }
-            last = it
-        }
+    fun drawPath(canvas: Canvas, paint: Paint) {
+        canvas.drawPath(path, paint)
     }
 
     fun getPoint(i: Int): PointF? {
