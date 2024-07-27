@@ -58,20 +58,19 @@ abstract class AbsSynthBuilder {
         if (mediaInfo.duration <= 0) {
             return null
         }
-        var videoTrack = -1
+        var videoTrackIndex = -1
         var videoDecoderFormat: MediaFormat? = null
-        var audioTrack = -1
+        var audioTrackIndex = -1
         var audioDecoderFormat: MediaFormat? = null
         val extractor = videoExtractor
         for (i in 0 until extractor.trackCount) {
             val trackFormat = extractor.getTrackFormat(i)
-            val mine = trackFormat.getString(MediaFormat.KEY_MIME)
-            Log.e("ZPF", "trackFormat=$trackFormat")
-            if (mine?.startsWith("video/") == true) {
-                videoTrack = i
+            val mime = trackFormat.getString(MediaFormat.KEY_MIME)
+            if (mime?.startsWith("video/") == true) {
+                videoTrackIndex = i
                 videoDecoderFormat = trackFormat
-            } else if (mine?.startsWith("audio/") == true) {
-                audioTrack = i
+            } else if (mime?.startsWith("audio/") == true) {
+                audioTrackIndex = i
                 audioDecoderFormat = trackFormat
             }
         }
@@ -79,21 +78,20 @@ abstract class AbsSynthBuilder {
             return null
         }
         val mediaMuxer = MediaMuxer(outputFilePath, format)
-        var videoUnit: MediaUnit? = null
-        var audioUnit: MediaUnit? = null
+        var videoTrack: MediaTrackInfo? = null
+        var audioTrack: MediaTrackInfo? = null
         if (videoDecoderFormat != null) {
-            videoUnit = createUnit(videoTrack, videoDecoderFormat, videoExtractor)
+            videoTrack = createVideoTrackInfo(videoTrackIndex, videoDecoderFormat, videoExtractor)
         }
         if (audioDecoderFormat != null) {
-            audioUnit = createUnit(audioTrack, audioDecoderFormat, audioExtractor)
+            audioTrack = createAudioTrackInfo(audioTrackIndex, audioDecoderFormat, audioExtractor)
         }
-        Log.e("ZPF", "createSynthesizer ==> mediaInfo=$mediaInfo")
-        return createSynthesizer(videoUnit, audioUnit, mediaMuxer, retriever, mediaInfo)
+        return createSynthesizer(videoTrack, audioTrack, mediaMuxer, retriever, mediaInfo)
     }
 
     protected abstract fun createSynthesizer(
-        videoUnit: MediaUnit?,
-        audioUnit: MediaUnit?,
+        videoTrack: MediaTrackInfo?,
+        audioTrack: MediaTrackInfo?,
         mediaMuxer: MediaMuxer,
         retriever: MediaMetadataRetriever,
         mediaInfo: MediaInfo
@@ -107,21 +105,16 @@ abstract class AbsSynthBuilder {
         mediaInfo: MediaInfo, originalMediaFormat: MediaFormat
     ): MediaFormat
 
-    protected open fun createUnit(
-        trackIndex: Int, originalMediaFormat: MediaFormat, extractor: MediaExtractor,
-    ): MediaUnit {
-        val decoderMediaFormat = buildDecoderMediaFormat(mediaInfo, originalMediaFormat)
-        val encoderMediaFormat = buildEncoderMediaFormat(mediaInfo, originalMediaFormat)
-        val decoderMine = decoderMediaFormat.getString(MediaFormat.KEY_MIME) ?: ""
-        val encoderMine = encoderMediaFormat.getString(MediaFormat.KEY_MIME) ?: ""
-        return MediaUnit(
-            trackIndex,
-            decoderMediaFormat,
-            encoderMediaFormat,
-            MediaCodec.createDecoderByType(decoderMine),
-            MediaCodec.createEncoderByType(encoderMine),
-            extractor,
-        )
+    protected open fun createVideoTrackInfo(
+        trackIndex: Int, originalMediaFormat: MediaFormat, extractor: MediaExtractor
+    ): MediaTrackInfo {
+        return MediaTrackInfo(trackIndex, extractor)
+    }
+
+    protected open fun createAudioTrackInfo(
+        trackIndex: Int, originalMediaFormat: MediaFormat, extractor: MediaExtractor
+    ): MediaTrackInfo {
+        return MediaTrackInfo(trackIndex, extractor)
     }
 
     private fun initMediaInfo(mediaMetadataRetriever: MediaMetadataRetriever): MediaInfo {

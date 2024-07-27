@@ -11,8 +11,15 @@
         android:id="@+id/btn_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
         android:text="select" />
+
+
+    <Button
+        android:id="@+id/btn_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pause" />
+
 
     <FrameLayout
         android:id="@+id/layout_video"
@@ -24,20 +31,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_message"
+        <FrameLayout
+            android:id="@+id/layout_front"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Hello"
-            android:textColor="#fff" />
+            android:layout_height="match_parent">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/shape_black_bottom_mask" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:background="#E91E63"
+                android:src="@mipmap/ic_launcher" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/shape_black_bottom_mask" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_message"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="center|bottom"
+                android:gravity="center"
+                android:text="Hello"
+                android:textColor="#fff" />
+
+        </FrameLayout>
+
     </FrameLayout>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

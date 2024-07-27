@@ -1,5 +1,5 @@
 package com.zpf.aaa.midea
 
-interface IMediaSynthListener {
+interface ISynthProgressListener {
     fun onProgress(presentationTimeUs: Long, durationUs: Long, completed: Boolean)
 }
