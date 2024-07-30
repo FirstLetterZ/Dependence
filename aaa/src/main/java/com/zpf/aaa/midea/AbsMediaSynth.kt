@@ -16,8 +16,8 @@ abstract class AbsMediaSynth(
     protected val videoTrack: MediaTrackInfo?,
     protected val audioTrack: MediaTrackInfo?,
     protected val mediaMuxer: MediaMuxer,
-    final override val retriever: MediaMetadataRetriever,
-    final override val mediaInfo: MediaInfo
+    val retriever: MediaMetadataRetriever,
+    val mediaInfo: MediaInfo
 ) : IMediaSynth {
 
     protected val statusCode = AtomicInteger(0)
@@ -47,7 +47,17 @@ abstract class AbsMediaSynth(
         audioCodecListener = listener
     }
 
-    override fun getInputSurface(): Surface? = encoderInputSurface
+    override fun getInputInfo(i: Int): MediaSynthInput? {
+        return null
+    }
+
+    override fun getDecodeSurface(): Surface? {
+        return null
+    }
+
+    override fun getEncodeSurface(): Surface? {
+        return encoderInputSurface
+    }
 
     final override fun status(): Int = statusCode.get()
 

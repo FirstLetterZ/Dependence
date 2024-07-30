@@ -83,7 +83,7 @@ class TestActivity : AppCompatActivity() {
             encoder: MediaCodec,
             bufferInfo: MediaCodec.BufferInfo
         ) {
-            val surface = synth.getInputSurface() ?: return
+            val surface = synth.getEncodeSurface() ?: return
             val image = decoder.getOutputImage(decoderIndex) ?: return
             val rect = Rect(
                 0, 0, synth.mediaInfo.getTrueWidth(), synth.mediaInfo.getTrueHeight()
