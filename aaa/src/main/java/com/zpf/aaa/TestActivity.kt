@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.media.MediaCodec
+import android.media.MediaMuxer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,12 +19,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
-import com.zpf.aaa.midea.AbsMediaSynth
-import com.zpf.aaa.midea.IMediaSynth
-import com.zpf.aaa.midea.ISynthCodecListener
-import com.zpf.aaa.midea.ISynthProgressListener
-import com.zpf.aaa.midea.MediaSynthStatus
-import com.zpf.aaa.midea.TestSynthBuilder
+import com.zpf.aaa.synth.IMediaSynth
+import com.zpf.aaa.synth.ISynthOutputListener
+import com.zpf.aaa.synth.ISynthStatusListener
+import com.zpf.aaa.synth.MediaInfo
+import com.zpf.aaa.synth.MediaSynthOutput
+import com.zpf.aaa.synth.MediaSynthStatus
+import com.zpf.aaa.synth.SyncMediaSynth
+import com.zpf.aaa.tst.TestSynthFactory
+
 import com.zpf.aaa.utils.Util
 import com.zpf.file.FileSaveUtil
 import com.zpf.tool.permission.PermissionManager
@@ -57,8 +61,11 @@ class TestActivity : AppCompatActivity() {
     private val outFile by lazy {
         File(cacheDir, "Test_" + System.currentTimeMillis() + ".mp4")
     }
+    private val synthFactory by lazy {
+        TestSynthFactory()
+    }
 
-    private val progressListener = object : ISynthProgressListener {
+    private val progressListener = object : ISynthStatusListener {
         override fun onProgress(presentationTimeUs: Long, durationUs: Long, completed: Boolean) {
             Log.e("ZPF", "onProgress==>>presentationTimeUs=$presentationTimeUs")
             tvMsg.post {
@@ -72,25 +79,30 @@ class TestActivity : AppCompatActivity() {
                 }
             }
         }
+
+        override fun onStatusChanged(oldCode: Int, newCode: Int) {
+            Log.e("ZPF", "onStatusChanged==>>oldCode=$oldCode;newCode=$newCode")
+        }
     }
 
-    private val encoderListener = object : ISynthCodecListener {
+    private val encoderListener = object : ISynthOutputListener {
 
         override fun onDecoderOutput(
-            synth: IMediaSynth,
-            decoderIndex: Int,
+            mediaInfo: MediaInfo,
+            index: Int,
             decoder: MediaCodec,
-            encoder: MediaCodec,
-            bufferInfo: MediaCodec.BufferInfo
+            bufferInfo: MediaCodec.BufferInfo,
+            encoder: MediaCodec?
         ) {
-            val surface = synth.getEncodeSurface() ?: return
-            val image = decoder.getOutputImage(decoderIndex) ?: return
+            Log.e("ZPF", "onDecoderOutput==>>presentationTimeUs=${bufferInfo.presentationTimeUs}")
+            val surface = synth?.getEncoderInputSurface() ?: return
+            val image = decoder.getOutputImage(index) ?: return
             val rect = Rect(
-                0, 0, synth.mediaInfo.getTrueWidth(), synth.mediaInfo.getTrueHeight()
+                0, 0, mediaInfo.getTrueWidth(), mediaInfo.getTrueHeight()
             )
             val canvas = surface.lockCanvas(rect) ?: return
             canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-            val yuvImage = Util.covert2YuvImage(image, synth.mediaInfo.rotation)
+            val yuvImage = Util.covert2YuvImage(image, mediaInfo.rotation)
             val bitmap = Util.covert2Bitmap(yuvImage)
             canvas.drawBitmap(bitmap, 0f, 0f, null)
             layoutFront.draw(canvas)
@@ -98,11 +110,12 @@ class TestActivity : AppCompatActivity() {
         }
 
         override fun onEncoderOutput(
-            synth: IMediaSynth,
-            encoderIndex: Int,
+            mediaInfo: MediaInfo,
+            index: Int,
             encoder: MediaCodec,
             bufferInfo: MediaCodec.BufferInfo
         ) {
+
         }
     }
 
@@ -156,7 +169,7 @@ class TestActivity : AppCompatActivity() {
 //        testNew.setSaveFrames(File(cacheDir, "test_images").absolutePath, 3)
 //        testNew.videoDecode(file.absolutePath)
 
-        val builder = TestSynthBuilder(this, uri, null)
+//        val builder = TestSynthBuilder(this, uri, null)
 //        val builder = VideoMuxerTest(file, outFile)
 //        videoMuxerTest = builder
 //        builder.outputListener = encoderListener
@@ -164,8 +177,15 @@ class TestActivity : AppCompatActivity() {
 
 //        val builder = TestSynthBuilder(this, uri, null)
 //        val builder = TestSynthBuilder(file.absolutePath, null)
-        val outWidth = builder.mediaInfo.getTrueWidth()
-        val outHeight = builder.mediaInfo.getTrueHeight()
+
+        val input = synthFactory.create(this, uri, null)
+        if (input == null) {
+            Log.e("ZPF", "input==null")
+            return
+        }
+
+        val outWidth = input.mediaInfo.getTrueWidth()
+        val outHeight = input.mediaInfo.getTrueHeight()
 
         if (outWidth > 0 && outHeight > 0) {
             val scale1 = layoutVideo.measuredWidth.toFloat() / outWidth.toFloat()
@@ -192,14 +212,18 @@ class TestActivity : AppCompatActivity() {
             return
         }
 
-        val realSynth = builder.build(outFile.absolutePath) as AbsMediaSynth
+        val realSynth = SyncMediaSynth(
+            listOf(input),
+            MediaSynthOutput(outFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        )
+
         synth?.stop()
-        realSynth.setTimeListener(progressListener)
+        realSynth.addStatusListener(progressListener)
         realSynth.setVideoListener(encoderListener)
         synth = realSynth
-        val bitmap = realSynth.retriever.getFrameAtTime(1000000L)
+//        val bitmap = realSynth.retriever.getFrameAtTime(1000000L)
 //        val bitmap = builder.retriever.getFrameAtTime(1000000L)
-        ivPreview.setImageBitmap(bitmap)
+//        ivPreview.setImageBitmap(bitmap)
         Log.e("ZPF", "====start====")
         realSynth.start()
 
