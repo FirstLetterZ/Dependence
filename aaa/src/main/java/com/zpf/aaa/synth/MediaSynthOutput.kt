@@ -7,7 +7,9 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
-class MediaSynthOutput(val outputFilePath: String, val format: Int) {
+class MediaSynthOutput(
+    private val outputFilePath: String, private val formatCode: Int
+) : ISynthOutputWriter {
     private val videoTrackIndex = AtomicInteger(-1)
     private val audioTrackIndex = AtomicInteger(-1)
 
@@ -16,8 +18,7 @@ class MediaSynthOutput(val outputFilePath: String, val format: Int) {
     private val isRunning = AtomicBoolean(false)
     private val muxerLock = Object()
 
-
-    fun setFormat(trackId: Int, mediaFormat: MediaFormat?): Int {
+    override fun setFormat(trackId: Int, mediaFormat: MediaFormat?): Int {
         val indexRecord = when (trackId) {
             MediaSynthTrack.VIDEO_TRACK -> {
                 videoTrackIndex
@@ -33,12 +34,11 @@ class MediaSynthOutput(val outputFilePath: String, val format: Int) {
             val index = requireMuxer().addTrack(mediaFormat)
             indexRecord.set(index)
         }
-        startMuxer()
+        start()
         return indexRecord.get()
     }
 
-
-    fun write(trackId: Int, buffer: ByteBuffer, outputInfo: MediaCodec.BufferInfo) {
+    override fun write(trackId: Int, buffer: ByteBuffer, outputInfo: MediaCodec.BufferInfo) {
         if (!isRunning.get()) {
             synchronized(muxerLock) {
                 if (!isRunning.get()) {
@@ -55,7 +55,24 @@ class MediaSynthOutput(val outputFilePath: String, val format: Int) {
         }
     }
 
-    fun release() {
+    override fun isFormatted(trackId: Int): Boolean {
+        return getWriteIndex(trackId) >= 0
+    }
+
+    override fun start() {
+        if (isRunning.get()) {
+            return
+        }
+        synchronized(muxerLock) {
+            if (!isRunning.get() && videoTrackIndex.get() >= 0 && audioTrackIndex.get() >= 0) {
+                requireMuxer().start()
+                isRunning.set(true)
+                muxerLock.notify()
+            }
+        }
+    }
+
+    override fun stop() {
         if (isRunning.getAndSet(false)) {
             mediaMuxer?.run {
                 mediaMuxer = null
@@ -71,7 +88,7 @@ class MediaSynthOutput(val outputFilePath: String, val format: Int) {
         }
     }
 
-    fun getWriteIndex(trackId: Int): Int {
+    private fun getWriteIndex(trackId: Int): Int {
         return when (trackId) {
             MediaSynthTrack.VIDEO_TRACK -> {
                 videoTrackIndex.get()
@@ -81,10 +98,6 @@ class MediaSynthOutput(val outputFilePath: String, val format: Int) {
             }
             else -> -1
         }
-    }
-
-    fun isPrepared(): Boolean {
-        return videoTrackIndex.get() >= 0 && audioTrackIndex.get() >= 0
     }
 
     private fun doWriteData(
@@ -105,24 +118,10 @@ class MediaSynthOutput(val outputFilePath: String, val format: Int) {
         return synchronized(this::class.java) {
             var cacheMuxer2 = mediaMuxer
             if (cacheMuxer2 == null) {
-                cacheMuxer2 = MediaMuxer(outputFilePath, format)
+                cacheMuxer2 = MediaMuxer(outputFilePath, formatCode)
                 mediaMuxer = cacheMuxer2
             }
             cacheMuxer2
         }
     }
-
-    private fun startMuxer() {
-        if (isRunning.get()) {
-            return
-        }
-        synchronized(muxerLock) {
-            if (!isRunning.get() && videoTrackIndex.get() >= 0 && audioTrackIndex.get() >= 0) {
-                requireMuxer().start()
-                isRunning.set(true)
-                muxerLock.notify()
-            }
-        }
-    }
-
 }

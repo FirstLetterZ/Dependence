@@ -20,4 +20,5 @@ interface IMediaSynth {
     fun setAudioListener(listener: ISynthOutputListener?)
     fun addStatusListener(listener: ISynthStatusListener)
     fun removeStatusListener(listener: ISynthStatusListener)
+    fun getOutputBasicInfo(): MediaOutputBasicInfo
 }

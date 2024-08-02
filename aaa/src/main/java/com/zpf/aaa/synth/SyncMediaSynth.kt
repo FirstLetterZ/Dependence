@@ -2,19 +2,15 @@ package com.zpf.aaa.synth
 
 import android.media.MediaCodec
 import android.media.MediaExtractor
-import android.util.Log
 import java.nio.ByteBuffer
 
 class SyncMediaSynth(
-    inputs: List<MediaSynthInput>, output: MediaSynthOutput
-) : BaseMediaSynth2(inputs, output) {
+    inputs: List<MediaSynthInput>, write: ISynthOutputWriter, outputInfo: MediaOutputBasicInfo
+) : BaseMediaSynth2(inputs, write, outputInfo) {
 
-    private var videoWorkThread: Thread? = null
-    private var audioWorkThread: Thread? = null
     private val INPUT_TIMEOUT = 10L
     private val OUTPUT_TIMEOUT = 10L
     private val WRITE_TIMEOUT = 10L
-    private val frameRate: Int = 30
 
     override fun onConfigureUnknowTypeConfig(inputConfig: IMediaSynthTrackInput) {
         changeToStatus(MediaSynthStatus.CONFIG_ERROR)
@@ -23,25 +19,13 @@ class SyncMediaSynth(
     override fun runVideoInput(
         inputConfig: IMediaSynthTrackInput, inputRecorder: MediaTrackRecorder
     ) {
-        if (videoWorkThread?.isAlive != true) {
-            val thread = Thread {
-                handleInput(inputConfig, inputRecorder, MediaSynthTrack.VIDEO_TRACK)
-            }
-            thread.start()
-            videoWorkThread = thread
-        }
+        handleInput(inputConfig, inputRecorder, MediaSynthTrack.VIDEO_TRACK)
     }
 
     override fun runAudioInput(
         inputConfig: IMediaSynthTrackInput, inputRecorder: MediaTrackRecorder
     ) {
-        if (audioWorkThread?.isAlive != true) {
-            val thread = Thread {
-                handleInput(inputConfig, inputRecorder, MediaSynthTrack.AUDIO_TRACK)
-            }
-            thread.start()
-            audioWorkThread = thread
-        }
+        handleInput(inputConfig, inputRecorder, MediaSynthTrack.AUDIO_TRACK)
     }
 
     protected fun onInputFinish(
@@ -59,6 +43,8 @@ class SyncMediaSynth(
                 recorder.trackProgressTime.set(getDuration())
             }
         } else {
+            onConfigure(nextConfig)
+            nextConfig.start()
             runVideoInput(nextConfig, recorder)
         }
     }
@@ -96,7 +82,7 @@ class SyncMediaSynth(
                 onInputFinish(inputConfig, recorder, trackId)
                 return
             } else {
-                if (outputWriter.getWriteIndex(trackId) < 0) {
+                if (!outputWriter.isFormatted(trackId)) {
                     outputWriter.setFormat(
                         trackId, extractor.getTrackFormat(inputConfig.trackIndex)
                     )
@@ -116,9 +102,7 @@ class SyncMediaSynth(
         var bufferIndex: Int = -1
         var cacheBuffer: ByteBuffer?
         var renderOutput: Boolean
-        var lastDecodeInputTimeUs=0L
-        var lastEncodeInputTimeUs=0L
-        var lastEncodeOutputTimeUs=0L
+        val frameRate = getOutputBasicInfo().frameRate
         while (!finishWriteData) {
             if (requireInterruptedOrBlock()) {
                 return
@@ -147,12 +131,10 @@ class SyncMediaSynth(
                                         bufferIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM
                                     )
                                     finishDecodeInput = true
-                                    Log.i(TAG,"finishDecodeInput==>${lastDecodeInputTimeUs}")
                                 } else {
                                     decoder.queueInputBuffer(
                                         bufferIndex, 0, readSampleData, extractor.sampleTime, 0
                                     )
-                                    lastDecodeInputTimeUs=extractor.sampleTime
                                     extractor.advance()
                                 }
                             }
@@ -163,6 +145,53 @@ class SyncMediaSynth(
             if (requireInterruptedOrBlock()) {
                 return
             }
+            var enableWrite = true
+            while (enableWrite && encoder != null) {
+                val outputInfo = MediaCodec.BufferInfo()
+                bufferIndex = encoder.dequeueOutputBuffer(outputInfo, WRITE_TIMEOUT)
+                if (bufferIndex >= 0) {
+                    cacheBuffer = encoder.getOutputBuffer(bufferIndex)
+                    renderOutput = encoderOutputBySurface && outputInfo.size != 0
+                    if (cacheBuffer != null) {
+                        if ((outputInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
+                            if (encoderInputBySurface) {
+                                outputWriter.write(trackId, cacheBuffer, outputInfo)
+                            }
+                            outputInfo.size = 0
+                        }
+                        if (outputInfo.size != 0) {
+                            if (frameNumber < 0) {
+                                frameNumber = 1
+                            } else {
+                                frameNumber++
+                            }
+                            outputInfo.presentationTimeUs =
+                                offsetTimeUs + (1000000f / frameRate * frameNumber).toLong()
+                            cacheBuffer.position(outputInfo.offset)
+                            cacheBuffer.limit(outputInfo.offset + outputInfo.size)
+                            dispatchEncoderOutput(
+                                trackId, bufferIndex, encoder, outputInfo
+                            )
+                            outputWriter.write(trackId, cacheBuffer, outputInfo)
+                            recorder.trackProgressTime.set(outputInfo.presentationTimeUs)
+                            onProgressUpdate()
+                        }
+                    } else {
+                        enableWrite = false
+                    }
+                    encoder.releaseOutputBuffer(bufferIndex, renderOutput)
+                    finishWriteData = outputInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0
+                    if (finishWriteData) {
+                        break
+                    }
+                } else if (bufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                    if (!outputWriter.isFormatted(trackId)) {
+                        outputWriter.setFormat(trackId, encoder.outputFormat)
+                    }
+                } else {
+                    enableWrite = bufferIndex != MediaCodec.INFO_TRY_AGAIN_LATER
+                }
+            }
             if (decoder != null && !finishEncodeInput) {
                 val outputInfo = MediaCodec.BufferInfo()
                 bufferIndex = decoder.dequeueOutputBuffer(outputInfo, OUTPUT_TIMEOUT)
@@ -171,10 +200,12 @@ class SyncMediaSynth(
                         finishEncodeInput = true
                     }
                     if (outputInfo.size != 0) {
+                        if (decoderOutputBySurface) {
+                            decoder.releaseOutputBuffer(bufferIndex, true)
+                        }
                         dispatchDecoderOutput(
-                            trackId, mediaInfo, bufferIndex, decoder, outputInfo, encoder
+                            trackId, bufferIndex, decoder, outputInfo, encoder
                         )
-                        lastEncodeInputTimeUs=outputInfo.presentationTimeUs
                         if (encoder != null && !encoderInputBySurface) {
                             var failTime = 0
                             while (failTime < 10 && outputInfo.size != 0) {
@@ -212,60 +243,19 @@ class SyncMediaSynth(
                                 }
                             }
                         }
+                        if (!decoderOutputBySurface) {
+                            decoder.releaseOutputBuffer(bufferIndex, false)
+                        }
+                    } else {
+                        decoder.releaseOutputBuffer(bufferIndex, false)
                     }
-                    renderOutput = decoderOutputBySurface && outputInfo.size > 0
-                    decoder.releaseOutputBuffer(bufferIndex, renderOutput)
                     if (finishEncodeInput && encoder != null && encoderInputBySurface) {
-                        Log.i(TAG,"finishEncodeInput==>${lastEncodeInputTimeUs}")
                         encoder.signalEndOfInputStream()
                     }
                 }
             }
             if (requireInterruptedOrBlock()) {
                 return
-            }
-            var enableWrite = true
-            while (enableWrite && encoder != null) {
-                val outputInfo = MediaCodec.BufferInfo()
-                bufferIndex = encoder.dequeueOutputBuffer(outputInfo, WRITE_TIMEOUT)
-                if (bufferIndex >= 0) {
-                    cacheBuffer = encoder.getOutputBuffer(bufferIndex)
-                    if ((outputInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
-                        outputInfo.size = 0
-                    }
-                    if (cacheBuffer != null && outputInfo.size != 0) {
-                        renderOutput = encoderOutputBySurface
-                        if (frameNumber < 0) {
-                            frameNumber = 1
-                        } else {
-                            frameNumber++
-                        }
-                        outputInfo.presentationTimeUs =
-                            offsetTimeUs + (1000000f / frameRate * frameNumber).toLong()
-                        cacheBuffer.position(outputInfo.offset)
-                        cacheBuffer.limit(outputInfo.offset + outputInfo.size)
-                        dispatchEncoderOutput(trackId, mediaInfo, bufferIndex, encoder, outputInfo)
-                        lastEncodeOutputTimeUs= outputInfo.presentationTimeUs
-                        outputWriter.write(trackId, cacheBuffer, outputInfo)
-                        recorder.trackProgressTime.set(outputInfo.presentationTimeUs)
-                        onProgressUpdate()
-                    } else {
-                        enableWrite = false
-                        renderOutput = false
-                    }
-                    encoder.releaseOutputBuffer(bufferIndex, renderOutput)
-                    finishWriteData = outputInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0
-                    if (finishWriteData) {
-                        Log.i(TAG,"finishWriteData==>${lastEncodeOutputTimeUs}")
-                        break
-                    }
-                } else if (bufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                    if (outputWriter.getWriteIndex(trackId) < 0) {
-                        outputWriter.setFormat(trackId, encoder.outputFormat)
-                    }
-                } else {
-                    enableWrite = false
-                }
             }
         }
         if (requireInterruptedOrBlock()) {

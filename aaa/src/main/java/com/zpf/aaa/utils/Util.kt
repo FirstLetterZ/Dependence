@@ -9,12 +9,12 @@ import android.media.Image
 import android.media.MediaCodecInfo
 import android.media.MediaCodecInfo.CodecCapabilities
 import android.media.MediaCodecList
+import android.opengl.GLES20
 import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
-import kotlin.math.min
 
 
 object Util {
@@ -252,5 +252,18 @@ object Util {
         return CodecCapabilities.COLOR_FormatYUV420Flexible
     }
 
+
+    fun getFrame(pixelBuffer: ByteBuffer, width: Int, height: Int) {
+        pixelBuffer.rewind()
+        GLES20.glReadPixels(
+            0,
+            0,
+            width,
+            height,
+            GLES20.GL_RGBA,
+            GLES20.GL_UNSIGNED_BYTE,
+            pixelBuffer
+        )
+    }
 
 }

@@ -1,5 +1,7 @@
 package com.zpf.aaa.synth
 
+import android.util.Log
+
 class SimpleTimer {
 
     protected var startTime = 0L
@@ -26,6 +28,7 @@ class SimpleTimer {
     fun stop() {
         isStopped = true
         updateTakeTime()
+        Log.i("SimpleTimer", "takeTime==>${getTime()}")
     }
 
     fun getTime(): Long {

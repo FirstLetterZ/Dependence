@@ -1,9 +1,11 @@
 package com.zpf.aaa.videocompressor;
 
-import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.view.Surface;
+
+import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,7 +16,6 @@ import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 
-@TargetApi(16)
 public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final int EGL_OPENGL_ES2_BIT = 4;
@@ -163,7 +164,11 @@ public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
     }
 
     public void drawImage(boolean invert) {
-        mTextureRender.drawFrame(mSurfaceTexture, invert);
+        mTextureRender.drawFrame(mSurfaceTexture, invert, null);
+    }
+
+    public void drawImage(boolean invert, @Nullable Bitmap bitmap) {
+        mTextureRender.drawFrame(mSurfaceTexture, invert, bitmap);
     }
 
     @Override
@@ -181,6 +186,12 @@ public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
         mPixelBuf.rewind();
         GLES20.glReadPixels(0, 0, mWidth, mHeight, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, mPixelBuf);
         return mPixelBuf;
+    }
+
+    public void getFrame(ByteBuffer pixelBuffer, int width, int height) {
+        pixelBuffer.rewind();
+        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuffer);
+//        return mPixelBuf;
     }
 
     private void checkEglError(String msg) {

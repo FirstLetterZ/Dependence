@@ -8,32 +8,37 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import java.io.FileDescriptor
 
-abstract class AbsSynthTrackInputFactory {
+abstract class AbsSynthBuilder<T : IMediaSynth>() {
+    protected val inputList = ArrayList<MediaSynthInput>()
+    protected var outputBasicInfo: MediaOutputBasicInfo? = null
+    protected var outputWriter: ISynthOutputWriter? = null
 
-    open fun create(fd: FileDescriptor): MediaSynthInput? {
+    fun addInput(fd: FileDescriptor): MediaSynthInput? {
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(fd)
-        val mediaInfo = MediaInfo(retriever)
-        if (mediaInfo.duration <= 0) {
+        val basicInfo = MediaInputBasicInfo(retriever)
+        if (basicInfo.duration <= 0) {
             return null
         }
         val videoExtractor = MediaExtractor()
         val audioExtractor = MediaExtractor()
         videoExtractor.setDataSource(fd)
         audioExtractor.setDataSource(fd)
-        return build(mediaInfo, videoExtractor, audioExtractor)
-
+        val inputItem =
+            createMediaSynthInput(basicInfo, videoExtractor, audioExtractor) ?: return null
+        inputList.add(inputItem)
+        return inputItem
     }
 
-    open fun create(path: String, headers: Map<String, String>?): MediaSynthInput? {
+    fun addInput(path: String, headers: Map<String, String>?): MediaSynthInput? {
         val retriever = MediaMetadataRetriever()
         if (headers == null) {
             retriever.setDataSource(path)
         } else {
             retriever.setDataSource(path, headers)
         }
-        val mediaInfo = MediaInfo(retriever)
-        if (mediaInfo.duration <= 0) {
+        val basicInfo = MediaInputBasicInfo(retriever)
+        if (basicInfo.duration <= 0) {
             return null
         }
         val videoExtractor = MediaExtractor()
@@ -45,25 +50,42 @@ abstract class AbsSynthTrackInputFactory {
             videoExtractor.setDataSource(path, headers)
             audioExtractor.setDataSource(path, headers)
         }
-        return build(mediaInfo, videoExtractor, audioExtractor)
+        val inputItem =
+            createMediaSynthInput(basicInfo, videoExtractor, audioExtractor) ?: return null
+        inputList.add(inputItem)
+        return inputItem
     }
 
-    open fun create(context: Context, uri: Uri, headers: Map<String, String>?): MediaSynthInput? {
+    fun addInput(context: Context, uri: Uri, headers: Map<String, String>?): MediaSynthInput? {
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(context, uri)
-        val mediaInfo = MediaInfo(retriever)
-        if (mediaInfo.duration <= 0) {
+        val basicInfo = MediaInputBasicInfo(retriever)
+        if (basicInfo.duration <= 0) {
             return null
         }
         val videoExtractor = MediaExtractor()
         val audioExtractor = MediaExtractor()
         videoExtractor.setDataSource(context, uri, headers)
         audioExtractor.setDataSource(context, uri, headers)
-        return build(mediaInfo, videoExtractor, audioExtractor)
+        val inputItem =
+            createMediaSynthInput(basicInfo, videoExtractor, audioExtractor) ?: return null
+        inputList.add(inputItem)
+        return inputItem
     }
 
-    private fun build(
-        mediaInfo: MediaInfo, videoExtractor: MediaExtractor, audioExtractor: MediaExtractor
+    fun build(): T? {
+        val writer = outputWriter
+        val info = outputBasicInfo
+        if (writer == null || info == null || inputList.isEmpty()) {
+            return null
+        }
+        return createSynth(info, writer)
+    }
+
+    private fun createMediaSynthInput(
+        basicInfo: MediaInputBasicInfo,
+        videoExtractor: MediaExtractor,
+        audioExtractor: MediaExtractor
     ): MediaSynthInput? {
         var videoTrackIndex = -1
         var videoDecoderFormat: MediaFormat? = null
@@ -83,30 +105,36 @@ abstract class AbsSynthTrackInputFactory {
         }
         val videoTrackInput = if (videoTrackIndex >= 0 && videoDecoderFormat != null) {
             createVideoTrackInputConfig(
-                mediaInfo, videoTrackIndex, videoDecoderFormat, videoExtractor
+                basicInfo, videoTrackIndex, videoDecoderFormat, videoExtractor
             )
         } else {
             null
         }
         val audioTrackInput = if (audioTrackIndex >= 0 && audioDecoderFormat != null) {
             createAudioTrackInputConfig(
-                mediaInfo, audioTrackIndex, audioDecoderFormat, audioExtractor
+                basicInfo, audioTrackIndex, audioDecoderFormat, audioExtractor
             )
         } else {
             null
         }
-        if (videoTrackInput == null && audioDecoderFormat == null) {
+        if (videoTrackInput == null && audioTrackInput == null) {
             return null
         }
-        return MediaSynthInput(mediaInfo, videoTrackInput, audioTrackInput)
+        return MediaSynthInput(basicInfo, videoTrackInput, audioTrackInput)
     }
 
     protected open fun createVideoTrackInputConfig(
-        mediaInfo: MediaInfo, trackIndex: Int, format: MediaFormat, extractor: MediaExtractor
+        basicInfo: MediaInputBasicInfo,
+        trackIndex: Int,
+        format: MediaFormat,
+        extractor: MediaExtractor
     ): IMediaSynthTrackInput? {
         val originalMimeStr = format.getString(MediaFormat.KEY_MIME) ?: ""
-        val decoderMediaFormat = buildVideoDecoderMediaFormat(mediaInfo, originalMimeStr, format)
-        val encoderMediaFormat = buildVideoEncoderMediaFormat(mediaInfo, originalMimeStr, format)
+        val inputFormat = extractor.getTrackFormat(trackIndex)
+        val decoderMediaFormat =
+            createVideoDecoderMediaFormat(basicInfo, originalMimeStr, inputFormat)
+        val encoderMediaFormat =
+            createVideoEncoderMediaFormat(basicInfo, originalMimeStr, inputFormat)
         val decoderMine = decoderMediaFormat?.getString(MediaFormat.KEY_MIME) ?: ""
         val encoderMine = encoderMediaFormat?.getString(MediaFormat.KEY_MIME) ?: ""
         var decoder: MediaCodec? = null
@@ -126,11 +154,14 @@ abstract class AbsSynthTrackInputFactory {
     }
 
     protected open fun createAudioTrackInputConfig(
-        mediaInfo: MediaInfo, trackIndex: Int, format: MediaFormat, extractor: MediaExtractor
+        basicInfo: MediaInputBasicInfo,
+        trackIndex: Int,
+        format: MediaFormat,
+        extractor: MediaExtractor
     ): IMediaSynthTrackInput? {
         val originalMimeStr = format.getString(MediaFormat.KEY_MIME) ?: ""
-        val decoderMediaFormat = buildAudioDecoderMediaFormat(mediaInfo, originalMimeStr, format)
-        val encoderMediaFormat = buildAudioEncoderMediaFormat(mediaInfo, originalMimeStr, format)
+        val decoderMediaFormat = createAudioDecoderMediaFormat(basicInfo, originalMimeStr, format)
+        val encoderMediaFormat = createAudioEncoderMediaFormat(basicInfo, originalMimeStr, format)
         val decoderMine = decoderMediaFormat?.getString(MediaFormat.KEY_MIME) ?: ""
         val encoderMine = encoderMediaFormat?.getString(MediaFormat.KEY_MIME) ?: ""
         var decoder: MediaCodec? = null
@@ -149,19 +180,32 @@ abstract class AbsSynthTrackInputFactory {
         )
     }
 
-    protected abstract fun buildVideoDecoderMediaFormat(
-        mediaInfo: MediaInfo, mimeStr: String, originalMediaFormat: MediaFormat
-    ): MediaFormat?
+    protected open fun createVideoDecoderMediaFormat(
+        basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
+    ): MediaFormat? {
+        return null
+    }
 
-    protected abstract fun buildVideoEncoderMediaFormat(
-        mediaInfo: MediaInfo, mimeStr: String, originalMediaFormat: MediaFormat
-    ): MediaFormat?
+    protected open fun createVideoEncoderMediaFormat(
+        basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
+    ): MediaFormat? {
+        return null
+    }
 
-    protected abstract fun buildAudioDecoderMediaFormat(
-        mediaInfo: MediaInfo, mimeStr: String, originalMediaFormat: MediaFormat
-    ): MediaFormat?
+    protected open fun createAudioDecoderMediaFormat(
+        basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
+    ): MediaFormat? {
+        return null
+    }
 
-    protected abstract fun buildAudioEncoderMediaFormat(
-        mediaInfo: MediaInfo, mimeStr: String, originalMediaFormat: MediaFormat
-    ): MediaFormat?
+    protected open fun createAudioEncoderMediaFormat(
+        basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
+    ): MediaFormat? {
+        return null
+    }
+
+    protected abstract fun createSynth(
+        basicInfo: MediaOutputBasicInfo, writer: ISynthOutputWriter
+    ): T?
+
 }

@@ -3,7 +3,7 @@ package com.zpf.aaa.synth
 import androidx.annotation.IntRange
 
 class MediaSynthInput(
-    val mediaInfo: MediaInfo,
+    val mediaInfo: MediaInputBasicInfo,
     val videoTrackInput: IMediaSynthTrackInput?,
     val audioTrackInput: IMediaSynthTrackInput?
 ) {

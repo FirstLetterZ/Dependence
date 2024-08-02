@@ -3,7 +3,6 @@ package com.zpf.aaa.synth
 import android.annotation.SuppressLint
 import android.media.MediaCodec
 import android.media.MediaExtractor
-import android.util.Log
 import android.view.Surface
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicInteger
@@ -11,9 +10,10 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.min
 
 abstract class BaseMediaSynth(
-    protected val inputs: List<MediaSynthInput>, protected val outputWriter: MediaSynthOutput
+    protected val inputs: List<MediaSynthInput>, protected val outputWriter: ISynthOutputWriter,
+    protected val outputInfo: MediaOutputBasicInfo
 ) : IMediaSynth {
-    protected val TAG = "MediaSynth"
+    //    protected val TAG = "MediaSynth"
     protected val inputStepTimeOffsetList = ArrayList<Long>()
     protected val totalDurationUs: Long
     protected val statusCode = AtomicInteger(0)
@@ -32,6 +32,7 @@ abstract class BaseMediaSynth(
     protected var maxBufferSize = 4 * 1024 * 1024
     private val minBufferSize = 512 * 1024
     private var bufferSize = minBufferSize
+    private var realOutputInfo: MediaOutputBasicInfo? = null
 
     init {
         var sum = 0L
@@ -92,6 +93,15 @@ abstract class BaseMediaSynth(
         return inputs.getOrNull(i)
     }
 
+    override fun getOutputBasicInfo(): MediaOutputBasicInfo {
+        var cacheInfo = realOutputInfo
+        if (cacheInfo == null) {
+            cacheInfo = outputInfo.copy(duration = getDuration())
+            realOutputInfo = cacheInfo
+        }
+        return cacheInfo
+    }
+
     override fun setVideoListener(listener: ISynthOutputListener?) {
         videoTrackRecorder.outputListener = listener
     }
@@ -117,29 +127,35 @@ abstract class BaseMediaSynth(
     protected open fun onStateChanged(oldCode: Int, newCode: Int) {
         when (newCode) {
             MediaSynthStatus.COMPLETE -> {
-                timer.stop()
                 statusListenerSet.forEach {
                     it.onProgress(getDuration(), getDuration(), true)
                 }
                 onStop()
             }
             MediaSynthStatus.STOP -> {
-                timer.stop()
                 onStop()
             }
             MediaSynthStatus.PAUSE -> {
-                timer.pause()
             }
             MediaSynthStatus.START -> {
                 onStart(oldCode == MediaSynthStatus.CREATE)
             }
             MediaSynthStatus.CREATE -> {
-                timer.stop()
                 resetProgress()
             }
             else -> {
-                timer.stop()
                 onStop()
+            }
+        }
+        when (newCode) {
+            MediaSynthStatus.START -> {
+                timer.start()
+            }
+            MediaSynthStatus.PAUSE -> {
+                timer.pause()
+            }
+            else -> {
+                timer.stop()
             }
         }
     }
@@ -196,26 +212,24 @@ abstract class BaseMediaSynth(
 
     protected fun dispatchDecoderOutput(
         trackId: Int,
-        mediaInfo: MediaInfo,
         index: Int,
         decoder: MediaCodec,
         bufferInfo: MediaCodec.BufferInfo,
         encoder: MediaCodec?,
     ) {
         getTrackInputRecorder(trackId)?.outputListener?.onDecoderOutput(
-            mediaInfo, index, decoder, bufferInfo, encoder
+            index, decoder, bufferInfo, encoder
         )
     }
 
     protected fun dispatchEncoderOutput(
         trackId: Int,
-        mediaInfo: MediaInfo,
         index: Int,
         encoder: MediaCodec,
         bufferInfo: MediaCodec.BufferInfo
     ) {
         getTrackInputRecorder(trackId)?.outputListener?.onEncoderOutput(
-            mediaInfo, index, encoder, bufferInfo
+            index, encoder, bufferInfo
         )
     }
 
@@ -271,7 +285,6 @@ abstract class BaseMediaSynth(
         var byteBuffer = ByteBuffer.allocate(bufferSize)
         val outputInfo = MediaCodec.BufferInfo()
         var readSampleSize: Int
-        var lastTimeUs=0L
         while (true) {
             if (requireInterruptedOrBlock()) {
                 return false
@@ -299,11 +312,9 @@ abstract class BaseMediaSynth(
                 outputInfo.flags = extractor.sampleFlags
                 outputWriter.write(dataTrackId, byteBuffer, outputInfo)
                 progress?.invoke(outputInfo.presentationTimeUs)
-                lastTimeUs= outputInfo.presentationTimeUs
                 extractor.advance()
                 byteBuffer.clear()
             } else {
-                Log.i(TAG,"finish copyMedia==>${lastTimeUs}")
                 break
             }
         }

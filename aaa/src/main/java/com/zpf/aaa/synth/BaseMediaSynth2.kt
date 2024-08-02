@@ -4,8 +4,10 @@ import android.media.MediaCodec
 
 
 abstract class BaseMediaSynth2(
-    inputs: List<MediaSynthInput>, output: MediaSynthOutput
-) : BaseMediaSynth(inputs, output) {
+    inputs: List<MediaSynthInput>, writer: ISynthOutputWriter, outputInfo: MediaOutputBasicInfo
+) : BaseMediaSynth(inputs, writer, outputInfo) {
+    protected var videoWorkThread: Thread? = null
+    protected var audioWorkThread: Thread? = null
 
     override fun onStart(initConfig: Boolean) {
         val videoInput = getCurrentInputConfig(MediaSynthTrack.VIDEO_TRACK)
@@ -20,31 +22,39 @@ abstract class BaseMediaSynth2(
         }
         if (initConfig) {
             resetProgress()
-            if (videoInput != null) {
-                onConfigure(videoInput)
-                videoTrackRecorder.trackProgressTime.set(0L)
-            }
-            if (audioInput != null) {
-                onConfigure(audioInput)
-                audioTrackRecorder.trackProgressTime.set(0L)
-            }
         }
         var shouldNotify = false
-        if (videoInput != null) {
-            if (videoInput.isRunning()) {
-                shouldNotify = true
-            } else {
-                videoInput.start()
-                runVideoInput(videoInput, videoTrackRecorder)
+        if (videoWorkThread?.isAlive != true) {
+            val thread = Thread {
+                if (videoInput != null) {
+                    if (initConfig) {
+                        onConfigure(videoInput)
+                        videoTrackRecorder.trackProgressTime.set(0L)
+                    }
+                    videoInput.start()
+                    runVideoInput(videoInput, videoTrackRecorder)
+                }
             }
+            thread.start()
+            videoWorkThread = thread
+        } else {
+            shouldNotify = true
         }
-        if (audioInput != null) {
-            if (audioInput.isRunning()) {
-                shouldNotify = true
-            } else {
-                audioInput.start()
-                runAudioInput(audioInput, audioTrackRecorder)
+        if (audioWorkThread?.isAlive != true) {
+            val thread = Thread {
+                if (audioInput != null) {
+                    if (initConfig) {
+                        onConfigure(audioInput)
+                        audioTrackRecorder.trackProgressTime.set(0L)
+                    }
+                    audioInput.start()
+                    runAudioInput(audioInput, audioTrackRecorder)
+                }
             }
+            thread.start()
+            audioWorkThread = thread
+        } else {
+            shouldNotify = true
         }
         if (shouldNotify) {
             notifyWorkThread()
@@ -59,18 +69,6 @@ abstract class BaseMediaSynth2(
         }
         if (inputConfig is MediaCodecInput) {
             isUnknowType = false
-            if (inputConfig.decoder != null) {
-                inputConfig.decoder.configure(
-                    inputConfig.decoderFormat, mediaDecoderOutputSurface, null, 0
-                )
-                if (inputConfig.isDecodeInputBySurface()) {
-                    mediaDecoderInputSurface?.release()
-                    mediaDecoderInputSurface = inputConfig.decoder.createInputSurface()
-                    mediaDecoderSurfaceListener?.onDecoderInputSurfaceCreated(
-                        mediaDecoderInputSurface
-                    )
-                }
-            }
             if (inputConfig.encoder != null) {
                 inputConfig.encoder.configure(
                     inputConfig.encoderFormat,
@@ -80,10 +78,21 @@ abstract class BaseMediaSynth2(
                 )
                 if (inputConfig.isEncodeInputBySurface()) {
                     mediaEncoderInputSurface?.release()
-                    mediaEncoderInputSurface = inputConfig.encoder.createInputSurface()
-                    mediaEncoderSurfaceListener?.onEncoderInputSurfaceCreated(
-                        mediaEncoderInputSurface
-                    )
+                    val surface = inputConfig.encoder.createInputSurface()
+                    mediaEncoderInputSurface = surface
+                    mediaEncoderSurfaceListener?.onSurfaceCreated(surface)
+
+                }
+            }
+            if (inputConfig.decoder != null) {
+                inputConfig.decoder.configure(
+                    inputConfig.decoderFormat, mediaDecoderOutputSurface, null, 0
+                )
+                if (inputConfig.isDecodeInputBySurface()) {
+                    mediaDecoderInputSurface?.release()
+                    val surface = inputConfig.decoder.createInputSurface()
+                    mediaDecoderInputSurface = surface
+                    mediaDecoderSurfaceListener?.onSurfaceCreated(surface)
                 }
             }
         }
@@ -113,7 +122,7 @@ abstract class BaseMediaSynth2(
         inputs.getOrNull(audioTrackRecorder.trackInputIndex.get())?.let {
             it.audioTrackInput?.stop()
         }
-        outputWriter.release()
+        outputWriter.stop()
         mediaDecoderInputSurface?.release()
         mediaEncoderInputSurface?.release()
         mediaDecoderInputSurface = null
