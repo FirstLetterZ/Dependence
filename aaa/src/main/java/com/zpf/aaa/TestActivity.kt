@@ -131,7 +131,7 @@ class TestActivity : AppCompatActivity() {
                 return
             }
             layoutFront.buildDrawingCache()
-            decoderOutputSurface.drawImage(false, layoutFront.drawingCache)
+            decoderOutputSurface.drawImage(false, null)
             Log.e("ZPF", "readImageBytes===>1111")
             readImageBytes()
             val encoderInputSurface = inputSurface ?: return
@@ -160,8 +160,7 @@ class TestActivity : AppCompatActivity() {
                     printVideoInfo(uri)
                 }
             }
-        findViewById<View>(R.id.btn_select).setOnClickListener {
-//            testCompress()
+        val pick = Runnable {
             val permissions = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 emptyArray()
             } else {
@@ -174,6 +173,10 @@ class TestActivity : AppCompatActivity() {
                 )
                 albumLauncher.launch(albumIntent)
             })
+        }
+        findViewById<View>(R.id.btn_select).setOnClickListener {
+//            testCompress()
+            pick.run()
         }
         findViewById<View>(R.id.btn_pause).setOnClickListener {
             synth?.let {
@@ -195,9 +198,10 @@ class TestActivity : AppCompatActivity() {
 
     private fun testCompress() {
         val file = File(cacheDir, "test.mp4")
+        val resFile = File(cacheDir, "test_compress.mp4")
         VideoCompress.compressVideoMedium(
             file.absolutePath,
-            File(cacheDir, "test_compress.mp4").absolutePath,
+            resFile.absolutePath,
             object :
                 VideoCompress.CompressListener {
                 override fun onStart() {
@@ -206,6 +210,7 @@ class TestActivity : AppCompatActivity() {
 
                 override fun onSuccess() {
                     Log.e("ZPF", "===onSuccess===")
+                    FileSaveUtil.saveFile(this@TestActivity, resFile, null, "video/*", false)
                 }
 
                 override fun onFail() {

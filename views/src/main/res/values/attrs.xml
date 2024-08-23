@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="DashedView">
-        <attr name="dashColor" format="color" />
-        <attr name="dashGap" format="dimension" />
-        <attr name="dashWidth" format="dimension" />
-        <attr name="strokeWidth" format="dimension" />
-        <attr name="dashType" format="enum">
+        <attr name="dashedType" format="enum">
             <enum name="horizontal" value="0" />
             <enum name="vertical" value="1" />
             <enum name="circle" value="2" />
+            <enum name="rect" value="3" />
         </attr>
+        <attr name="dashedColor" format="color" />
+        <attr name="dashedGap" format="dimension" />
+        <attr name="dashedWidth" format="dimension" />
+        <attr name="dashedRadius" format="dimension" />
+        <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
     <declare-styleable name="TriangleView">
         <attr name="triangle_color" format="color" />

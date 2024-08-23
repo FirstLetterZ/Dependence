@@ -64,8 +64,17 @@ public class StatusBarUtil {
     }
 
     public static boolean SetStatusBarLightMode(Window window, boolean darkText) {
+        if (window == null) {
+            return false;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowInsetsController controller = window.getInsetsController();
+            WindowInsetsController controller = null;
+            try {
+                controller = window.getInsetsController();
+            } catch (Exception e) {
+                //华为手机异常
+                e.printStackTrace();
+            }
             if (controller != null) {
                 if (darkText) {
                     controller.setSystemBarsAppearance(
@@ -74,6 +83,7 @@ public class StatusBarUtil {
                 } else {
                     controller.setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
                 }
+                return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

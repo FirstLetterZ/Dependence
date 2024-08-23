@@ -58,17 +58,21 @@ public class CompressUtil {
         options.inJustDecodeBounds = false;
         int originalWidth = options.outWidth;
         int originalHeight = options.outHeight;
-        if (outHeight <= 0) {
-            outHeight = originalHeight;
-        }
-        if (outWidth <= 0) {
-            outWidth = originalWidth;
-        }
-        if (outWidth <= 0 || outHeight <= 0) {
+        if (originalWidth <= 0 || originalHeight <= 0) {
             safeClose(sourceStream);
             return CompressErrorCode.ERROR_CHECK_OPTION;
         }
-        options.inSampleSize = computeSize(outWidth, outHeight);
+        if (outHeight <= 0 && outWidth <= 0) {
+            options.inSampleSize = computeSize(originalWidth, originalHeight);
+        } else {
+            if (outHeight <= 0) {
+                outHeight = originalHeight;
+            }
+            if (outWidth <= 0) {
+                outWidth = originalWidth;
+            }
+            options.inSampleSize = computeScale(outWidth, outHeight, originalWidth, originalHeight);
+        }
         Bitmap sourceBitmap = null;
         try {
             sourceStream.reset();
@@ -81,10 +85,10 @@ public class CompressUtil {
             return CompressErrorCode.ERROR_READ_FILE;
         }
         int picDegree = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            picDegree = readPictureDegree(sourceStream);
-        } else if (sourceFilePath != null) {
+        if (sourceFilePath != null) {
             picDegree = readPictureDegree(sourceFilePath);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            picDegree = readPictureDegree(sourceStream);
         }
         if (picDegree != 0) {
             sourceBitmap = rotatingImage(sourceBitmap, picDegree);
@@ -138,7 +142,7 @@ public class CompressUtil {
         return CompressErrorCode.SUCCESS_ANDROID;
     }
 
-    private static int readPictureDegree(InputStream inputStream) {
+    public static int readPictureDegree(InputStream inputStream) {
         int degree = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
@@ -151,7 +155,7 @@ public class CompressUtil {
         return degree;
     }
 
-    private static int readPictureDegree(String path) {
+    public static int readPictureDegree(String path) {
         int degree = 0;
         try {
             ExifInterface exifInterface = new ExifInterface(path);
@@ -162,7 +166,7 @@ public class CompressUtil {
         return degree;
     }
 
-    private static int getDegree(ExifInterface exifInterface) {
+    public static int getDegree(ExifInterface exifInterface) {
         int degree = 0;
         int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         switch (orientation) {
@@ -189,8 +193,40 @@ public class CompressUtil {
         }
     }
 
+    public static int computeScale(int targetWidth, int targetHeight, int originalWidth, int originalHeight) {
+        if (targetHeight <= 0 || targetWidth <= 0 || originalWidth <= 0 || originalHeight <= 0) {
+            return 1;
+        }
+        if (targetHeight >= originalHeight && targetWidth >= originalWidth) {
+            return 1;
+        }
+        int scale = 1;
+        float diffWidth = Math.abs(targetWidth - originalWidth) * 1f / targetWidth;
+        float diffHeight = Math.abs(targetHeight - originalHeight) * 1f / targetHeight;
+        if (diffHeight <= 0.01f && diffWidth <= 0.01f) {
+            return scale;
+        }
+        float diffSum = diffWidth + diffHeight;
+        int tempScale;
+        float lastDiffSum;
+        while (true) {
+            tempScale = scale * 2;
+            lastDiffSum = diffSum;
+            diffWidth = Math.abs(targetWidth * tempScale - originalWidth) * 1f / targetWidth;
+            diffHeight = Math.abs(targetHeight * tempScale - originalHeight) * 1f / targetHeight;
+            if (diffHeight < 0.01f && diffWidth <= 0.01f) {
+                return tempScale;
+            }
+            diffSum = diffWidth + diffHeight;
+            if (diffSum > lastDiffSum) {
+                return scale;
+            }
+            scale = tempScale;
+        }
+    }
+
     //使用了开源库luban的算法
-    private static int computeSize(int width, int height) {
+    public static int computeSize(int width, int height) {
         width = width % 2 == 1 ? width + 1 : width;
         height = height % 2 == 1 ? height + 1 : height;
         int longSide = Math.max(width, height);
@@ -213,7 +249,7 @@ public class CompressUtil {
         }
     }
 
-    private static Bitmap rotatingImage(Bitmap bitmap, int angle) {
+    public static Bitmap rotatingImage(Bitmap bitmap, int angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);

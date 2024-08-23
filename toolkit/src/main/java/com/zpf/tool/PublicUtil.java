@@ -251,7 +251,7 @@ public class PublicUtil {
         }
     }
 
-    public void jumpToAppStore(Context context) {
+    public static void jumpToAppStore(Context context) {
         String packageName = context.getPackageName();
         Uri uri = Uri.parse("market://details?id=" + packageName);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -373,12 +373,12 @@ public class PublicUtil {
         return true;
     }
 
-    public String upperCaseNumber(int number, boolean isMoney) {
+    public static String upperCaseNumber(int number, boolean isMoney) {
         String[] numbers;
         String[] units;
         if (isMoney) {
             numbers = new String[]{"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
-            units = new String[]{"", "拾", "佰", "仟", "万", "十万", "佰万", "仟万", "亿", "拾亿", "佰亿", "仟亿", "万亿"};
+            units = new String[]{"", "拾", "佰", "仟", "萬", "拾萬", "佰萬", "仟萬", "億", "拾億", "佰億", "仟億", "萬億"};
         } else {
             numbers = new String[]{"零", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
             units = new String[]{"", "十", "百", "千", "万", "十万", "百万", "千万", "亿", "十亿", "百亿", "千亿", "万亿"};

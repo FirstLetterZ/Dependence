@@ -52,15 +52,16 @@ class TestSyncSynthBuilder(outputFilePath: String) : AbsSynthBuilder<SyncMediaSy
         }
         val width = basicInfo.getTrueWidth()
         val height = basicInfo.getTrueHeight()
+        val targetMaxSize = 1280
         val size = if (width > height) {
-            val s = 1920.0f / width
-            Size(1920, (height * s).toInt())
+            val s = targetMaxSize.toFloat() / width
+            Size(targetMaxSize, (height * s).toInt())
         } else {
-            val s = 1920.0f / height
-            Size((width * s).toInt(), 1920)
+            val s = targetMaxSize.toFloat() / height
+            Size((width * s).toInt(), targetMaxSize)
         }
         val info = MediaOutputBasicInfo(
-            basicInfo.fileMime, width, height, basicInfo.duration, frameRate
+            basicInfo.fileMime, size.width, size.height, basicInfo.duration, frameRate
         )
         outputBasicInfo = info
         return info

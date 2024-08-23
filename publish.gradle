@@ -61,9 +61,9 @@ if (publishRelease == 'true' || publishRelease == true) {
     libType = "release"
     outputJarDir = "syncReleaseLibJars"
 //  发布到控制台
-    uploadMavenUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//    uploadMavenUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 //  直接发布
-//    uploadMavenUrl = "https://s01.oss.sonatype.org/content/repositories/releases/"
+    uploadMavenUrl = "https://s01.oss.sonatype.org/content/repositories/releases/"
 } else {
     libVersion = snapshotVersion
     libType = "debug"

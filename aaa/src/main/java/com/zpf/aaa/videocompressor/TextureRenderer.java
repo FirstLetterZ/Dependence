@@ -61,6 +61,7 @@ public class TextureRenderer {
     private int rotationAngle = 0;
     private int bitmapTextureId;
     private int bitmapTextureHandle;
+    private Bitmap empty = Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8);
 
     public TextureRenderer(int rotation) {
         rotationAngle = rotation;
@@ -73,7 +74,7 @@ public class TextureRenderer {
         return mTextureID;
     }
 
-    public void drawFrame(SurfaceTexture st, boolean invert,@Nullable Bitmap bitmap) {
+    public void drawFrame(SurfaceTexture st, boolean invert, @Nullable Bitmap bitmap) {
         checkGlError("onDrawFrame start");
         st.getTransformMatrix(mSTMatrix);
 //        GLES20.glEnable(GLES20.GL_BLEND);
@@ -97,13 +98,14 @@ public class TextureRenderer {
         checkGlError("glVertexAttribPointer maTextureHandle");
         GLES20.glEnableVertexAttribArray(maTextureHandle);
         checkGlError("glEnableVertexAttribArray maTextureHandle");
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTextureId);
         if (bitmap != null && !bitmap.isRecycled()) {
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTextureId);
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-            GLES20.glUniform1i(bitmapTextureHandle, 1);
-//            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        } else {
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, empty, 0);
         }
+        GLES20.glUniform1i(bitmapTextureHandle, 1);
         GLES20.glUniformMatrix4fv(muSTMatrixHandle, 1, false, mSTMatrix, 0);
         GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
