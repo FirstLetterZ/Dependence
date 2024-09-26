@@ -1,4 +1,4 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 import android.media.MediaCodec
 import android.media.MediaFormat
@@ -7,7 +7,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
-class MediaSynthOutput(
+class MediaSynthMuxerWriter(
     private val outputFilePath: String, private val formatCode: Int
 ) : ISynthOutputWriter {
     private val videoTrackIndex = AtomicInteger(-1)

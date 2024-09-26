@@ -1,7 +1,6 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 import android.media.MediaCodec
-
 
 abstract class BaseMediaSynth2(
     inputs: List<MediaSynthInput>, writer: ISynthOutputWriter, outputInfo: MediaOutputBasicInfo
@@ -20,41 +19,56 @@ abstract class BaseMediaSynth2(
             }
             return
         }
-        if (initConfig) {
-            resetProgress()
-        }
         var shouldNotify = false
-        if (videoWorkThread?.isAlive != true) {
-            val thread = Thread {
-                if (videoInput != null) {
+        if (videoInput != null) {
+            if (videoWorkThread?.isAlive != true) {
+                val thread = Thread {
                     if (initConfig) {
                         onConfigure(videoInput)
                         videoTrackRecorder.trackProgressTime.set(0L)
                     }
                     videoInput.start()
-                    runVideoInput(videoInput, videoTrackRecorder)
+                    try {
+                        runVideoInput(videoInput, videoTrackRecorder)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                        changeToStatus(MediaSynthStatus.ERROR)
+                    }
                 }
+                thread.start()
+                videoWorkThread = thread
+            } else {
+                shouldNotify = true
             }
-            thread.start()
-            videoWorkThread = thread
         } else {
-            shouldNotify = true
+            onTrackFinish(MediaSynthTrack.VIDEO_TRACK)
         }
-        if (audioWorkThread?.isAlive != true) {
-            val thread = Thread {
-                if (audioInput != null) {
+        if (audioInput != null) {
+            if (audioWorkThread?.isAlive != true) {
+                val thread = Thread {
                     if (initConfig) {
                         onConfigure(audioInput)
                         audioTrackRecorder.trackProgressTime.set(0L)
                     }
                     audioInput.start()
-                    runAudioInput(audioInput, audioTrackRecorder)
+                    try {
+                        runAudioInput(audioInput, audioTrackRecorder)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                        changeToStatus(MediaSynthStatus.ERROR)
+                    }
                 }
+                thread.start()
+                audioWorkThread = thread
+            } else {
+                shouldNotify = true
             }
-            thread.start()
-            audioWorkThread = thread
         } else {
-            shouldNotify = true
+            onTrackFinish(MediaSynthTrack.AUDIO_TRACK)
         }
         if (shouldNotify) {
             notifyWorkThread()
@@ -65,7 +79,6 @@ abstract class BaseMediaSynth2(
         var isUnknowType = true
         if (inputConfig is MediaExtractorInput) {
             isUnknowType = false
-            inputConfig.extractor?.selectTrack(inputConfig.trackIndex)
         }
         if (inputConfig is MediaCodecInput) {
             isUnknowType = false
@@ -81,7 +94,6 @@ abstract class BaseMediaSynth2(
                     val surface = inputConfig.encoder.createInputSurface()
                     mediaEncoderInputSurface = surface
                     mediaEncoderSurfaceListener?.onSurfaceCreated(surface)
-
                 }
             }
             if (inputConfig.decoder != null) {
@@ -127,6 +139,16 @@ abstract class BaseMediaSynth2(
         mediaEncoderInputSurface?.release()
         mediaDecoderInputSurface = null
         mediaEncoderInputSurface = null
+    }
+
+    protected open fun onTrackFinish(trackId: Int) {
+        if (!outputWriter.isFormatted(trackId)) {
+            outputWriter.setFormat(trackId, null)
+        }
+        getTrackInputRecorder(trackId)?.let {
+            it.trackInputIndex.set(Int.MAX_VALUE)
+            it.trackProgressTime.set(getDuration() * 1000L)
+        }
     }
 
     protected abstract fun onConfigureUnknowTypeConfig(inputConfig: IMediaSynthTrackInput)

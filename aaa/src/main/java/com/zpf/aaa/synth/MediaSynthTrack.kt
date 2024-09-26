@@ -1,4 +1,4 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 object MediaSynthTrack {
     const val VIDEO_TRACK = 1

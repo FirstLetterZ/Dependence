@@ -12,6 +12,7 @@ abstract class AbsSynthBuilder<T : IMediaSynth>() {
     protected val inputList = ArrayList<MediaSynthInput>()
     protected var outputBasicInfo: MediaOutputBasicInfo? = null
     protected var outputWriter: ISynthOutputWriter? = null
+    protected val TAG = "SynthBuilder"
 
     fun addInput(fd: FileDescriptor): MediaSynthInput? {
         val retriever = MediaMetadataRetriever()

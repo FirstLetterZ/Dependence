@@ -1,4 +1,4 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 import android.media.MediaExtractor
 import java.util.concurrent.atomic.AtomicBoolean
@@ -16,18 +16,19 @@ open class MediaExtractorInput(
     }
 
     override fun start() {
-        if (isStarted.get()) {
+        if (isRunning()) {
             return
         }
         isStarted.set(true)
         extractor?.selectTrack(trackIndex)
-     }
+    }
 
     override fun stop() {
-        if (!isStarted.get()) {
+        if (!isRunning()) {
             return
         }
         isStarted.set(false)
+        extractor?.unselectTrack(trackIndex)
         extractor?.release()
     }
 

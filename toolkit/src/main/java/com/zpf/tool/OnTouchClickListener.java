@@ -42,7 +42,7 @@ public class OnTouchClickListener implements View.OnTouchListener {
                 break;
             case MotionEvent.ACTION_UP:
                 long deltaTime = System.currentTimeMillis() - downTime;
-                if (callClick && deltaTime > 80 && deltaTime < 800) {
+                if (callClick && deltaTime < 800) {
                     if (clickListener != null) {
                         clickListener.onClick(v);
                     }

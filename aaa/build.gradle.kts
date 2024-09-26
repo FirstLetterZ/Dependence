@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.viewPager2)
     implementation(libs.gson)
     implementation(libs.constraintlayout)
+    implementation(libs.flexbox)
     implementation(project(":views"))
     implementation(project(":file"))
     implementation(project(":toolkit"))

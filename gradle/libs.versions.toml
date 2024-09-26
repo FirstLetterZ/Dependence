@@ -24,6 +24,7 @@ gson = { group = "com.google.code.gson", name = "gson", version = "2.11.0" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+flexbox = { module = "com.google.android.flexbox:flexbox", version = "3.0.0" }
 
 api-base = { module = "io.github.firstletterz:api-base", version = "0.4.0" }
 api-parse = { module = "io.github.firstletterz:api-parse", version = "1.1.0" }

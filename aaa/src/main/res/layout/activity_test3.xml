@@ -5,66 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.zpf.aaa.view.AiBottomHintView
+        android:id="@+id/tv_test"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#03A9F4"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:paddingVertical="12dp"
+        android:textColor="#939599"
+        android:textSize="16sp"
+        android:background="#66B7FF"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="80dp"
+        android:gravity="center" />
 
-        <com.zpf.views.tagtext.TagTextView
-            android:id="@+id/ttv_test"
-            android:layout_width="275dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="#999"
-            app:fontSize="12sp"
-            app:layout_constraintBottom_toTopOf="@id/view_pointer2"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <View
-            android:layout_width="36dp"
-            android:layout_height="18dp"
-            android:background="#CDDC39"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/view_bottom"
-            app:layout_constraintEnd_toEndOf="@id/ttv_test" />
-
-
-        <TextView
-            android:id="@+id/view_pointer1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text="  收起"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/view_pointer2"
-            app:layout_constraintEnd_toEndOf="@id/ttv_test"
-            app:layout_constraintStart_toStartOf="@id/ttv_test" />
-
-        <TextView
-            android:id="@+id/view_pointer2"
-            android:layout_width="36dp"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:includeFontPadding="false"
-            android:text="收起"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/view_bottom"
-            app:layout_constraintEnd_toEndOf="@id/ttv_test" />
-
-        <View
-            android:id="@+id/view_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:background="#4CAF50"
-            app:layout_constraintBottom_toBottomOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.zpf.aaa.view.TestView
+        android:background="#999"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="280dp"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"/>
 
 </FrameLayout>

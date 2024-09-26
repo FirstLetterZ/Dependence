@@ -1,4 +1,4 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 import android.annotation.SuppressLint
 import android.media.MediaCodec
@@ -13,9 +13,9 @@ abstract class BaseMediaSynth(
     protected val inputs: List<MediaSynthInput>, protected val outputWriter: ISynthOutputWriter,
     protected val outputInfo: MediaOutputBasicInfo
 ) : IMediaSynth {
-    //    protected val TAG = "MediaSynth"
+    protected val TAG = "MediaSynth"
     protected val inputStepTimeOffsetList = ArrayList<Long>()
-    protected val totalDurationUs: Long
+    protected val totalDuration: Long
     protected val statusCode = AtomicInteger(0)
     protected val statusListenerSet = HashSet<ISynthStatusListener>()
     protected val workThreadLock = Object()
@@ -36,11 +36,12 @@ abstract class BaseMediaSynth(
 
     init {
         var sum = 0L
+        inputStepTimeOffsetList.add(0L)
         inputs.forEach {
-            inputStepTimeOffsetList.add(sum)
             sum += it.mediaInfo.duration
+            inputStepTimeOffsetList.add(sum)
         }
-        totalDurationUs = sum
+        totalDuration = sum
     }
 
     override fun status(): Int {
@@ -63,7 +64,7 @@ abstract class BaseMediaSynth(
         changeToStatus(MediaSynthStatus.CREATE)
     }
 
-    override fun getDuration(): Long = totalDurationUs * 1000L
+    override fun getDuration(): Long = totalDuration
 
     override fun setDecoderInputSurfaceChangedListener(listener: ISynthInputSurfaceListener?) {
         mediaDecoderSurfaceListener = listener
@@ -128,7 +129,7 @@ abstract class BaseMediaSynth(
         when (newCode) {
             MediaSynthStatus.COMPLETE -> {
                 statusListenerSet.forEach {
-                    it.onProgress(getDuration(), getDuration(), true)
+                    it.onProgress(getDuration() * 1000L, getDuration() * 1000L, true)
                 }
                 onStop()
             }
@@ -205,7 +206,7 @@ abstract class BaseMediaSynth(
         if (p0 < p1) {
             lastProgressTime.set(p1)
             statusListenerSet.forEach {
-                it.onProgress(p1, getDuration(), false)
+                it.onProgress(p1, getDuration() * 1000L, false)
             }
         }
     }

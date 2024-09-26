@@ -42,4 +42,15 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="8dp"
         android:text="test4" />
+
+    <com.zpf.aaa.view.PinyinView
+        android:layout_width="match_parent"
+        android:layout_height="121dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="#999"
+        android:paddingTop="18dp"
+        android:paddingBottom="24dp"
+        android:text="shén meÅ dong xi"
+        android:textColor="#000"
+        android:textSize="16sp" />
 </LinearLayout>

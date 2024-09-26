@@ -1,4 +1,4 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 data class MediaOutputBasicInfo(
     val mime: String,

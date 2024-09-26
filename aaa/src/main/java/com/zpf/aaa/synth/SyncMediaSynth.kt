@@ -1,16 +1,16 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 import android.media.MediaCodec
 import android.media.MediaExtractor
 import java.nio.ByteBuffer
 
-class SyncMediaSynth(
+open class SyncMediaSynth(
     inputs: List<MediaSynthInput>, write: ISynthOutputWriter, outputInfo: MediaOutputBasicInfo
 ) : BaseMediaSynth2(inputs, write, outputInfo) {
 
-    private val INPUT_TIMEOUT = 10L
-    private val OUTPUT_TIMEOUT = 10L
-    private val WRITE_TIMEOUT = 10L
+    protected var INPUT_TIMEOUT = 10L
+    protected var OUTPUT_TIMEOUT = 10L
+    protected var WRITE_TIMEOUT = 10L
 
     override fun onConfigureUnknowTypeConfig(inputConfig: IMediaSynthTrackInput) {
         changeToStatus(MediaSynthStatus.CONFIG_ERROR)
@@ -37,19 +37,18 @@ class SyncMediaSynth(
         }
         val nextConfig = getNextInputConfig(trackId)
         if (nextConfig == null) {
+            onTrackFinish(trackId)
             if (isFinished()) {
                 changeToStatus(MediaSynthStatus.COMPLETE)
-            } else {
-                recorder.trackProgressTime.set(getDuration())
             }
         } else {
             onConfigure(nextConfig)
             nextConfig.start()
-            runVideoInput(nextConfig, recorder)
+            handleInput(nextConfig, recorder, trackId)
         }
     }
 
-    protected fun handleInput(
+    protected open fun handleInput(
         inputConfig: IMediaSynthTrackInput, recorder: MediaTrackRecorder, trackId: Int
     ) {
         val inputIndex = recorder.trackInputIndex.get()
@@ -76,7 +75,8 @@ class SyncMediaSynth(
             decoderInputBySurface = false
             encoderInputBySurface = false
         }
-        val offsetTimeUs = (inputStepTimeOffsetList.getOrNull(inputIndex) ?: 0L) * 1000L
+        val startTimeUs = (inputStepTimeOffsetList.getOrNull(inputIndex) ?: 0L) * 1000L
+        val endTimeUs = (inputStepTimeOffsetList.getOrNull(inputIndex + 1) ?: 0L) * 1000L
         if (encoder == null && decoder == null) {
             if (extractor == null) {
                 onInputFinish(inputConfig, recorder, trackId)
@@ -87,7 +87,7 @@ class SyncMediaSynth(
                         trackId, extractor.getTrackFormat(inputConfig.trackIndex)
                     )
                 }
-                copyMedia(extractor, trackId, offsetTimeUs) {
+                copyMedia(extractor, trackId, startTimeUs) {
                     recorder.trackProgressTime.set(it)
                     onProgressUpdate()
                 }
@@ -103,6 +103,7 @@ class SyncMediaSynth(
         var cacheBuffer: ByteBuffer?
         var renderOutput: Boolean
         val frameRate = getOutputBasicInfo().frameRate
+        var useInputTime = false
         while (!finishWriteData) {
             if (requireInterruptedOrBlock()) {
                 return
@@ -162,11 +163,16 @@ class SyncMediaSynth(
                         if (outputInfo.size != 0) {
                             if (frameNumber < 0) {
                                 frameNumber = 1
+                                useInputTime = outputInfo.presentationTimeUs <= endTimeUs
                             } else {
                                 frameNumber++
                             }
-                            outputInfo.presentationTimeUs =
-                                offsetTimeUs + (1000000f / frameRate * frameNumber).toLong()
+                            if (useInputTime) {
+                                outputInfo.presentationTimeUs += startTimeUs
+                            } else {
+                                outputInfo.presentationTimeUs =
+                                    startTimeUs + (1000000f / frameRate * frameNumber).toLong()
+                            }
                             cacheBuffer.position(outputInfo.offset)
                             cacheBuffer.limit(outputInfo.offset + outputInfo.size)
                             dispatchEncoderOutput(
@@ -233,7 +239,7 @@ class SyncMediaSynth(
                                         encoderBufferIndex,
                                         outputInfo.offset,
                                         outputInfo.size,
-                                        outputInfo.presentationTimeUs + offsetTimeUs,
+                                        outputInfo.presentationTimeUs + startTimeUs,
                                         outputInfo.flags
                                     )
                                 } else {

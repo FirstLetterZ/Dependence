@@ -1,4 +1,4 @@
-package com.zpf.aaa.synth
+package  com.zpf.aaa.synth
 
 object MediaSynthStatus {
     const val WRITE_ERROR = -6
