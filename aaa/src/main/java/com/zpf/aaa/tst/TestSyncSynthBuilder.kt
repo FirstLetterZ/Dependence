@@ -8,12 +8,12 @@ import com.zpf.aaa.synth.AbsSynthBuilder
 import com.zpf.aaa.synth.ISynthOutputWriter
 import com.zpf.aaa.synth.MediaInputBasicInfo
 import com.zpf.aaa.synth.MediaOutputBasicInfo
-import com.zpf.aaa.synth.MediaSynthOutput
+import com.zpf.aaa.synth.MediaSynthMuxerWriter
 import com.zpf.aaa.synth.SyncMediaSynth
 
 class TestSyncSynthBuilder(outputFilePath: String) : AbsSynthBuilder<SyncMediaSynth>() {
     init {
-        outputWriter = MediaSynthOutput(outputFilePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        outputWriter = MediaSynthMuxerWriter(outputFilePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     }
 
     private val frameRate = 30

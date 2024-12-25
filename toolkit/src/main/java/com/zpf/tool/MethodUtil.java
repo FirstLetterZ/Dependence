@@ -15,7 +15,7 @@ public class MethodUtil {
         Entry<P, V> entry = new Entry<>();
         entry.tempValue = nv.addNodeValue(original, entry.tempValue);
         nv.addChildNode(original, entry.nodeList);
-        while (entry.nodeList.size() > 0) {
+        while (!entry.nodeList.isEmpty()) {
             P n = entry.nodeList.pollFirst();
             entry.tempValue = nv.addNodeValue(n, entry.tempValue);
             nv.addChildNode(n, entry.nodeList);

@@ -4,11 +4,15 @@ import java.util.Arrays;
 
 public class StabilizerInt {
     private final int[] records;
+    private final int initValue;
     private int lastValue;
+    private int size = 0;
+
     public StabilizerInt(int size) {
         this(0, size);
     }
     public StabilizerInt(int initValue, int size) {
+        this.initValue = initValue;
         records = new int[size];
         lastValue = initValue;
         if (initValue != 0) {
@@ -17,39 +21,33 @@ public class StabilizerInt {
     }
 
     public int add(int value) {
-        int size = records.length;
-        if (size < 2) {
+        if (records.length < 2) {
             lastValue = value;
+            size = 1;
             return lastValue;
         }
+        size = Math.min(size + 1, records.length);
         int sum = 0;
-        if (size < 5) {
-            for (int i = 0; i < size; i++) {
-                if (i == records.length - 1) {
-                    records[i] = value;
-                } else {
-                    records[i] = records[i + 1];
-                }
-                sum = sum + records[i];
+        int max = value;
+        int min = value;
+        for (int i = size - 1; i >= 0; i--) {
+            if (i == 0) {
+                records[i] = value;
+            } else {
+                records[i] = records[i - 1];
             }
+            int current = records[i];
+            sum = sum + current;
+            if (current > max) {
+                max = current;
+            }
+            if (current < min) {
+                min = current;
+            }
+        }
+        if (size < 5) {
             lastValue = sum / size;
         } else {
-            int max = value;
-            int min = value;
-            for (int i = 0; i < size; i++) {
-                if (i == records.length - 1) {
-                    records[i] = value;
-                } else {
-                    records[i] = records[i + 1];
-                }
-                sum = sum + records[i];
-                if (records[i] > max) {
-                    max = records[i];
-                }
-                if (records[i] < min) {
-                    min = records[i];
-                }
-            }
             sum = sum - max - min;
             lastValue = sum / (size - 2);
         }
@@ -58,5 +56,15 @@ public class StabilizerInt {
 
     public int getValue() {
         return lastValue;
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public void clear() {
+        Arrays.fill(records, initValue);
+        lastValue = initValue;
+        size = 0;
     }
 }

@@ -6,12 +6,19 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <com.zpf.aaa.utils.SelectorImageView
-        android:id="@+id/iv_selector"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#8BC34A"
-        android:scaleType="centerInside"/>
+        android:layout_height="200dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

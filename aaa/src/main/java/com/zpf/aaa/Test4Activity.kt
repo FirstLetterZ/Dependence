@@ -1,35 +1,60 @@
 package com.zpf.aaa
 
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import androidx.annotation.Nullable
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.zpf.aaa.utils.SelectorImageView
-import com.zpf.aaa.utils.TextRect
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.io.InputStreamReader
+import com.zpf.aaa.banner.ContentAdapter
+import com.zpf.aaa.banner.IndicatorAdapter
+import com.zpf.tool.func.TwoDimensionalFunction
+import java.util.UUID
 
 class Test4Activity : AppCompatActivity() {
+    private val contentAdapter by lazy {
+        ContentAdapter()
+    }
+    private val indicatorAdapter by lazy {
+        IndicatorAdapter()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test4)
-        val image: SelectorImageView = findViewById<SelectorImageView>(R.id.iv_selector)
-        val gson = Gson()
-        lifecycleScope.launch {
-            val inputStream = assets.open("pic_test_image.jpg")
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            image.setImageBitmap(bitmap)
-            delay(1000L)
-            val type = object : TypeToken<List<TextRect>>() {}.type
-            val datas: List<TextRect>? =
-                gson.fromJson(InputStreamReader(assets.open("text_rez.json")), type)
-            image.setTextList(datas)
+//        val rvList = findViewById<RecyclerView>(R.id.rv_list)
+//        val rvIndicator = findViewById<RecyclerView>(R.id.rv_indicator)
+//        rvList.adapter = contentAdapter
+//        rvIndicator.adapter = indicatorAdapter
+//        val banner = CarouselBanner(rvList, rvIndicator)
+//        banner.addListener(indicatorAdapter)
+//        updateContent()
+//        lifecycleScope.launch {
+//            delay(2000L)
+//            rvList.smoothScrollToPosition(3)
+//            delay(4000L)
+//            updateContent()
+//        }
+//        banner.start()
+
+        val f1 = TwoDimensionalFunction(0f, -1f, -1f, 0f, 0f, 10f)
+        val f2 = TwoDimensionalFunction(0f, 1f, -1f, 0f, 0f, -20f)
+        val accuracy = 0.001f
+        val cross = f1.crossPoint(f2)
+        Log.w("ZPF", "crossPoint==> ${cross?.size ?: 0}")
+        cross?.forEach {
+            Log.w(
+                "ZPF", "checkResult==>x=${it.x};y=${it.y};" +
+                        "1=${f1.checkResult(it.x, it.y, accuracy)};" +
+                        "2=${f2.checkResult(it.x, it.y, accuracy)}"
+            )
         }
+    }
+
+    private fun updateContent() {
+        val list = ArrayList<String>()
+        for (i in 0..5) {
+            list.add("${i + 1}\n" + UUID.randomUUID().toString())
+        }
+        Log.e("ZPF", "== updateContent ==")
+        contentAdapter.submitList(list)
     }
 
 }

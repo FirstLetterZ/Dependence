@@ -59,6 +59,7 @@ public class TopBar extends ViewGroup implements ITopBar {
         leftLayout.setMinimumWidth(minWidth);
         leftLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.MATCH_PARENT));
+        leftLayout.setGravity(Gravity.CENTER_VERTICAL);
 
         ivLeft = new IconTextView(context);
         ivLeft.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
@@ -78,6 +79,7 @@ public class TopBar extends ViewGroup implements ITopBar {
         rightLayout.setMinimumWidth(minWidth);
         rightLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.MATCH_PARENT));
+        rightLayout.setGravity(Gravity.CENTER_VERTICAL);
 
         ivRight = new IconTextView(context);
         ivRight.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
