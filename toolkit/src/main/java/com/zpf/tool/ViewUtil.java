@@ -7,17 +7,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.AbsListView;
+import android.widget.TextView;
 
 public class ViewUtil {
     public static boolean isViewToTop(View view) {
@@ -73,6 +76,25 @@ public class ViewUtil {
             }
         }
         return height;
+    }
+
+    public static void setTextViewLineHeight(TextView view, int heightPx) {
+        if (heightPx <= 0) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            view.setLineHeight(heightPx);
+        }
+        Paint.FontMetrics fontMetrics = view.getPaint().getFontMetrics();
+        float fontHeight = fontMetrics.descent - fontMetrics.ascent;
+        int space = (int) ((heightPx - fontHeight) / 2f);
+        if (space > 0) {
+            view.setPadding(view.getPaddingLeft(), space, view.getPaddingRight(), space);
+            view.setLineSpacing(space, 1.0f);
+        } else {
+            view.setPadding(view.getPaddingLeft(), 0, view.getPaddingRight(), 0);
+            view.setLineSpacing(0, 1.0f);
+        }
     }
 
     //收起软键盘

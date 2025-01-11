@@ -1,12 +1,16 @@
 package com.zpf.aaa
 
+import android.animation.ValueAnimator
 import android.os.Bundle
-import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.zpf.aaa.banner.ContentAdapter
 import com.zpf.aaa.banner.IndicatorAdapter
-import com.zpf.tool.func.TwoDimensionalFunction
-import java.util.UUID
+import com.zpf.tool.animation.ViewAnimAttribute
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class Test4Activity : AppCompatActivity() {
     private val contentAdapter by lazy {
@@ -34,27 +38,42 @@ class Test4Activity : AppCompatActivity() {
 //        }
 //        banner.start()
 
-        val f1 = TwoDimensionalFunction(0f, -1f, -1f, 0f, 0f, 10f)
-        val f2 = TwoDimensionalFunction(0f, 1f, -1f, 0f, 0f, -20f)
-        val accuracy = 0.001f
-        val cross = f1.crossPoint(f2)
-        Log.w("ZPF", "crossPoint==> ${cross?.size ?: 0}")
-        cross?.forEach {
-            Log.w(
-                "ZPF", "checkResult==>x=${it.x};y=${it.y};" +
-                        "1=${f1.checkResult(it.x, it.y, accuracy)};" +
-                        "2=${f2.checkResult(it.x, it.y, accuracy)}"
-            )
+        val viewTest = findViewById<View>(R.id.view_test)
+        val target1 = findViewById<View>(R.id.space1)
+        val target2 = findViewById<View>(R.id.space2)
+        val animAttribute = ViewAnimAttribute(viewTest)
+
+        val animator = ValueAnimator.ofFloat(0f, 1f)
+        animator.duration = 1000L
+        animator.addUpdateListener {
+            val fv = it.animatedValue as Float
+            animAttribute.run(fv)
+        }
+        val lis= ViewTreeObserver.OnGlobalLayoutListener {
+            animAttribute.setTargetView(target2)
+            animator.start()
+        }
+        target2.viewTreeObserver.addOnGlobalLayoutListener (lis)
+        target2.viewTreeObserver.addOnPreDrawListener {
+            target2.viewTreeObserver.removeOnGlobalLayoutListener(lis)
+            true
+        }
+        var i = 0
+        viewTest.setOnClickListener {
+            if (i % 2 == 0) {
+                animAttribute.setTargetView(target1)
+            } else {
+                animAttribute.setTargetView(target2)
+            }
+            i++
+            animator.start()
+        }
+
+        lifecycleScope.launch {
+            delay(2000L)
+            viewTest.requestLayout()
         }
     }
 
-    private fun updateContent() {
-        val list = ArrayList<String>()
-        for (i in 0..5) {
-            list.add("${i + 1}\n" + UUID.randomUUID().toString())
-        }
-        Log.e("ZPF", "== updateContent ==")
-        contentAdapter.submitList(list)
-    }
 
 }

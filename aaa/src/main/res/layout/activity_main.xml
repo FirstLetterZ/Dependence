@@ -53,4 +53,16 @@
         android:text="shén meÅ dong xi"
         android:textColor="#000"
         android:textSize="16sp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:background="#039BE5"
+        android:firstBaselineToTopHeight="24dp"
+        android:lastBaselineToBottomHeight="12dp"
+        android:lineHeight="24dp"
+        android:text="古埃及人曾经考虑关于如下问题：如何将一个分数写成形如1/n的分数之和？即写成那些分子是1，分母是正整数的分数之和， 且要求分母互不相同，如，等。"
+        android:textSize="12sp" />
 </LinearLayout>
