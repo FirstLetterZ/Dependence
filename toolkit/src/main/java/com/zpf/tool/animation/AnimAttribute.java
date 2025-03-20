@@ -81,4 +81,26 @@ public class AnimAttribute {
         rotationZ2 = 0f;
         lastPercent = 1f;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "{" +
+                "x1=" + x1 +
+                ", x2=" + x2 +
+                ", y1=" + y1 +
+                ", y2=" + y2 +
+                ", scaleX1=" + scaleX1 +
+                ", scaleX2=" + scaleX2 +
+                ", scaleY1=" + scaleY1 +
+                ", scaleY2=" + scaleY2 +
+                ", rotationX1=" + rotationX1 +
+                ", rotationX2=" + rotationX2 +
+                ", rotationY1=" + rotationY1 +
+                ", rotationY2=" + rotationY2 +
+                ", rotationZ1=" + rotationZ1 +
+                ", rotationZ2=" + rotationZ2 +
+                ", lastPercent=" + lastPercent +
+                '}';
+    }
 }

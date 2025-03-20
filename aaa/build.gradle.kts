@@ -48,5 +48,7 @@ dependencies {
     implementation(project(":file"))
     implementation(project(":toolkit"))
     implementation(project(":compatPermission"))
+    implementation(project(":synth"))
+    implementation(project(":synth"))
 }
 

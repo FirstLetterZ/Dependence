@@ -32,3 +32,4 @@ include(
     ":toolkit",
     ":views"
 )
+include(":synth")
