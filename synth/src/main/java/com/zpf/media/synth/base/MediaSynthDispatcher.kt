@@ -9,6 +9,7 @@ import com.zpf.media.synth.model.MediaOutputBasicInfo
 import com.zpf.media.synth.model.MediaSynthStatus
 import com.zpf.media.synth.model.MediaSynthTrackId
 import com.zpf.media.synth.model.MediaTrackRecorder
+import com.zpf.media.synth.util.MediaSynthLogger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.min
 
@@ -37,6 +38,11 @@ abstract class MediaSynthDispatcher(
         MediaSynthTrackId.all().forEach {
             trackRecordMap[it] = MediaTrackRecorder(it)
         }
+        MediaSynthLogger.logInfo(
+            "MediaSynth==>outputInfo=$realOutputInfo;inputStepTimeOffsetList=${
+                inputStepTimeOffsetList.toArray().contentToString()
+            }"
+        )
     }
 
     //    override fun reset() {

@@ -3,6 +3,7 @@ package com.zpf.media.synth.base
 import com.zpf.media.synth.i.IMediaSynth
 import com.zpf.media.synth.i.ISynthStatusListener
 import com.zpf.media.synth.model.MediaSynthStatus
+import com.zpf.media.synth.util.MediaSynthLogger
 import com.zpf.media.synth.util.SimpleTimer
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -69,10 +70,12 @@ abstract class MediaSynthStateManager : IMediaSynth {
                 timer.stop()
             }
         }
+        MediaSynthLogger.logInfo("onStateChanged==>oldCode=$oldCode;newCode=$newCode")
     }
 
     protected fun changeToStatus(newCode: Int): Boolean {
         val oldCode = status()
+        MediaSynthLogger.logInfo("changeToStatus==>oldCode=$oldCode;newCode=$newCode")
         if (enableChangeStatus(oldCode, newCode)) {
             statusCode.set(newCode)
             onStateChanged(oldCode, newCode)

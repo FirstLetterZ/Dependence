@@ -37,7 +37,7 @@ class CoverMediaSynth(
     }
 
     @SuppressLint("WrongConstant")
-    protected fun handleCover(editor: ISynthTrackEditor): Boolean {
+    private fun handleCover(editor: ISynthTrackEditor): Boolean {
         val encoder = (editor as? CodecEditor)?.encoder ?: return false
         var tryTime = 0
         val trackId = editor.trackId()

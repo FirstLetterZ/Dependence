@@ -371,5 +371,6 @@ abstract class BaseVideoAnalyzeActivity : AppCompatActivity() {
                 }
             }
         })
+        synth.start()
     }
 }

@@ -27,6 +27,9 @@
             android:name=".TestActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".videorope.RopeVideoAnalyzeActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".Test2Activity"
             android:screenOrientation="portrait" />
         <activity

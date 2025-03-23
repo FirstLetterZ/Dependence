@@ -19,10 +19,10 @@ abstract class MediaSynthWriter(
     private var bufferSize = minBufferSize
 
     override fun onClear() {
+        super.onClear()
         synchronized(writer) {
             writer.stop()
         }
-        super.onClear()
     }
 
     @SuppressLint("WrongConstant")

@@ -8,6 +8,7 @@ import android.util.Log
 import android.util.Size
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import com.zpf.file.FileSaveUtil
 import com.zpf.media.synth.i.IMediaSynth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -123,6 +124,9 @@ open class RopeVideoAnalyzeActivity : BaseVideoAnalyzeActivity() {
 
     override suspend fun onStageEnd(stageIndex: Int, synth: IMediaSynth) {
         Log.e("ZPF", "onStageEnd==>stageIndex=$stageIndex")
+        if(stageIndex>0){
+            FileSaveUtil.saveFile(this,resultFile,"test_cover.mp4",null,false)
+        }
     }
 
 //    protected fun quite() {

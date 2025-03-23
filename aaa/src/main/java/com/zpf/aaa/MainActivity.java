@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.zpf.aaa.videorope.RopeVideoAnalyzeActivity;
+
 /**
  * @author Created by ZPF on 2021/3/30.
  */
@@ -20,7 +22,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_test1).setOnClickListener(v -> {
-            startActivity(new Intent(this, TestActivity.class));
+//            startActivity(new Intent(this, TestActivity.class));
+            startActivity(new Intent(this, RopeVideoAnalyzeActivity.class));
         });
         findViewById(R.id.btn_test2).setOnClickListener(v -> {
             startActivity(new Intent(this, Test2Activity.class));
