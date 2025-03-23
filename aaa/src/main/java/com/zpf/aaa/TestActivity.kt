@@ -16,17 +16,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
-import com.zpf.aaa.synth.IMediaSynth
-import com.zpf.aaa.synth.ISynthInputSurfaceListener
-import com.zpf.aaa.synth.ISynthOutputListener
-import com.zpf.aaa.synth.ISynthStatusListener
-import com.zpf.aaa.synth.MediaSynthStatus
-import com.zpf.aaa.tst.TestSyncSynthBuilder
 import com.zpf.aaa.utils.Util
-import com.zpf.aaa.videocompressor.InputSurface
-import com.zpf.aaa.videocompressor.OutputSurface
-import com.zpf.aaa.videocompressor.VideoCompress
+import com.zpf.aaa.videorope.VideoSynthBuilder
 import com.zpf.file.FileSaveUtil
+import com.zpf.media.synth.i.IMediaSynth
+import com.zpf.media.synth.i.ISynthOutputListener
+import com.zpf.media.synth.i.ISynthStatusListener
+import com.zpf.media.synth.i.ISynthSurfaceListener
+import com.zpf.media.synth.model.MediaSynthStatus
+import com.zpf.media.synth.model.MediaSynthTrackId
+import com.zpf.media.synth.util.InputSurface
+import com.zpf.media.synth.util.OutputSurface
 import com.zpf.tool.permission.PermissionManager
 import com.zpf.tool.permission.model.PermissionGrantedListener
 import kotlinx.coroutines.Dispatchers
@@ -61,13 +61,13 @@ class TestActivity : AppCompatActivity() {
         File(cacheDir, "Test_" + System.currentTimeMillis() + ".mp4")
     }
     private val synthBuilder by lazy {
-        TestSyncSynthBuilder(outFile.absolutePath)
+        VideoSynthBuilder(outFile.absolutePath)
     }
     private var inputSurface: InputSurface? = null
     private var outputSurface: OutputSurface? = null
     private var readBuffer: ByteBuffer? = null
 
-    private val surfaceListener = object : ISynthInputSurfaceListener {
+    private val surfaceListener = object : ISynthSurfaceListener {
 
         override fun onSurfaceCreated(surface: Surface) {
             inputSurface?.release()
@@ -130,7 +130,7 @@ class TestActivity : AppCompatActivity() {
                 e.printStackTrace()
                 return
             }
-            layoutFront.buildDrawingCache()
+//            layoutFront.buildDrawingCache()
             decoderOutputSurface.drawImage(false, null)
             Log.e("ZPF", "readImageBytes===>1111")
             readImageBytes()
@@ -196,34 +196,6 @@ class TestActivity : AppCompatActivity() {
 //        Log.e("ZPF", "${drawBitmap.width};${drawBitmap.height}")
     }
 
-    private fun testCompress() {
-        val file = File(cacheDir, "test.mp4")
-        val resFile = File(cacheDir, "test_compress.mp4")
-        VideoCompress.compressVideoMedium(
-            file.absolutePath,
-            resFile.absolutePath,
-            object :
-                VideoCompress.CompressListener {
-                override fun onStart() {
-                    Log.e("ZPF", "===onStart===")
-                }
-
-                override fun onSuccess() {
-                    Log.e("ZPF", "===onSuccess===")
-                    FileSaveUtil.saveFile(this@TestActivity, resFile, null, "video/*", false)
-                }
-
-                override fun onFail() {
-                    Log.e("ZPF", "===onFail===")
-                }
-
-                override fun onProgress(percent: Float) {
-                    Log.e("ZPF", "===onProgress===")
-
-                }
-            })
-        return
-    }
 
     private fun printVideoInfo(uri: Uri?) {
         if (uri == null) {
@@ -285,7 +257,7 @@ class TestActivity : AppCompatActivity() {
 
         synth?.stop()
         realSynth.addStatusListener(progressListener)
-        realSynth.setVideoListener(encoderListener)
+        realSynth.setTackOutputListener(MediaSynthTrackId.VIDEO,encoderListener)
         realSynth.setEncoderInputSurfaceChangedListener(surfaceListener)
         synth = realSynth
 //        val bitmap = realSynth.retriever.getFrameAtTime(1000000L)
