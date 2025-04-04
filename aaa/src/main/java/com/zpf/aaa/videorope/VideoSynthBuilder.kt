@@ -10,6 +10,7 @@ import com.zpf.media.synth.SyncMediaSynth
 import com.zpf.media.synth.i.ISynthTrackWriter
 import com.zpf.media.synth.model.MediaInputBasicInfo
 import com.zpf.media.synth.model.MediaOutputBasicInfo
+import kotlin.math.min
 
 open class VideoSynthBuilder(outputFilePath: String) : AbsSynthBuilder<SyncMediaSynth>() {
     init {
@@ -17,7 +18,7 @@ open class VideoSynthBuilder(outputFilePath: String) : AbsSynthBuilder<SyncMedia
             MediaSynthMuxerWriter(outputFilePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     }
 
-    private val frameRate = 30
+    private val maxFrameRate = 30
 //    private var bitRate = 3000000
 
     override fun createSynth(
@@ -35,7 +36,9 @@ open class VideoSynthBuilder(outputFilePath: String) : AbsSynthBuilder<SyncMedia
     override fun createVideoEncoderMediaFormat(
         basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
     ): MediaFormat? {
-        val cacheFormat = getOrCreateOutputBasicInfo(basicInfo)
+        val frameRate =
+            min(maxFrameRate, originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
+        val cacheFormat = getOrCreateOutputBasicInfo(basicInfo, frameRate)
         val mediaFormat =
             MediaFormat.createVideoFormat(mimeStr, cacheFormat.width, cacheFormat.height)
         mediaFormat.setInteger(
@@ -51,7 +54,9 @@ open class VideoSynthBuilder(outputFilePath: String) : AbsSynthBuilder<SyncMedia
         return mediaFormat
     }
 
-    private fun getOrCreateOutputBasicInfo(basicInfo: MediaInputBasicInfo): MediaOutputBasicInfo {
+    private fun getOrCreateOutputBasicInfo(
+        basicInfo: MediaInputBasicInfo, frameRate: Int
+    ): MediaOutputBasicInfo {
         val cacheInfo = outputBasicInfo
         if (cacheInfo != null) {
             return cacheInfo
@@ -84,5 +89,4 @@ open class VideoSynthBuilder(outputFilePath: String) : AbsSynthBuilder<SyncMedia
         outputBasicInfo = info
         return info
     }
-
 }

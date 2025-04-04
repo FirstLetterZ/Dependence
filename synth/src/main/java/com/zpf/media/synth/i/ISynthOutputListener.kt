@@ -5,6 +5,7 @@ import android.media.MediaCodec
 interface ISynthOutputListener {
 
     fun onDecoderOutput(
+        partIndex: Int,
         bufferIndex: Int,
         decoder: MediaCodec,
         bufferInfo: MediaCodec.BufferInfo,
@@ -12,7 +13,7 @@ interface ISynthOutputListener {
     )
 
     fun onEncoderOutput(
-        bufferIndex: Int, encoder: MediaCodec, bufferInfo: MediaCodec.BufferInfo
+        partIndex: Int, bufferIndex: Int, encoder: MediaCodec, bufferInfo: MediaCodec.BufferInfo
     )
 
 }

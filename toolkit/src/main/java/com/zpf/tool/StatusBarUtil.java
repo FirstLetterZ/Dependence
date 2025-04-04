@@ -20,7 +20,7 @@ public class StatusBarUtil {
     public static void setStatusBarTranslucent(Window window) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//判断版本是5.0以上
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+//            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
@@ -47,26 +47,27 @@ public class StatusBarUtil {
     public static boolean setBarStatusTextColorStyle(Window window, boolean darkText) {
         if (Build.MANUFACTURER.equalsIgnoreCase("XiaoMi")) {
             if (MIUISetStatusBarLightMode(window, darkText)) {
-                SetStatusBarLightMode(window, darkText);
+                setStatusBarLightMode(window, darkText);
                 return true;
             } else {
                 return false;
             }
         } else if (Build.MANUFACTURER.equalsIgnoreCase("MeiZu")) {
             if (FlymeSetStatusBarLightMode(window, darkText)) {
-                SetStatusBarLightMode(window, darkText);
+                setStatusBarLightMode(window, darkText);
                 return true;
             } else {
                 return false;
             }
         }
-        return SetStatusBarLightMode(window, darkText);
+        return setStatusBarLightMode(window, darkText);
     }
 
-    public static boolean SetStatusBarLightMode(Window window, boolean darkText) {
+    public static boolean setStatusBarLightMode(Window window, boolean darkText) {
         if (window == null) {
             return false;
         }
+        View decorView = window.getDecorView();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             WindowInsetsController controller = null;
             try {
@@ -83,19 +84,27 @@ public class StatusBarUtil {
                 } else {
                     controller.setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
                 }
-                return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int visible = window.getDecorView().getSystemUiVisibility();
+            int visible = decorView.getSystemUiVisibility();
             if (darkText) {
                 visible = visible | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-                window.getDecorView().setSystemUiVisibility(visible);
+                decorView.setSystemUiVisibility(visible);
             } else {
                 visible = visible & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-                window.getDecorView().setSystemUiVisibility(visible);
+                decorView.setSystemUiVisibility(visible);
             }
             return true;
+        }
+        return false;
+    }
+
+    public static boolean isStatusBarLightMode(Window window) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            View decorView = window.getDecorView();
+            int visible = decorView.getSystemUiVisibility();
+            return (visible & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0;
         }
         return false;
     }

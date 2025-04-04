@@ -4,7 +4,7 @@ import android.media.MediaCodec
 import android.view.Surface
 import com.zpf.media.synth.i.ISynthInputPart
 import com.zpf.media.synth.i.ISynthOutputListener
-import com.zpf.media.synth.i.ISynthSurfaceListener
+import com.zpf.media.synth.i.ISynthSurfaceManager
 import com.zpf.media.synth.model.MediaOutputBasicInfo
 import com.zpf.media.synth.model.MediaSynthStatus
 import com.zpf.media.synth.model.MediaSynthTrackId
@@ -20,12 +20,11 @@ abstract class MediaSynthDispatcher(
     protected var lastProgressTime = AtomicLong(0L)
     protected val trackRecordMap = HashMap<String, MediaTrackRecorder>()
     protected val realOutputInfo: MediaOutputBasicInfo
-    protected var mediaDecoderOutputSurface: Surface? = null
-    protected var mediaDecoderInputSurfaceListener: ISynthSurfaceListener? = null
+    protected var surfaceManager: ISynthSurfaceManager? = null
     protected var mediaDecoderInputSurface: Surface? = null
-    protected var mediaEncoderOutputSurface: Surface? = null
-    protected var mediaEncoderInputSurfaceListener: ISynthSurfaceListener? = null
+    protected var mediaDecoderOutputSurface: Surface? = null
     protected var mediaEncoderInputSurface: Surface? = null
+    protected var mediaEncoderOutputSurface: Surface? = null
 
     init {
         var sum = 0L
@@ -58,16 +57,13 @@ abstract class MediaSynthDispatcher(
             val index = recorder.trackPartIndex.get()
             inputs.getOrNull(index)?.getTrackEditor(recorder.trackId)?.stop()
         }
-        mediaDecoderInputSurface?.release()
-        mediaEncoderInputSurface?.release()
-        mediaDecoderInputSurface = null
-        mediaEncoderInputSurface = null
         if (statusCode.get() == MediaSynthStatus.COMPLETE) {
             val totalDuration = getOutputBasicInfo().duration * 1000L
             statusListenerSet.forEach {
                 it.onProgress(totalDuration, totalDuration, true)
             }
         }
+        releaseSurface()
     }
 
     override fun getOutputBasicInfo(): MediaOutputBasicInfo = realOutputInfo
@@ -76,28 +72,20 @@ abstract class MediaSynthDispatcher(
         trackRecordMap[trackId]?.outputListener = listener
     }
 
+    override fun setSynthSurfaceManager(manager: ISynthSurfaceManager?) {
+        surfaceManager = manager
+    }
+
     override fun getDecoderInputSurface(): Surface? {
         return mediaDecoderInputSurface
-    }
-
-    override fun setDecoderInputSurfaceChangedListener(listener: ISynthSurfaceListener?) {
-        mediaDecoderInputSurfaceListener = listener
-    }
-
-    override fun setDecoderOutputSurface(surface: Surface?) {
-        mediaDecoderOutputSurface = surface
     }
 
     override fun getEncoderInputSurface(): Surface? {
         return mediaEncoderInputSurface
     }
 
-    override fun setEncoderInputSurfaceChangedListener(listener: ISynthSurfaceListener?) {
-        mediaEncoderInputSurfaceListener = listener
-    }
-
-    override fun setEncoderOutputSurface(surface: Surface?) {
-        mediaEncoderOutputSurface = surface
+    override fun getPartStartTime(partIndex: Int): Long {
+        return inputStepTimeOffsetList.getOrNull(partIndex) ?: 0L
     }
 
     protected fun updateTrackProgress(trackId: String, timeUs: Long) {
@@ -118,6 +106,7 @@ abstract class MediaSynthDispatcher(
     }
 
     protected fun dispatchDecoderOutput(
+        partIndex: Int,
         trackId: String,
         index: Int,
         decoder: MediaCodec,
@@ -125,15 +114,19 @@ abstract class MediaSynthDispatcher(
         encoder: MediaCodec?,
     ) {
         trackRecordMap[trackId]?.outputListener?.onDecoderOutput(
-            index, decoder, bufferInfo, encoder
+            partIndex, index, decoder, bufferInfo, encoder
         )
     }
 
     protected fun dispatchEncoderOutput(
-        trackId: String, index: Int, encoder: MediaCodec, bufferInfo: MediaCodec.BufferInfo
+        partIndex: Int,
+        trackId: String,
+        index: Int,
+        encoder: MediaCodec,
+        bufferInfo: MediaCodec.BufferInfo
     ) {
         trackRecordMap[trackId]?.outputListener?.onEncoderOutput(
-            index, encoder, bufferInfo
+            partIndex, index, encoder, bufferInfo
         )
     }
 
@@ -166,7 +159,7 @@ abstract class MediaSynthDispatcher(
             val partConfig = inputs.getOrNull(inputIndex)
             val trackEditor = partConfig?.getTrackEditor(trackId)
             if (trackEditor?.isValid() == true) {
-                val startTimeUs = (inputStepTimeOffsetList.getOrNull(inputIndex) ?: 0L) * 1000L
+                val startTimeUs = getPartStartTime(inputIndex) * 1000L
                 recorder.trackProgressTime.set(startTimeUs)
                 return partConfig
             }
@@ -175,6 +168,17 @@ abstract class MediaSynthDispatcher(
         }
         recorder.trackProgressTime.set(Long.MAX_VALUE)
         return null
+    }
+
+    protected fun releaseSurface() {
+        mediaDecoderInputSurface?.release()
+        mediaDecoderOutputSurface?.release()
+        mediaEncoderInputSurface?.release()
+        mediaEncoderOutputSurface?.release()
+        mediaDecoderInputSurface = null
+        mediaDecoderOutputSurface = null
+        mediaEncoderInputSurface = null
+        mediaEncoderOutputSurface = null
     }
 
 }

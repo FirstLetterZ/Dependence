@@ -7,6 +7,7 @@ import com.zpf.media.synth.i.ISynthInputPart
 import com.zpf.media.synth.i.ISynthTrackEditor
 import com.zpf.media.synth.model.MediaOutputBasicInfo
 import com.zpf.media.synth.model.MediaSynthStatus
+import com.zpf.media.synth.model.MediaSynthTrackId
 import com.zpf.media.synth.model.MediaTrackRecorder
 import com.zpf.media.synth.util.MediaSynthLogger
 
@@ -48,7 +49,6 @@ abstract class MediaSynthTaskManager(
         }
     }
 
-    //todo zpf
     override fun onStop() {
         notifyWorkThread()
         var unfinishedCount = 0
@@ -68,13 +68,18 @@ abstract class MediaSynthTaskManager(
     protected open fun onConfigureTrackPart(
         editor: ISynthTrackEditor, recorder: MediaTrackRecorder
     ) {
+        val partIndex = recorder.trackPartIndex.get()
         var isUnknowType = true
         if (editor is ExtractorEditor) {
             isUnknowType = false
         }
+        if (editor.trackId() == MediaSynthTrackId.VIDEO) {
+            releaseSurface()
+        }
         if (editor is CodecEditor) {
             isUnknowType = false
             if (editor.encoder != null) {
+                mediaEncoderOutputSurface = surfaceManager?.getEncoderOutputSurface(partIndex)
                 editor.encoder.configure(
                     editor.encoderFormat,
                     mediaEncoderOutputSurface,
@@ -82,21 +87,20 @@ abstract class MediaSynthTaskManager(
                     MediaCodec.CONFIGURE_FLAG_ENCODE
                 )
                 if (editor.isEncodeInputBySurface()) {
-                    mediaEncoderInputSurface?.release()
                     val surface = editor.encoder.createInputSurface()
                     mediaEncoderInputSurface = surface
-                    mediaEncoderInputSurfaceListener?.onSurfaceCreated(surface)
+                    surfaceManager?.onEncoderInputSurfaceCreated(partIndex, surface)
                 }
             }
             if (editor.decoder != null) {
+                mediaDecoderOutputSurface = surfaceManager?.getDecoderOutputSurface(partIndex)
                 editor.decoder.configure(
                     editor.decoderFormat, mediaDecoderOutputSurface, null, 0
                 )
                 if (editor.isDecodeInputBySurface()) {
-                    mediaDecoderInputSurface?.release()
                     val surface = editor.decoder.createInputSurface()
                     mediaDecoderInputSurface = surface
-                    mediaDecoderInputSurfaceListener?.onSurfaceCreated(surface)
+                    surfaceManager?.onDecoderInputSurfaceCreated(partIndex, surface)
                 }
             }
         }
@@ -109,14 +113,16 @@ abstract class MediaSynthTaskManager(
         changeToStatus(MediaSynthStatus.CONFIG_ERROR)
     }
 
-    protected fun onTrackPartStart(
+    private fun onTrackPartStart(
         editor: ISynthTrackEditor, recorder: MediaTrackRecorder, initConfig: Boolean
     ) {
         MediaSynthLogger.logInfo("onTrackPartStart==>id=${recorder.trackId};index=${recorder.trackPartIndex};progressTime=${recorder.trackProgressTime}")
-        prepareTrackThread(editor, recorder, initConfig)
+        if (!prepareTrackThread(editor, recorder, initConfig)) {
+            doTrackThreadJob(editor, recorder, initConfig)
+        }
     }
 
-    protected fun onTrackPartFinish(recorder: MediaTrackRecorder) {
+    private fun onTrackPartFinish(recorder: MediaTrackRecorder) {
         MediaSynthLogger.logInfo("onTrackPartFinish==>id=${recorder.trackId};index=${recorder.trackPartIndex};progressTime=${recorder.trackProgressTime}")
         val index = if (recorder.trackPartIndex.get() < inputs.size) {
             recorder.trackPartIndex.incrementAndGet()
@@ -134,15 +140,13 @@ abstract class MediaSynthTaskManager(
                 changeToStatus(MediaSynthStatus.CONFIG_ERROR)
                 return
             }
-            if (!prepareTrackThread(editor, recorder, true)) {
-                doTrackThreadJob(editor, recorder, true)
-            }
+            onTrackPartStart(editor, recorder, true)
         } else if (isFinished()) {
             changeToStatus(MediaSynthStatus.COMPLETE)
         }
     }
 
-    protected fun prepareTrackThread(
+    private fun prepareTrackThread(
         editor: ISynthTrackEditor, recorder: MediaTrackRecorder, initConfig: Boolean
     ): Boolean {
         return if (recorder.thread?.isAlive != true) {
@@ -160,6 +164,7 @@ abstract class MediaSynthTaskManager(
     private fun doTrackThreadJob(
         editor: ISynthTrackEditor, recorder: MediaTrackRecorder, initConfig: Boolean
     ) {
+        MediaSynthLogger.logInfo("doTrackThreadJob==>trackId=${editor.trackId()};index=${recorder.trackPartIndex.get()}")
         if (requireInterruptedOrBlock()) {
             return
         }
@@ -175,10 +180,10 @@ abstract class MediaSynthTaskManager(
             MediaSynthLogger.logError(e.message)
             changeToStatus(MediaSynthStatus.ERROR)
         }
+        editor.stop()
         if (requireInterruptedOrBlock()) {
             return
         }
-        editor.stop()
         onTrackPartFinish(recorder)
     }
 }

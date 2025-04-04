@@ -5,6 +5,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
+import android.os.Build
 import android.util.Log
 import com.zpf.media.synth.AbsSynthBuilder
 import com.zpf.media.synth.CodecEditor
@@ -17,8 +18,9 @@ import com.zpf.media.synth.model.MediaInputBasicInfo
 import com.zpf.media.synth.model.MediaOutputBasicInfo
 import com.zpf.media.synth.model.MediaSynthPartInfo
 import com.zpf.media.synth.model.MediaSynthTrackId
+import kotlin.math.min
 
-class VideoCoverBuilder(outputFilePath: String, private val coverFrameCount: Int = 30) :
+class VideoCoverBuilder2(outputFilePath: String, private val coverFrameCount: Int = 30) :
     AbsSynthBuilder<CoverMediaSynth>() {
     init {
         outputWriter =
@@ -56,29 +58,40 @@ class VideoCoverBuilder(outputFilePath: String, private val coverFrameCount: Int
         return super.createAudioTrackEditor(basicInfo, trackIndex, format, extractor)
     }
 
+//    override fun createVideoDecoderMediaFormat(
+//        basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
+//    ): MediaFormat {
+//        return originalMediaFormat
+//    }
+
     override fun createVideoEncoderMediaFormat(
         basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
     ): MediaFormat? {
-        Log.w("ZPF", "createVideoEncoderMediaFormat==>$basicInfo")
-//        val frameRate = originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE)
+        val displayWidth = basicInfo.getTrueWidth()
+        val displayHeight = basicInfo.getTrueHeight()
         val frameRate =
-            Math.min(maxFrameRate, originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
-
-        val mediaFormat = MediaFormat.createVideoFormat(mimeStr, basicInfo.width, basicInfo.height)
-        mediaFormat.setInteger(
+            min(maxFrameRate, originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
+        val coverFormat = MediaFormat.createVideoFormat(mimeStr, displayWidth, displayHeight)
+        coverFormat.setInteger(
             MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
         )
-        mediaFormat.setInteger(
-            MediaFormat.KEY_BIT_RATE, basicInfo.bitRate
-        )
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            mediaFormat.setInteger(
-//                MediaFormat.KEY_ROTATION, basicInfo.rotation
-//            )
-//        }
-//        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE,3000000)
-        mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
-        mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
+        val profile = try {
+            originalMediaFormat.getInteger(MediaFormat.KEY_PROFILE)
+        } catch (e: Exception) {
+            1
+        }
+        coverFormat.setInteger(MediaFormat.KEY_PROFILE, profile)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val level = try {
+                originalMediaFormat.getInteger(MediaFormat.KEY_LEVEL)
+            } catch (e: Exception) {
+                1
+            }
+            coverFormat.setInteger(MediaFormat.KEY_LEVEL, level)
+        }
+        coverFormat.setInteger(MediaFormat.KEY_BIT_RATE, basicInfo.bitRate)
+        coverFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
+        coverFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
         val d = 1000L * coverFrameCount / frameRate
         inputBasicInfo = basicInfo.copy(duration = d)
         videoInput = CodecEditor(
@@ -88,11 +101,21 @@ class VideoCoverBuilder(outputFilePath: String, private val coverFrameCount: Int
             null,
             null,
             MediaCodec.createEncoderByType(mimeStr),
-            mediaFormat
+            coverFormat
         )
         outputBasicInfo = MediaOutputBasicInfo(
-            basicInfo.fileMime, basicInfo.width, basicInfo.height, basicInfo.duration, frameRate
+            basicInfo.fileMime, displayWidth, displayHeight, basicInfo.duration, frameRate
         )
+        Log.w("ZPF", "createVideoEncoderMediaFormat outputBasicInfo==>$outputBasicInfo")
+
+        val mediaFormat = MediaFormat.createVideoFormat(mimeStr, displayWidth, displayHeight)
+        mediaFormat.setInteger(
+            MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
+        )
+        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, basicInfo.bitRate)
+        mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
+        mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
+//        return mediaFormat
         return null
     }
 }

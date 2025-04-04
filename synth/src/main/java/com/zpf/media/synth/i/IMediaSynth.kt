@@ -8,16 +8,14 @@ interface IMediaSynth {
     fun start()
     fun pause()
     fun stop()
-//    fun reset()
+    /* fun reset() */
     fun takeTime(): Long
+    fun getPartStartTime(partIndex: Int): Long
     fun addStatusListener(listener: ISynthStatusListener)
     fun removeStatusListener(listener: ISynthStatusListener)
     fun getOutputBasicInfo(): MediaOutputBasicInfo
     fun setTackOutputListener(trackId: String, listener: ISynthOutputListener?)
-    fun setDecoderInputSurfaceChangedListener(listener: ISynthSurfaceListener?)
+    fun setSynthSurfaceManager(manager: ISynthSurfaceManager?)
     fun getDecoderInputSurface(): Surface?
-    fun setDecoderOutputSurface(surface: Surface?)
-    fun setEncoderInputSurfaceChangedListener(listener: ISynthSurfaceListener?)
     fun getEncoderInputSurface(): Surface?
-    fun setEncoderOutputSurface(surface: Surface?)
 }

@@ -14,7 +14,7 @@ abstract class MediaSynthWriter(
     inputs: List<ISynthInputPart>,
     protected val writer: ISynthTrackWriter,
 ) : MediaSynthTaskManager(outputInfo, inputs) {
-    protected var maxBufferSize = 4 * 1024 * 1024
+    protected var maxBufferSize = 16 * 1024 * 1024
     private val minBufferSize = 512 * 1024
     private var bufferSize = minBufferSize
 

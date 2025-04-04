@@ -13,7 +13,7 @@ object MediaSynthLogger {
 
     fun logError(message: String?) {
         if (message?.isNotEmpty() == true) {
-            Log.i("ZPF", message)
+            Log.e("ZPF", message)
         }
     }
 

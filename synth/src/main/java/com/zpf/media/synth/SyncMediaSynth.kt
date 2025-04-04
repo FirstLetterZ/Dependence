@@ -45,22 +45,16 @@ open class SyncMediaSynth(
             decoderInputBySurface = false
             encoderInputBySurface = false
         }
-        val startTimeUs = (inputStepTimeOffsetList.getOrNull(inputIndex) ?: 0L) * 1000L
-        val endTimeUs = (inputStepTimeOffsetList.getOrNull(inputIndex + 1) ?: 0L) * 1000L
-        if (encoder == null && decoder == null) {
+        val startTimeUs = getPartStartTime(inputIndex) * 1000L
+        val endTimeUs = getPartStartTime(inputIndex + 1) * 1000L
+        if (decoder == null) {
             if (extractor == null) {
-                onTrackPartFinish(recorder)
                 return
             } else {
                 if (!writer.isFormatted(trackId)) {
-                    writer.setFormat(
-                        trackId, extractor.getTrackFormat(editor.trackIndex)
-                    )
+                    writer.setFormat(trackId, extractor.getTrackFormat(editor.trackIndex))
                 }
-                copyMedia(extractor, trackId, startTimeUs) {
-                    updateTrackProgress(trackId, it)
-                }
-                onTrackPartFinish(recorder)
+                copyMedia(extractor, trackId, startTimeUs) { updateTrackProgress(trackId, it) }
             }
             return
         }
@@ -73,11 +67,12 @@ open class SyncMediaSynth(
         var renderOutput: Boolean
         val frameRate = getOutputBasicInfo().frameRate
         var useInputTime = false
+        val partIndex = recorder.trackPartIndex.get()
         while (!finishWriteData) {
             if (requireInterruptedOrBlock()) {
                 return
             }
-            if (decoder != null && !finishDecodeInput) {
+            if (!finishDecodeInput) {
                 if (decoderInputBySurface) {
                     if (mediaDecoderInputSurface?.isValid != true) {
                         changeToStatus(MediaSynthStatus.DECODER_ERROR)
@@ -125,6 +120,7 @@ open class SyncMediaSynth(
                     if (cacheBuffer != null) {
                         if ((outputInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
                             if (encoderInputBySurface) {
+                                outputInfo.presentationTimeUs += startTimeUs
                                 writer.write(trackId, cacheBuffer, outputInfo)
                             }
                             outputInfo.size = 0
@@ -145,7 +141,7 @@ open class SyncMediaSynth(
                             cacheBuffer.position(outputInfo.offset)
                             cacheBuffer.limit(outputInfo.offset + outputInfo.size)
                             dispatchEncoderOutput(
-                                trackId, bufferIndex, encoder, outputInfo
+                                partIndex, trackId, bufferIndex, encoder, outputInfo
                             )
                             writer.write(trackId, cacheBuffer, outputInfo)
                             updateTrackProgress(trackId, outputInfo.presentationTimeUs)
@@ -166,7 +162,7 @@ open class SyncMediaSynth(
                     enableWrite = bufferIndex != MediaCodec.INFO_TRY_AGAIN_LATER
                 }
             }
-            if (decoder != null && !finishEncodeInput) {
+            if (!finishEncodeInput) {
                 val outputInfo = MediaCodec.BufferInfo()
                 bufferIndex = decoder.dequeueOutputBuffer(outputInfo, OUTPUT_TIMEOUT)
                 if (bufferIndex >= 0) {
@@ -178,7 +174,7 @@ open class SyncMediaSynth(
                             decoder.releaseOutputBuffer(bufferIndex, true)
                         }
                         dispatchDecoderOutput(
-                            trackId, bufferIndex, decoder, outputInfo, encoder
+                            partIndex, trackId, bufferIndex, decoder, outputInfo, encoder
                         )
                         if (encoder != null && !encoderInputBySurface) {
                             var failTime = 0
@@ -227,6 +223,8 @@ open class SyncMediaSynth(
                         encoder.signalEndOfInputStream()
                     }
                 }
+            } else if (!finishWriteData) {
+                finishWriteData = encoder == null
             }
             if (requireInterruptedOrBlock()) {
                 return

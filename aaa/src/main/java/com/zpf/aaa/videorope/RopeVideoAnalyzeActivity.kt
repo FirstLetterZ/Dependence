@@ -6,6 +6,7 @@ import android.graphics.Matrix
 import android.graphics.PorterDuff
 import android.util.Log
 import android.util.Size
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.zpf.file.FileSaveUtil
@@ -63,7 +64,7 @@ open class RopeVideoAnalyzeActivity : BaseVideoAnalyzeActivity() {
     ) {
         super.onProgressChange(presentationTimeUs, durationUs, index, synth)
         val p = presentationTimeUs * 100 / durationUs
-        Log.e("ZPF","onProgressChange==>index=$index;p=$p")
+        Log.e("ZPF", "onProgressChange==>index=$index;p=$p")
 //        if (index == 0) {
 //            binding.pbProgress.progress = p.toInt()
 //        } else {
@@ -103,8 +104,7 @@ open class RopeVideoAnalyzeActivity : BaseVideoAnalyzeActivity() {
                     if (it.width != canvas.width || it.height != canvas.height) {
                         val matrix = Matrix()
                         matrix.setScale(
-                            canvas.width.toFloat() / it.width,
-                            canvas.height.toFloat() / it.height
+                            canvas.width.toFloat() / it.width, canvas.height.toFloat() / it.height
                         )
                         canvas.drawBitmap(it, matrix, null)
                     } else {
@@ -124,8 +124,12 @@ open class RopeVideoAnalyzeActivity : BaseVideoAnalyzeActivity() {
 
     override suspend fun onStageEnd(stageIndex: Int, synth: IMediaSynth) {
         Log.e("ZPF", "onStageEnd==>stageIndex=$stageIndex")
-        if(stageIndex>0){
-            FileSaveUtil.saveFile(this,resultFile,"test_cover.mp4",null,false)
+        if (stageIndex > 0) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                Toast.makeText(this@RopeVideoAnalyzeActivity, "onStageEnd", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            FileSaveUtil.saveFile(this, resultFile, "test_cover_${System.currentTimeMillis()}.mp4", null, false)
         }
     }
 

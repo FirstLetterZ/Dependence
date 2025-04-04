@@ -22,14 +22,11 @@ class CoverMediaSynth(
     override fun handleTrackInput(editor: ISynthTrackEditor, recorder: MediaTrackRecorder) {
         if (recorder.trackPartIndex.get() == 0) {
             if (recorder.trackId == MediaSynthTrackId.VIDEO) {
-                if (handleCover(editor)) {
-                    onTrackPartFinish(recorder)
-                } else {
+                if (!handleCover(editor)) {
                     changeToStatus(MediaSynthStatus.WRITE_ERROR)
                 }
             } else if (recorder.trackId == MediaSynthTrackId.AUDIO) {
                 writeEmptyVoice(editor)
-                onTrackPartFinish(recorder)
             }
         } else {
             super.handleTrackInput(editor, recorder)
@@ -53,6 +50,7 @@ class CoverMediaSynth(
                     writer.write(trackId, outBuffer, outputInfo)
                     outputInfo.size = 0
                 }
+                //todo zpf 优化 时间计算帧数
                 if (outputInfo.size > 0) {
                     var frameIndex = 0
                     for (i in 0 until coverFrameCount) {

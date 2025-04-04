@@ -23,7 +23,7 @@ import com.zpf.aaa.R
 import com.zpf.media.synth.i.IMediaSynth
 import com.zpf.media.synth.i.ISynthOutputListener
 import com.zpf.media.synth.i.ISynthStatusListener
-import com.zpf.media.synth.i.ISynthSurfaceListener
+import com.zpf.media.synth.i.ISynthSurfaceManager
 import com.zpf.media.synth.model.MediaSynthStatus
 import com.zpf.media.synth.model.MediaSynthTrackId
 import com.zpf.media.synth.util.InputSurface
@@ -300,6 +300,7 @@ abstract class BaseVideoAnalyzeActivity : AppCompatActivity() {
 //        val pixelBuffer: ByteBuffer = ByteBuffer.allocate(outputInfo.width * outputInfo.height * 4)
         synth.setTackOutputListener(MediaSynthTrackId.VIDEO, object : ISynthOutputListener {
             override fun onDecoderOutput(
+                partIndex: Int,
                 bufferIndex: Int,
                 decoder: MediaCodec,
                 bufferInfo: MediaCodec.BufferInfo,
@@ -321,20 +322,33 @@ abstract class BaseVideoAnalyzeActivity : AppCompatActivity() {
             }
 
             override fun onEncoderOutput(
-                bufferIndex: Int, encoder: MediaCodec, bufferInfo: MediaCodec.BufferInfo
+                partIndex: Int,
+                bufferIndex: Int,
+                encoder: MediaCodec,
+                bufferInfo: MediaCodec.BufferInfo
             ) {
             }
         })
-        synth.setEncoderInputSurfaceChangedListener(object : ISynthSurfaceListener {
-            override fun onSurfaceCreated(surface: Surface) {
-                inputSurface?.release()
-                outputSurface?.release()
+        synth.setSynthSurfaceManager(object : ISynthSurfaceManager {
+            override fun onDecoderInputSurfaceCreated(partIndex: Int, surface: Surface) {}
+            override fun getDecoderOutputSurface(partIndex: Int): Surface? {
+                val cacheSurface = outputSurface
+                if (cacheSurface?.surface?.isValid == true) {
+                    return cacheSurface.surface
+                }
+                val oSurface = OutputSurface()
+                outputSurface = oSurface
+                return oSurface.surface
+            }
+
+            override fun onEncoderInputSurfaceCreated(partIndex: Int, surface: Surface) {
                 val iSurface = InputSurface(surface)
                 iSurface.makeCurrent()
-                val oSurface = OutputSurface()
                 inputSurface = iSurface
-                outputSurface = oSurface
-                synth.setDecoderOutputSurface(oSurface.surface)
+            }
+
+            override fun getEncoderOutputSurface(partIndex: Int): Surface? {
+                return null
             }
         })
         val checkInterval = 40L
