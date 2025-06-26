@@ -169,13 +169,23 @@ abstract class MediaSynthTaskManager(
             return
         }
         if (initConfig) {
-            onConfigureTrackPart(editor, recorder)
+            try {
+                onConfigureTrackPart(editor, recorder)
+            } catch (e: InterruptedException) {
+                MediaSynthLogger.logInfo(e.message)
+            } catch (e: Throwable) {
+                MediaSynthLogger.logError(e.message)
+                changeToStatus(MediaSynthStatus.ERROR)
+            }
+        }
+        if (requireInterruptedOrBlock()) {
+            return
         }
         editor.start()
         try {
             handleTrackInput(editor, recorder)
         } catch (e: InterruptedException) {
-            e.printStackTrace()
+            MediaSynthLogger.logInfo(e.message)
         } catch (e: Throwable) {
             MediaSynthLogger.logError(e.message)
             changeToStatus(MediaSynthStatus.ERROR)

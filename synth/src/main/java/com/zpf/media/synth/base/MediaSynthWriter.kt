@@ -3,11 +3,15 @@ package com.zpf.media.synth.base
 import android.annotation.SuppressLint
 import android.media.MediaCodec
 import android.media.MediaExtractor
+import android.media.MediaFormat
 import com.zpf.media.synth.i.ISynthInputPart
 import com.zpf.media.synth.i.ISynthTrackWriter
 import com.zpf.media.synth.model.MediaOutputBasicInfo
 import com.zpf.media.synth.model.MediaSynthStatus
+import com.zpf.media.synth.model.MediaSynthTrackId
 import java.nio.ByteBuffer
+import java.util.Arrays
+import kotlin.math.max
 
 abstract class MediaSynthWriter(
     outputInfo: MediaOutputBasicInfo,
@@ -69,6 +73,44 @@ abstract class MediaSynthWriter(
             }
         }
         return true
+    }
+
+    protected fun writeEmptyVoice(format: MediaFormat, starTimeUs: Long, endTimeUs: Long) {
+        val frameRate = getOutputBasicInfo().frameRate
+        if (frameRate < 1) {
+            return
+        }
+        val frameUs = 1000_000L / frameRate
+        val durationUs = endTimeUs - starTimeUs
+        if (durationUs < frameUs) {
+            return
+        }
+        // 采样率
+        val sampleRateInHz = try {
+            max(format.getInteger(MediaFormat.KEY_SAMPLE_RATE), 44100)
+        } catch (e: Exception) {
+            44100
+        }
+        val bitDepth = 16 // 位深（16 位）
+        // 声道数
+        val channels = try {
+            max(format.getInteger(MediaFormat.KEY_CHANNEL_COUNT), 1)
+        } catch (e: Exception) {
+            1
+        }
+        val bufferSize = (frameUs * sampleRateInHz * channels * bitDepth / 2).toInt()
+        val buffer = ByteBuffer.allocate(bufferSize)
+        Arrays.fill(buffer.array(), 0)
+        val bufferInfo = MediaCodec.BufferInfo()
+        bufferInfo.offset = 0
+        bufferInfo.size = bufferSize
+        bufferInfo.presentationTimeUs = starTimeUs
+        val trackId = MediaSynthTrackId.AUDIO
+        writer.setFormat(trackId, format)
+        while (bufferInfo.presentationTimeUs < endTimeUs) {
+            writer.write(trackId, buffer, bufferInfo)
+            bufferInfo.presentationTimeUs += frameUs
+        }
     }
 
 }

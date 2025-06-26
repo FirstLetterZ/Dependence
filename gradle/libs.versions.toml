@@ -1,10 +1,11 @@
 [versions]
-agp = "8.3.2"
+agp = "8.2.2"
 kotlin = "2.0.0"
 kotlin-coroutines = "1.8.1"
 ktx-core = "1.13.0"
 okhttp = "4.12.0"
 retrofit = "2.11.0"
+media3 = "1.5.1"
 
 [libraries]
 ktx-core = { group = "androidx.core", name = "core-ktx", version.ref = "ktx-core" }
@@ -26,15 +27,20 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version = "3.0.0" }
 
-api-base = { module = "io.github.firstletterz:api-base", version = "0.4.0" }
+api-base = { module = "io.github.firstletterz:api-base", version = "0.6.0" }
 api-parse = { module = "io.github.firstletterz:api-parse", version = "1.1.0" }
 tool-central = { module = "io.github.firstletterz:tool-central", version = "1.0.1" }
 tool-permission = { module = "io.github.firstletterz:tool-compat-permission", version = "0.3.0" }
-tool-file = { module = "io.github.firstletterz:tool-file", version = "0.3.2" }
+tool-file = { module = "io.github.firstletterz:tool-file", version = "0.4.2" }
 tool-gson = { module = "io.github.firstletterz:tool-gson", version = "1.1.0" }
-tool-kit = { module = "io.github.firstletterz:tool-kit", version = "0.3.1" }
+tool-kit = { module = "io.github.firstletterz:tool-kit", version = "0.6.1" }
 tool-stack = { module = "io.github.firstletterz:tool-stack", version = "1.0.4" }
-ui-kit = { module = "io.github.firstletterz:ui-kit", version = "0.5.0-SNAPSHOT" }
+ui-kit = { module = "io.github.firstletterz:ui-kit", version = "0.7.4" }
+
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
+androidx-media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "media3" }
+androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
 
 [plugins]
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

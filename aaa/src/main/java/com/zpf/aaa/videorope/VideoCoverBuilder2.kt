@@ -67,8 +67,8 @@ class VideoCoverBuilder2(outputFilePath: String, private val coverFrameCount: In
     override fun createVideoEncoderMediaFormat(
         basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
     ): MediaFormat? {
-        val displayWidth = basicInfo.getTrueWidth()
-        val displayHeight = basicInfo.getTrueHeight()
+        val displayWidth = basicInfo.width
+        val displayHeight = basicInfo.height
         val frameRate =
             min(maxFrameRate, originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
         val coverFormat = MediaFormat.createVideoFormat(mimeStr, displayWidth, displayHeight)

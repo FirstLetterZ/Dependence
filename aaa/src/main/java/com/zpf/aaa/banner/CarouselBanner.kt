@@ -121,6 +121,7 @@ open class CarouselBanner(
         bannerContent.post {
             addSelfListeners()
         }
+        bannerContent.stopScroll()
     }
 
     override fun onViewAttachedToWindow(v: View) {

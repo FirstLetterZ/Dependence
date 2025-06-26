@@ -53,5 +53,9 @@ dependencies {
     implementation(project(":compatPermission"))
     implementation(project(":synth"))
     implementation(project(":synth"))
+
+    implementation("com.google.android.exoplayer:exoplayer-core:2.18.0")
+    implementation("com.google.android.exoplayer:exoplayer-dash:2.18.0")
+    implementation("com.google.android.exoplayer:exoplayer-ui:2.18.0")
 }
 

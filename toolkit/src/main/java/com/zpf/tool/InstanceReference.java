@@ -5,24 +5,25 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InstanceReference<T> {
+abstract public class InstanceReference<T> {
     private volatile T mInstance = null;
     private final AtomicInteger instanceId = new AtomicInteger(0);
-    private final Creator<T> creator;
-    public InstanceReference(Creator<T> creator) {
-        this.creator = creator;
+
+    protected abstract T newInstance(int id);
+    protected boolean isValid(T t) {
+        return t != null;
     }
 
     @NotNull
     public T require() {
         T cache1 = mInstance;
-        if (cache1 != null) {
+        if (isValid(cache1)) {
             return cache1;
         }
         synchronized (this) {
             T cache2 = mInstance;
             if (cache2 == null) {
-                cache2 = creator.newInstance(instanceId.incrementAndGet());
+                cache2 = newInstance(instanceId.incrementAndGet());
                 mInstance = cache2;
             }
             return cache2;
@@ -39,9 +40,5 @@ public class InstanceReference<T> {
         T cache = mInstance;
         mInstance = null;
         return cache;
-    }
-
-    public interface Creator<T> {
-        T newInstance(int id);
     }
 }

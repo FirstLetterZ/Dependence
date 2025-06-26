@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.withSave
 import androidx.lifecycle.lifecycleScope
 import com.zpf.aaa.databinding.ActivityTestBinding
-import com.zpf.aaa.videorope.VideoCoverBuilder2
+import com.zpf.aaa.videorope.VideoCoverBuilder
 import com.zpf.aaa.videorope.VideoFormatBuilder
 import com.zpf.file.FileSaveUtil
 import com.zpf.media.synth.i.IMediaSynth
@@ -67,7 +67,7 @@ class TestActivity : AppCompatActivity() {
 //            Log.w("ZPF", "onStatusChanged==>>oldCode=$oldCode;newCode=$newCode")
             if (newCode == MediaSynthStatus.COMPLETE) {
                 Log.w("ZPF", "cost time=${System.currentTimeMillis() - startTime}；path=${outFile.absolutePath}")
-                val builder = VideoFormatBuilder("")
+                val builder = VideoFormatBuilder()
                 builder.addInput(outFile.absolutePath, null)
                 builder.build()
             }
@@ -185,7 +185,7 @@ class TestActivity : AppCompatActivity() {
         if (uri == null) {
             return
         }
-        val builder = VideoFormatBuilder("")
+        val builder = VideoFormatBuilder()
         builder.addInput(this, uri, null)
         builder.build()
     }
@@ -197,7 +197,7 @@ class TestActivity : AppCompatActivity() {
         synth?.stop()
         mInputSurface?.release()
         mOutputSurface?.release()
-        val synthBuilder = VideoCoverBuilder2(outFile.absolutePath, 3)
+        val synthBuilder = VideoCoverBuilder(outFile.absolutePath, 3)
         synthBuilder.addInput(this, uri, null)
         val realSynth = synthBuilder.build()
         if (realSynth == null) {
@@ -228,22 +228,17 @@ class TestActivity : AppCompatActivity() {
             inputSurface.let { surface ->
                 val canvas = surface.lockCanvas(null)
                 canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-//                val basicInfo = realSynth.getOutputBasicInfo()
-
-//                Log.w("ZPF", "getOutputBasicInfo=${basicInfo}")
-//                Log.w("ZPF", "canvas=${canvas.width},${canvas.height}")
                 canvas.withSave {
-//                    if( canvas.width!=bitmap.height){
-//                                            canvas.rotate(-90f, 0f, 0f)
-//                    canvas.translate(-canvas.height.toFloat(), 0f)
-//                    }
-
-//                    canvas.rotate(-90f, 0f, 0f)
-//                    canvas.translate(-canvas.height.toFloat(), 0f)
+                    val scale: Float = if (canvas.width > canvas.height) {
+                        canvas.rotate(-90f, 0f, 0f)
+                        canvas.translate(-canvas.height.toFloat(), 0f)
+                        canvas.height.toFloat() / binding.layoutFront.width
+                    } else {
+                        canvas.width.toFloat() / binding.layoutFront.width
+                    }
                     bitmap?.let {
                         canvas.drawBitmap(it, 0f, 0f, null)
                     }
-                    val scale = canvas.width.toFloat() / binding.layoutFront.width
                     scale(scale, scale)
                     binding.layoutFront.draw(this)
                 }

@@ -5,7 +5,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
-import android.util.Log
+import android.os.Build
 import com.zpf.media.synth.AbsSynthBuilder
 import com.zpf.media.synth.CodecEditor
 import com.zpf.media.synth.CoverMediaSynth
@@ -17,6 +17,7 @@ import com.zpf.media.synth.model.MediaInputBasicInfo
 import com.zpf.media.synth.model.MediaOutputBasicInfo
 import com.zpf.media.synth.model.MediaSynthPartInfo
 import com.zpf.media.synth.model.MediaSynthTrackId
+import kotlin.math.min
 
 class VideoCoverBuilder(outputFilePath: String, private val coverFrameCount: Int = 30) :
     AbsSynthBuilder<CoverMediaSynth>() {
@@ -59,11 +60,8 @@ class VideoCoverBuilder(outputFilePath: String, private val coverFrameCount: Int
     override fun createVideoEncoderMediaFormat(
         basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
     ): MediaFormat? {
-        Log.w("ZPF", "createVideoEncoderMediaFormat==>$basicInfo")
-//        val frameRate = originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE)
         val frameRate =
-            Math.min(maxFrameRate, originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
-
+            min(maxFrameRate, originalMediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
         val mediaFormat = MediaFormat.createVideoFormat(mimeStr, basicInfo.width, basicInfo.height)
         mediaFormat.setInteger(
             MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
@@ -71,15 +69,26 @@ class VideoCoverBuilder(outputFilePath: String, private val coverFrameCount: Int
         mediaFormat.setInteger(
             MediaFormat.KEY_BIT_RATE, basicInfo.bitRate
         )
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            mediaFormat.setInteger(
-//                MediaFormat.KEY_ROTATION, basicInfo.rotation
-//            )
-//        }
+        try {
+            val profile = originalMediaFormat.getInteger(MediaFormat.KEY_PROFILE)
+            if (profile < 65535) {
+                mediaFormat.setInteger(MediaFormat.KEY_PROFILE, profile)
+            }
+        } catch (e: Exception) {
+            //
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val level = originalMediaFormat.getInteger(MediaFormat.KEY_LEVEL)
+                mediaFormat.setInteger(MediaFormat.KEY_LEVEL, level)
+            } catch (e: Exception) {
+                //
+            }
+        }
 //        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE,3000000)
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
-        val d = 1000L * coverFrameCount / frameRate
+        val d = (1000f / frameRate * coverFrameCount).toLong()
         inputBasicInfo = basicInfo.copy(duration = d)
         videoInput = CodecEditor(
             MediaSynthTrackId.VIDEO,

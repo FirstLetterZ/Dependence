@@ -2,7 +2,6 @@ package com.zpf.media.synth
 
 import android.annotation.SuppressLint
 import android.media.MediaCodec
-import android.media.MediaFormat
 import com.zpf.media.synth.i.ISynthInputPart
 import com.zpf.media.synth.i.ISynthTrackEditor
 import com.zpf.media.synth.i.ISynthTrackWriter
@@ -10,7 +9,6 @@ import com.zpf.media.synth.model.MediaOutputBasicInfo
 import com.zpf.media.synth.model.MediaSynthStatus
 import com.zpf.media.synth.model.MediaSynthTrackId
 import com.zpf.media.synth.model.MediaTrackRecorder
-import java.nio.ByteBuffer
 
 class CoverMediaSynth(
     outputInfo: MediaOutputBasicInfo,
@@ -26,7 +24,8 @@ class CoverMediaSynth(
                     changeToStatus(MediaSynthStatus.WRITE_ERROR)
                 }
             } else if (recorder.trackId == MediaSynthTrackId.AUDIO) {
-                writeEmptyVoice(editor)
+                val format = editor.getInputFormat() ?: return
+                writeEmptyVoice(format, getPartStartTime(0), getPartStartTime(1))
             }
         } else {
             super.handleTrackInput(editor, recorder)
@@ -75,33 +74,6 @@ class CoverMediaSynth(
             }
         }
         return false
-    }
-
-    private fun writeEmptyVoice(editor: ISynthTrackEditor) {
-        val frameTime = 1000000L / getOutputBasicInfo().frameRate
-        val duration = frameTime * coverFrameCount
-        val format = editor.getInputFormat()
-        // 生成静音音频数据
-        val sampleRate = getOutputBasicInfo().frameRate
-        var channels = format?.getInteger(MediaFormat.KEY_CHANNEL_COUNT) ?: 0
-        if (channels < 0) {
-            channels = 2
-        }
-        val bytesPerSample = 2
-        val totalSamples = (duration * sampleRate / 1000000L).toInt()
-        val silentData = ByteArray(totalSamples * channels * bytesPerSample)
-        for (i in silentData.indices) {
-            silentData[i] = 0
-        }
-        val buffer = ByteBuffer.wrap(silentData)
-        val bufferInfo = MediaCodec.BufferInfo()
-        bufferInfo.offset = 0
-        bufferInfo.size = silentData.size
-        bufferInfo.presentationTimeUs = 0
-        bufferInfo.flags = MediaCodec.BUFFER_FLAG_KEY_FRAME
-        val trackId = editor.trackId()
-        writer.setFormat(trackId, format)
-        writer.write(trackId, buffer, bufferInfo)
     }
 
 }

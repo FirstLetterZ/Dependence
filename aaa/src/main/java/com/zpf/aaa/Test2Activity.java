@@ -11,15 +11,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.flexbox.AlignItems;
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayoutManager;
-import com.google.android.flexbox.JustifyContent;
+import com.zpf.aaa.banner.CarouselLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author Created by ZPF on 2021/3/30.
@@ -31,29 +26,53 @@ public class Test2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test2);
         RecyclerView rvList = findViewById(R.id.rv_list);
-        FlexboxLayoutManager manager = new FlexboxLayoutManager(this);
-        manager.setFlexDirection(FlexDirection.ROW);
-        manager.setFlexWrap(FlexWrap.WRAP);
-        manager.setJustifyContent(JustifyContent.CENTER);
-        manager.setAlignItems(AlignItems.CENTER);
+//        FlexboxLayoutManager manager = new FlexboxLayoutManager(this);
+//        manager.setFlexDirection(FlexDirection.ROW);
+//        manager.setFlexWrap(FlexWrap.WRAP);
+//        manager.setJustifyContent(JustifyContent.CENTER);
+//        manager.setAlignItems(AlignItems.CENTER);
+
+//        RepeatLayoutManager manager = new RepeatLayoutManager(RecyclerView.HORIZONTAL);
+        float d = getResources().getDisplayMetrics().density;
+        CarouselLayoutManager manager = new CarouselLayoutManager();
+        int size = (int) (120f * d);
+        int space = (int) (10f * d);
+        manager.setItemSize(size, size);
+        manager.setItemSpace(-space);
+        manager.setOrientation(RecyclerView.HORIZONTAL);
+//        CarouseLayoutManager manager = new CarouseLayoutManager();
+//        manager.setOrientation(RecyclerView.VERTICAL);
+//        manager.setOrientation(RecyclerView.HORIZONTAL);
+//        PagerSnapHelper snapHelper = new PagerSnapHelper();
+
         List<String> list = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            list.add("text:\n" + i + "\n" + i + "\n" + i);
+        }
         TestAdapter adapter = new TestAdapter(list);
+//        snapHelper.attachToRecyclerView(rvList);
         rvList.setLayoutManager(manager);
         rvList.setAdapter(adapter);
 
-        Random random = new Random();
-        Runnable runnable1 = new Runnable() {
+//        Random random = new Random();
+//        Runnable runnable1 = new Runnable() {
+//            @Override
+//            public void run() {
+//                list.add("努力可能了sadtgshgare韩国克里斯朵夫好看；速；两个人的时候；hi刚萨；客户；1较高的；法律后果了；等候；i努力可能了:Test=" + random.nextInt());
+//                adapter.notifyDataSetChanged();
+//                if (list.size() < 20) {
+//                    rvList.postDelayed(this, 1000L);
+//                }
+//            }
+//        };
+//        rvList.postDelayed(runnable1, 1000L);
+        rvList.postDelayed(new Runnable() {
             @Override
             public void run() {
-                list.add("努力可能了sadtgshgare韩国克里斯朵夫好看；速；两个人的时候；hi刚萨；客户；1较高的；法律后果了；等候；i努力可能了:Test=" + random.nextInt());
-                adapter.notifyDataSetChanged();
-                if (list.size() < 20) {
-                    rvList.postDelayed(this, 1000L);
-                }
+//                manager.smoothScrollToPosition();
+                rvList.smoothScrollToPosition(6);
             }
-        };
-        rvList.postDelayed(runnable1, 1000L);
-
+        }, 3000L);
     }
 
     private static class TestAdapter extends RecyclerView.Adapter<TestViewHolder> {

@@ -1,18 +1,14 @@
 package com.zpf.aaa.videorope
 
-import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.util.Log
 import com.zpf.media.synth.AbsSynthBuilder
 import com.zpf.media.synth.CoverMediaSynth
-import com.zpf.media.synth.i.ISynthTrackEditor
 import com.zpf.media.synth.i.ISynthTrackWriter
 import com.zpf.media.synth.model.MediaInputBasicInfo
 import com.zpf.media.synth.model.MediaOutputBasicInfo
 
-class VideoFormatBuilder(outputFilePath: String, private val coverFrameCount: Int = 30) :
-    AbsSynthBuilder<CoverMediaSynth>() {
-//
+class VideoFormatBuilder : AbsSynthBuilder<CoverMediaSynth>() {
     override fun createSynth(
         basicInfo: MediaOutputBasicInfo, writer: ISynthTrackWriter
     ): CoverMediaSynth? {
@@ -20,21 +16,23 @@ class VideoFormatBuilder(outputFilePath: String, private val coverFrameCount: In
         return null
     }
 
-    override fun createAudioTrackEditor(
+    override fun createVideoDecoderMediaFormat(
         basicInfo: MediaInputBasicInfo,
-        trackIndex: Int,
-        format: MediaFormat,
-        extractor: MediaExtractor
-    ): ISynthTrackEditor? {
-//        audioInput = ExtractorEditor(MediaSynthTrackId.AUDIO, trackIndex, format, null)
-        return super.createAudioTrackEditor(basicInfo, trackIndex, format, extractor)
+        mimeStr: String,
+        originalMediaFormat: MediaFormat
+    ): MediaFormat? {
+        Log.w("ZPF", "createVideoDecoderMediaFormat==>$originalMediaFormat")
+        return super.createVideoDecoderMediaFormat(basicInfo, mimeStr, originalMediaFormat)
     }
 
-    override fun createVideoEncoderMediaFormat(
-        basicInfo: MediaInputBasicInfo, mimeStr: String, originalMediaFormat: MediaFormat
+    override fun createAudioDecoderMediaFormat(
+        basicInfo: MediaInputBasicInfo,
+        mimeStr: String,
+        originalMediaFormat: MediaFormat
     ): MediaFormat? {
-        Log.w("ZPF", "VideoFormatBuilder originalMediaFormat==>$originalMediaFormat")
-//        Log.w("ZPF", "createVideoEncoderMediaFormat 2==>$basicInfo")
-        return null
+        Log.w("ZPF", "createAudioDecoderMediaFormat==>$originalMediaFormat")
+
+        return super.createAudioDecoderMediaFormat(basicInfo, mimeStr, originalMediaFormat)
     }
+
 }

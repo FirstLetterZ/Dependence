@@ -136,13 +136,14 @@ abstract class MediaSynthStateManager : IMediaSynth {
                             } catch (e: InterruptedException) {
                                 e.printStackTrace()
                             }
-                            status() == MediaSynthStatus.STOP
+                            val statusNow = status()
+                            statusNow == MediaSynthStatus.STOP || statusNow < MediaSynthStatus.CREATE
                         }
                         else -> false
                     }
                 }
             }
-            else -> false
+            else -> code < MediaSynthStatus.CREATE
         }
     }
 

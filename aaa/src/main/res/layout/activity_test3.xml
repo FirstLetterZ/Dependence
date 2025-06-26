@@ -1,28 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/pll_load"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <com.zpf.aaa.view.AiBottomHintView
-        android:id="@+id/tv_test"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingVertical="12dp"
-        android:textColor="#939599"
-        android:textSize="16sp"
-        android:background="#66B7FF"
-        android:layout_marginEnd="10dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="80dp"
-        android:gravity="center" />
+        android:layout_height="80dp"
+        android:gravity="center">
 
-    <com.zpf.aaa.view.TestView
-        android:background="#999"
-        android:layout_marginHorizontal="50dp"
-        android:layout_marginTop="280dp"
+        <Button
+            android:id="@+id/btn_01"
+            android:text="01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp" />
+
+        <Button
+            android:id="@+id/btn_02"
+            android:text="02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp" />
+
+        <Button
+            android:id="@+id/btn_03"
+            android:text="mix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <com.google.android.exoplayer2.ui.StyledPlayerView
+        android:id="@+id/player_view"
         android:layout_width="match_parent"
-        android:layout_height="80dp"/>
-
-</FrameLayout>
+        android:layout_height="match_parent" />
+</androidx.appcompat.widget.LinearLayoutCompat>
